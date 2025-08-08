@@ -116,7 +116,7 @@ const Occasions = () => {
     e.preventDefault();
     try {
       await occasionService.update(selectedOccasion.id, selectedOccasion);
-      fetchOccasions();
+      fetchAllOccasions();
       setEditOpen(false);
     } catch (error) {
       console.error("Failed to update occasion:", error);
@@ -126,7 +126,7 @@ const Occasions = () => {
   const confirmDelete = async () => {
     try {
       await occasionService.delete(selectedOccasion.id);
-      fetchOccasions();
+      fetchAllOccasions();
       setDeleteOpen(false);
     } catch (error) {
       console.error("Failed to delete occasion:", error);
