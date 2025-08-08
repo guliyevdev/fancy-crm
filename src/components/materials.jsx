@@ -78,7 +78,6 @@ const Materials = () => {
   };
 
   const handleEditChange = (e) => {
-    console.log("e", e.target);
     const { name, value } = e.target;
     setSelectedMaterial((prev) => ({ ...prev, [name]: value }));
   };

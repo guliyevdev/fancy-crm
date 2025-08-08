@@ -8,7 +8,7 @@ export const createMaterial = async (materialRequestDTO) => {
 };
 
 export const updateMaterial = async (id, materialUpdateRequestDTO) => {
-  const response = await axiosInstance.put(`${BASE_URL}/${id}`, materialUpdateRequestDTO);
+  const response = await axiosInstance.put(`${BASE_URL}/upd`, materialUpdateRequestDTO);
   return response.data;
 };
 
