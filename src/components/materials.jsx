@@ -47,7 +47,7 @@ const Materials = () => {
   };
 
   const openAddModal = () => {
-    setSelectedMaterial({ nameAz: "", nameEn: "", nameRu: "", status: "ACTIVE" });
+    setSelectedMaterial({ nameAz: "", nameEn: "", nameRu: "", status: "ACTIVE", id: null });
     setAddOpen(true);
   };
 
@@ -78,6 +78,7 @@ const Materials = () => {
   };
 
   const handleEditChange = (e) => {
+    console.log("e", e.target);
     const { name, value } = e.target;
     setSelectedMaterial((prev) => ({ ...prev, [name]: value }));
   };
@@ -272,13 +273,41 @@ const Materials = () => {
           <form onSubmit={saveAdd} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-1">
-                Name
+                Name Azerbaijan
               </label>
               <input
                 id="name"
                 name="name"
                 type="text"
                 value={selectedMaterial.nameAz}
+                onChange={handleAddChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium mb-1">
+                Name English
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                value={selectedMaterial.nameEn}
+                onChange={handleAddChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium mb-1">
+                Name Russian
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                value={selectedMaterial.nameRu}
                 onChange={handleAddChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                 required
@@ -329,14 +358,42 @@ const Materials = () => {
         {selectedMaterial && (
           <form onSubmit={saveEdit} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
-                Name
+              <label htmlFor="nameAz" className="block text-sm font-medium mb-1">
+                Name (Azerbaijani)
               </label>
               <input
-                id="name"
-                name="name"
+                id="nameAz"
+                name="nameAz"
                 type="text"
                 value={selectedMaterial.nameAz}
+                onChange={handleEditChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="nameEn" className="block text-sm font-medium mb-1">
+                Name (English)
+              </label>
+              <input
+                id="nameEn"
+                name="nameEn"
+                type="text"
+                value={selectedMaterial.nameEn}
+                onChange={handleEditChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="nameRu" className="block text-sm font-medium mb-1">
+                Name (Russian)
+              </label>
+              <input
+                id="nameRu"
+                name="nameRu"
+                type="text"
+                value={selectedMaterial.nameRu}
                 onChange={handleEditChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                 required
