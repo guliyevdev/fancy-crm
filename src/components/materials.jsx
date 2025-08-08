@@ -60,7 +60,7 @@ const Materials = () => {
     e.preventDefault();
     try {
       await createMaterial(selectedMaterial);
-      fetchMaterials();
+      fetchAllMaterials();
       setAddOpen(false);
     } catch (error) {
       console.error("Failed to create material:", error);
@@ -271,12 +271,12 @@ const Materials = () => {
         {selectedMaterial && (
           <form onSubmit={saveAdd} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
+              <label htmlFor="nameAz" className="block text-sm font-medium mb-1">
                 Name Azerbaijan
               </label>
               <input
-                id="name"
-                name="name"
+                id="nameAz"
+                name="nameAz"
                 type="text"
                 value={selectedMaterial.nameAz}
                 onChange={handleAddChange}
@@ -285,12 +285,12 @@ const Materials = () => {
               />
             </div>
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
+              <label htmlFor="nameEn" className="block text-sm font-medium mb-1">
                 Name English
               </label>
               <input
-                id="name"
-                name="name"
+                id="nameEn"
+                name="nameEn"
                 type="text"
                 value={selectedMaterial.nameEn}
                 onChange={handleAddChange}
@@ -299,12 +299,12 @@ const Materials = () => {
               />
             </div>
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
+              <label htmlFor="nameRu" className="block text-sm font-medium mb-1">
                 Name Russian
               </label>
               <input
-                id="name"
-                name="name"
+                id="nameRu"
+                name="nameRu"
                 type="text"
                 value={selectedMaterial.nameRu}
                 onChange={handleAddChange}
@@ -313,7 +313,7 @@ const Materials = () => {
               />
             </div>
 
-            <div>
+            {/* <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1">
                 Status
               </label>
@@ -327,7 +327,7 @@ const Materials = () => {
                 <option value="ACTIVE">Active</option>
                 <option value="INACTIVE">Inactive</option>
               </select>
-            </div>
+            </div> */}
 
             <div className="flex justify-end gap-4">
               <button
