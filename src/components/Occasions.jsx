@@ -82,7 +82,7 @@ const Occasions = () => {
   };
 
   const openAddModal = () => {
-    setSelectedOccasion({ name: "", status: "ACTIVE" });
+    setSelectedOccasion({ nameAz: "", nameEn: "", nameRu: "", status: "ACTIVE" });
     setAddOpen(true);
   };
 
@@ -246,11 +246,33 @@ const Occasions = () => {
             {addOpen ? "Add Occasion" : "Edit Occasion"}
           </h3>
           <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
+            <label className="block text-sm font-medium mb-1">Name Az</label>
             <input
-              name="name"
+              name="nameAz"
               type="text"
-              value={selectedOccasion?.name || ""}
+              value={selectedOccasion?.nameAz || ""}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:text-white"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Name En</label>
+            <input
+              name="nameEn"
+              type="text"
+              value={selectedOccasion?.nameEn || ""}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:text-white"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Name Ru</label>
+            <input
+              name="nameRu"
+              type="text"
+              value={selectedOccasion?.nameRu || ""}
               onChange={handleChange}
               className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:text-white"
               required

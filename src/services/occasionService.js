@@ -4,7 +4,7 @@ import axiosInstance from "../utils/axiosInstance";
 const BASE_URL = "/product/api/v1/occasion";
 
 const occasionService = {
-  create: (data) => axiosInstance.post(BASE_URL, data),
+  create: (data) => axiosInstance.post(`${BASE_URL}/add`, data),
 
   getById: (id) => axiosInstance.get(`${BASE_URL}/${id}`),
 
