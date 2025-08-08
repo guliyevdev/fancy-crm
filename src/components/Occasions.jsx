@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { PencilLine, Trash, Plus } from "lucide-react";
 import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import axiosInstance from "../utils/axiosInstance";
 import occasionService from "../services/occasionService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
@@ -45,6 +44,15 @@ const Occasions = () => {
       console.error("Failed to fetch occasions:", error);
     }
   };
+
+  const fetchAllOccasions = async () => {
+    try {
+      const response = await occasionService.getAll();
+      setOccasions(response.data);
+    } catch (error) {
+      console.error("Failed to fetch occasions:", error);
+    }
+  };
   const handleSearchChange = (e) => {
     setSearchName(e.target.value);
   };
@@ -57,7 +65,7 @@ const Occasions = () => {
   
 
   useEffect(() => {
-    fetch(0, pageInfo.size, "");
+    fetchAllOccasions();
   }, []);
 
   const exportToExcel = () => {
@@ -169,7 +177,7 @@ const Occasions = () => {
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-          {occasions?.map((occasion, index) => (
+          {occasions?.data?.map((occasion, index) => (
             <tr key={occasion.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
               <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{occasion.name}</td>
