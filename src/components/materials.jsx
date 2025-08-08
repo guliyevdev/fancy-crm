@@ -20,9 +20,7 @@ const Materials = () => {
 
   const fetchMaterials = async () => {
     try {
-      const response = await axiosInstance.get("/materials", {
-        params: { page: 0, size: 100 },
-      });
+      const response = await axiosInstance.get("/materials/color-names",);
       setMaterials(response.data.content);
     } catch (error) {
       console.error("Failed to fetch materials:", error);

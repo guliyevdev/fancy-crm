@@ -1,6 +1,6 @@
 import axiosInstance from "../utils/axiosInstance"; // or wherever your Axios instance is configured
 
-const BASE_URL = "/materials"; // adjust this if your API base path is different
+const BASE_URL = "/product/api/v1/color"; // adjust this if your API base path is different
 
 export const createMaterial = async (materialRequestDTO) => {
   const response = await axiosInstance.post(BASE_URL, materialRequestDTO);
@@ -30,5 +30,10 @@ export const searchMaterials = async (searchParams, pageable = { page: 0, size: 
   };
 
   const response = await axiosInstance.get(BASE_URL, { params });
+  return response.data;
+};
+
+export const getAllMaterials = async () => {
+  const response = await axiosInstance.get(`${BASE_URL}/color-names`);
   return response.data;
 };
