@@ -68,11 +68,13 @@ const Materials = () => {
   };
 
   const openEditModal = async (material) => {
-    console.log("material", material);
     const response = await getMaterialById(material.id);
-    console.log("response", response);
-    setSelectedMaterial(material);
-    setEditOpen(true);
+    if (response.data) {
+      setSelectedMaterial(response.data);
+      setEditOpen(true);
+    } else {
+      console.error("Failed to fetch material:", response);
+    }
   };
 
   const handleEditChange = (e) => {
