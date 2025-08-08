@@ -4,7 +4,7 @@ import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axiosInstance from "../utils/axiosInstance";
-import { createMaterial, deleteMaterial, searchMaterials, updateMaterial, getAllMaterials } from "../services/materialService";
+import { createMaterial, deleteMaterial, searchMaterials, updateMaterial, getAllMaterials, getMaterialById } from "../services/materialService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 Modal.setAppElement("#root");
@@ -67,7 +67,10 @@ const Materials = () => {
     }
   };
 
-  const openEditModal = (material) => {
+  const openEditModal = async (material) => {
+    console.log("material", material);
+    const response = await getMaterialById(material.id);
+    console.log("response", response);
     setSelectedMaterial(material);
     setEditOpen(true);
   };

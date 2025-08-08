@@ -18,7 +18,13 @@ export const deleteMaterial = async (id) => {
 };
 
 export const getMaterialById = async (id) => {
-  const response = await axiosInstance.get(`${BASE_URL}/${id}`);
+  const response = await axiosInstance.get(`${BASE_URL}/find-by-id`,
+    {
+      headers: {
+        id: id
+      }
+    }
+  );
   return response.data;
 };
 
