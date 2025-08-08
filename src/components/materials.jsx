@@ -86,7 +86,7 @@ const Materials = () => {
     e.preventDefault();
     try {
       await updateMaterial(selectedMaterial.id, selectedMaterial);
-      fetchMaterials();
+      fetchAllMaterials();
       setEditOpen(false);
     } catch (error) {
       console.error("Failed to update material:", error);
