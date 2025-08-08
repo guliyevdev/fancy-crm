@@ -1,10 +1,11 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080", // Update if needed
+  baseURL: '/api',
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Add this for cookies if needed
 });
 
 // Optional: global error handler (can be expanded)
@@ -28,6 +29,6 @@ export const uploadToServer = async (file) => {
 
     return res.data.url; // Your backend must return this
     };
-export const backendBaseUrl = "http://localhost:8080/download";
+export const backendBaseUrl = "/api/download";
 
 export default axiosInstance;
