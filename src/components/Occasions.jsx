@@ -105,7 +105,7 @@ const Occasions = () => {
     e.preventDefault();
     try {
       await occasionService.create(selectedOccasion);
-      fetchOccasions();
+      fetchAllOccasions();
       setAddOpen(false);
     } catch (error) {
       console.error("Failed to create occasion:", error);
