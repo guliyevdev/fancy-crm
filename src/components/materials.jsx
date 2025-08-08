@@ -4,7 +4,7 @@ import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axiosInstance from "../utils/axiosInstance";
-import { createMaterial, deleteMaterial, searchMaterials, updateMaterial } from "../services/materialService";
+import { createMaterial, deleteMaterial, searchMaterials, updateMaterial, getAllMaterials } from "../services/materialService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 Modal.setAppElement("#root");
@@ -28,7 +28,7 @@ const Materials = () => {
   };
 
   useEffect(() => {
-    fetch();
+    fetchAllMaterials();
   }, []);
 
   const exportToExcel = () => {
@@ -47,7 +47,7 @@ const Materials = () => {
   };
 
   const openAddModal = () => {
-    setSelectedMaterial({ name: "", status: "ACTIVE" });
+    setSelectedMaterial({ nameAz: "", nameEn: "", nameRu: "", status: "ACTIVE" });
     setAddOpen(true);
   };
 
@@ -119,6 +119,11 @@ const Materials = () => {
       } catch (error) {
         console.error("Failed to fetch materials:", error);
       }
+    };
+
+    const fetchAllMaterials = async () => {
+      const response = await getAllMaterials();
+      setMaterials(response.data);
     };
 
     const handleSearchSubmit = (e) => {
@@ -268,7 +273,7 @@ const Materials = () => {
                 id="name"
                 name="name"
                 type="text"
-                value={selectedMaterial.name}
+                value={selectedMaterial.nameAz}
                 onChange={handleAddChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                 required
@@ -326,7 +331,7 @@ const Materials = () => {
                 id="name"
                 name="name"
                 type="text"
-                value={selectedMaterial.name}
+                value={selectedMaterial.nameAz}
                 onChange={handleEditChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                 required
