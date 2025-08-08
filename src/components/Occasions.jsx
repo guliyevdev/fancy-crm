@@ -16,7 +16,7 @@ const Occasions = () => {
   const [selectedOccasion, setSelectedOccasion] = useState(null);
   const [searchName, setSearchName] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
-  
+
 
   const fetchOccasions = async () => {
     try {
@@ -33,8 +33,9 @@ const Occasions = () => {
       if (keyword.trim()) criteria.keyword = keyword.trim();
 
       const pageable = { page, size };
-      const response = await occasionService.search(criteria, pageable.page,pageable.size);
-      setOccasions(response.data.content);
+      const response = await occasionService.search(criteria, pageable.page, pageable.size);
+      setOccasions(response.data.data.content);
+      console.log(response.data.data.content);
       setPageInfo({
         page: response.data.number,
         size: response.data.size,
@@ -45,24 +46,30 @@ const Occasions = () => {
     }
   };
 
+
+
+
   const fetchAllOccasions = async () => {
     try {
       const response = await occasionService.getAll();
-      setOccasions(response.data);
+      setOccasions(response.data.data);
     } catch (error) {
       console.error("Failed to fetch occasions:", error);
     }
   };
+
+
+
   const handleSearchChange = (e) => {
     setSearchName(e.target.value);
   };
 
-   const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
     console.log("tklikaat")
     fetch(0, pageInfo.size, searchName);
   };
-  
+
 
   useEffect(() => {
     fetchAllOccasions();
@@ -88,6 +95,7 @@ const Occasions = () => {
 
   const openEditModal = (occasion) => {
     setSelectedOccasion(occasion);
+
     setEditOpen(true);
   };
 
@@ -177,17 +185,16 @@ const Occasions = () => {
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-          {occasions?.data?.map((occasion, index) => (
+          {occasions?.map((occasion, index) => (
             <tr key={occasion.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
               <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{occasion.name}</td>
               <td className="px-6 py-4">
                 <span
-                  className={`inline-flex px-2 text-xs font-semibold rounded-full ${
-                    occasion.status === "ACTIVE"
-                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
-                  }`}
+                  className={`inline-flex px-2 text-xs font-semibold rounded-full ${occasion.status === "ACTIVE"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                    }`}
                 >
                   {occasion.status}
                 </span>
@@ -205,33 +212,31 @@ const Occasions = () => {
         </tbody>
       </table>
       {/* Pagination Controls */}
-<div className="flex justify-center items-center mt-6 space-x-4">
-  <button
-    onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
-    disabled={pageInfo.page === 0}
-    className={`p-2 rounded-full ${
-      pageInfo.page === 0
-        ? "text-gray-400 cursor-not-allowed"
-        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-    }`}
-  >
-    <FaChevronLeft size={20} />
-  </button>
-  <span className="text-gray-800 dark:text-gray-200 text-sm">
-    Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
-  </span>
-  <button
-    onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
-    disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
-    className={`p-2 rounded-full ${
-      (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
-        ? "text-gray-400 cursor-not-allowed"
-        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-    }`}
-  >
-    <FaChevronRight size={20} />
-  </button>
-</div>
+      <div className="flex justify-center items-center mt-6 space-x-4">
+        <button
+          onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+          disabled={pageInfo.page === 0}
+          className={`p-2 rounded-full ${pageInfo.page === 0
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+        >
+          <FaChevronLeft size={20} />
+        </button>
+        <span className="text-gray-800 dark:text-gray-200 text-sm">
+          Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
+        </span>
+        <button
+          onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
+          disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
+          className={`p-2 rounded-full ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+        >
+          <FaChevronRight size={20} />
+        </button>
+      </div>
 
       {/* Add/Edit/Delete Modals */}
       <Modal

@@ -25,6 +25,7 @@ const Partners = () => {
 
       const response = await partnerService.searchPartners(criteria, page, size);
       setPartners(response.content || []);
+      console.log(response.content);
       setPageInfo({
         page: response.number,
         size: response.size,
@@ -183,11 +184,10 @@ const Partners = () => {
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.companyName}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
-                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
-                    partner.status === "ACTIVE"
+                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "ACTIVE"
                       ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
                       : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
-                  }`}
+                    }`}
                 >
                   {partner.status}
                 </span>
@@ -196,7 +196,7 @@ const Partners = () => {
                 <button onClick={() => navigate(`/partners/${partner.id}`)} className="text-blue-600">
                   <PencilLine size={18} />
                 </button>
-                
+
               </td>
             </tr>
           ))}
@@ -217,11 +217,10 @@ const Partners = () => {
         <button
           onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
           disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
-          className={`p-2 rounded-full ${
-            (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+          className={`p-2 rounded-full ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
               ? "text-gray-400"
               : "text-gray-700 dark:text-white"
-          }`}
+            }`}
         >
           <FaChevronRight />
         </button>

@@ -19,14 +19,42 @@ const Colors = () => {
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
 
 
-  const fetchColors = async () => {
+  // const fetchColors = async () => {
+  //   try {
+  //     const response = await colorService.search({ page: 0, size: 100 });
+  //     setColors(response.data.data);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
+
+  const fetchColors = async (page = 0, size = 10, keyword = "") => {
     try {
-      const response = await colorService.search({ page: 0, size: 100 });
-      setColors(response.data.content);
+      const params = {
+        name: keyword,
+        active: true,
+        page,
+        size,
+      };
+
+      const response = await colorService.search(params);
+
+      const apiData = response.data?.data || response.data;
+      const colorsData = apiData?.content || [];
+
+      setColors(colorsData);
+      setPageInfo({
+        page: apiData?.number || 0,
+        size: apiData?.size || size,
+        totalElements: apiData?.totalElements || 0,
+      });
     } catch (error) {
-      console.error("Failed to fetch colors:", error);
+      console.error("Fetch colors error:", error);
+      setColors([]);
     }
   };
+
 
   useEffect(() => {
     fetch();
@@ -48,7 +76,13 @@ const Colors = () => {
   };
 
   const openAddModal = () => {
-    setSelectedColor({ name: "", hexCode: "", status: "ACTIVE" });
+    setSelectedColor({
+      nameAz: "",
+      nameEn: "",
+      nameRu: "",
+      hexCode: "",
+      status: "ACTIVE"
+    });
     setAddOpen(true);
   };
 
@@ -56,6 +90,8 @@ const Colors = () => {
     const { name, value } = e.target;
     setSelectedColor((prev) => ({ ...prev, [name]: value }));
   };
+
+
 
   const saveAdd = async (e) => {
     e.preventDefault();
@@ -68,6 +104,7 @@ const Colors = () => {
     }
   };
 
+
   const openEditModal = (color) => {
     setSelectedColor(color);
     setEditOpen(true);
@@ -78,16 +115,7 @@ const Colors = () => {
     setSelectedColor((prev) => ({ ...prev, [name]: value }));
   };
 
-  const saveEdit = async (e) => {
-    e.preventDefault();
-    try {
-      await colorService.update(selectedColor.id, selectedColor);
-      fetchColors();
-      setEditOpen(false);
-    } catch (error) {
-      console.error("Failed to update color:", error);
-    }
-  };
+
 
   const openDeleteModal = (color) => {
     setSelectedColor(color);
@@ -104,30 +132,78 @@ const Colors = () => {
     }
   };
 
-   const handleSearchChange = (e) => {
+  const handleSearchChange = (e) => {
     setSearchName(e.target.value);
   };
 
+
+
+
+  // const fetch = async (page = 0, size = 10, keyword = "") => {
+  //   try {
+  //     const params = {
+  //       name: keyword,
+  //       active: true,
+  //       page,
+  //       size,
+  //     };
+
+  //     const response = await colorService.search(params);
+
+  //     setColors(response.data.data.content);
+  //     setPageInfo({
+  //       page: response.data.data.number,
+  //       size: response.data.data.size,
+  //       totalElements: response.data.data.totalElements,
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
+
   const fetch = async (page = 0, size = 10, keyword = "") => {
     try {
-      const criteria = {};
-      if (keyword.trim()) criteria.keyword = keyword.trim();
+      const params = {
+        name: keyword,
+        active: true,
+        page,
+        size,
+      };
 
-      const pageable = { page, size };
-      const response = await colorService.search(criteria, pageable);
-      setColors(response.data.content);
+      const response = await colorService.search(params);
+
+      // API strukturuna uyğun olaraq datanı çıxarın
+      const apiData = response.data?.data || response.data;
+      const colorsData = apiData?.content || [];
+
+      setColors(colorsData);
+
       setPageInfo({
-        page: response.data.number,
-        size: response.data.size,
-        totalElements: response.data.totalElements,
+        page: apiData?.number || 0,
+        size: apiData?.size || size,
+        totalElements: apiData?.totalElements || 0,
       });
     } catch (error) {
-      console.error("Failed to fetch colors:", error);
+      console.error("Fetch error:", error);
+      setColors([]);
     }
   };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetch(0, pageInfo.size, searchName);
+  };
+
+  const saveEdit = async (e) => {
+    e.preventDefault();
+    try {
+      await colorService.update(selectedColor.id, selectedColor);
+      fetch();
+      setEditOpen(false);
+    } catch (error) {
+      console.error("Failed to update color:", error);
+    }
   };
 
   return (
@@ -176,7 +252,7 @@ const Colors = () => {
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
               Name
             </th>
-            
+
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
               Status
             </th>
@@ -192,11 +268,10 @@ const Colors = () => {
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{color.name}</td>
               <td className="px-6 py-4 text-sm whitespace-nowrap">
                 <span
-                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
-                    color.status === "ACTIVE"
-                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
-                  }`}
+                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${color.status === "ACTIVE"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                    }`}
                 >
                   {color.status}
                 </span>
@@ -219,34 +294,32 @@ const Colors = () => {
           ))}
         </tbody>
       </table>
-      {/* Pagination Controls */}
-<div className="flex justify-center items-center mt-6 space-x-4">
-  <button
-    onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
-    disabled={pageInfo.page === 0}
-    className={`p-2 rounded-full ${
-      pageInfo.page === 0
-        ? "text-gray-400 cursor-not-allowed"
-        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-    }`}
-  >
-    <FaChevronLeft size={20} />
-  </button>
-  <span className="text-gray-800 dark:text-gray-200 text-sm">
-    Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
-  </span>
-  <button
-    onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
-    disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
-    className={`p-2 rounded-full ${
-      (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
-        ? "text-gray-400 cursor-not-allowed"
-        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-    }`}
-  >
-    <FaChevronRight size={20} />
-  </button>
-</div>
+
+      <div className="flex justify-center items-center mt-6 space-x-4">
+        <button
+          onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+          disabled={pageInfo.page === 0}
+          className={`p-2 rounded-full ${pageInfo.page === 0
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+        >
+          <FaChevronLeft size={20} />
+        </button>
+        <span className="text-gray-800 dark:text-gray-200 text-sm">
+          Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
+        </span>
+        <button
+          onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
+          disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
+          className={`p-2 rounded-full ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+        >
+          <FaChevronRight size={20} />
+        </button>
+      </div>
 
 
       {/* Add Modal */}
@@ -260,21 +333,52 @@ const Colors = () => {
         <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Add Color</h3>
         {selectedColor && (
           <form onSubmit={saveAdd} className="space-y-4">
+
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
-                Name
+              <label htmlFor="nameAz" className="block text-sm font-medium mb-1">
+                Name (Az)
               </label>
               <input
-                id="name"
-                name="name"
+                id="nameAz"
+                name="nameAz"
                 type="text"
-                value={selectedColor.name}
+                value={selectedColor.nameAz || ""}
                 onChange={handleAddChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                 required
               />
             </div>
-            
+
+            <div>
+              <label htmlFor="nameEn" className="block text-sm font-medium mb-1">
+                Name (En)
+              </label>
+              <input
+                id="nameEn"
+                name="nameEn"
+                type="text"
+                value={selectedColor.nameEn || ""}
+                onChange={handleAddChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="nameRu" className="block text-sm font-medium mb-1">
+                Name (Ru)
+              </label>
+              <input
+                id="nameRu"
+                name="nameRu"
+                type="text"
+                value={selectedColor.nameRu || ""}
+                onChange={handleAddChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                required
+              />
+            </div>
+
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1">
                 Status
@@ -290,6 +394,7 @@ const Colors = () => {
                 <option value="INACTIVE">Inactive</option>
               </select>
             </div>
+
             <div className="flex justify-end gap-4">
               <button type="button" onClick={() => setAddOpen(false)} className="px-4 py-2 rounded border">
                 Cancel
@@ -301,6 +406,10 @@ const Colors = () => {
           </form>
         )}
       </Modal>
+
+
+
+
 
       {/* Edit Modal */}
       <Modal
@@ -314,19 +423,47 @@ const Colors = () => {
         {selectedColor && (
           <form onSubmit={saveEdit} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
-                Name
+              <label htmlFor="nameAz" className="block text-sm font-medium mb-1">
+                Name (Az)
               </label>
               <input
-                id="name"
-                name="name"
+                id="nameAz"
+                name="nameAz"
                 type="text"
-                value={selectedColor.name}
+                value={selectedColor.nameAz || ""}
                 onChange={handleEditChange}
                 className="w-full px-3 py-2 border rounded-md"
               />
             </div>
-            
+
+            <div>
+              <label htmlFor="nameEn" className="block text-sm font-medium mb-1">
+                Name (En)
+              </label>
+              <input
+                id="nameEn"
+                name="nameEn"
+                type="text"
+                value={selectedColor.nameEn || ""}
+                onChange={handleEditChange}
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="nameRu" className="block text-sm font-medium mb-1">
+                Name (Ru)
+              </label>
+              <input
+                id="nameRu"
+                name="nameRu"
+                type="text"
+                value={selectedColor.nameRu || ""}
+                onChange={handleEditChange}
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1">
                 Status

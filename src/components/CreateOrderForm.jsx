@@ -87,7 +87,7 @@ const CreateOrderForm = () => {
     if (!searchedProduct || quantityToAdd <= 0) return;
 
     const newItem = {
-      ...JSON.parse(JSON.stringify(searchedProduct)), // deep clone to prevent mutations
+      ...JSON.parse(JSON.stringify(searchedProduct)), 
       quantity: Number(quantityToAdd),
       orderType: orderData.type,
     };
