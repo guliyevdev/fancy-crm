@@ -182,8 +182,6 @@ const Partners = () => {
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Phone</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Address</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Company Name</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
             <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Actions</th>
           </tr>
@@ -194,8 +192,6 @@ const Partners = () => {
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.name}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.address}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.companyName}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "ACTIVE"
