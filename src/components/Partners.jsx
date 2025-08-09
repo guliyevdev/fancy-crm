@@ -35,9 +35,24 @@ const Partners = () => {
       console.error("Failed to fetch partners:", error);
     }
   };
+  const fetchAll = async () => {
+    try {
+
+      const response = await partnerService.searchPartners();
+      console.log(response);
+      setPartners(response.data.content || []);
+      setPageInfo({
+        page: response.number,
+        size: response.size,
+        totalElements: response.totalElements,
+      });
+    } catch (error) {
+      console.error("Failed to fetch partners:", error);
+    }
+  };
 
   useEffect(() => {
-    fetch();
+    fetchAll();
   }, []);
 
   const exportToExcel = () => {
