@@ -39,7 +39,6 @@ const Partners = () => {
     try {
 
       const response = await partnerService.searchPartners();
-      console.log(response);
       setPartners(response.data.content || []);
       setPageInfo({
         page: response.number,
@@ -194,7 +193,7 @@ const Partners = () => {
             <tr key={partner.id}>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.name}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phone}</td>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.address}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.companyName}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
