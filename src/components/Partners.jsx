@@ -28,7 +28,7 @@ const Partners = () => {
       setPageInfo({
         page: response.data.pageable.pageNumber,
         size: response.data.pageable.pageSize,
-        totalElements: response.totalElements,
+        totalElements: response.data.totalElements,
       });
     } catch (error) {
       console.error("Failed to fetch partners:", error);
