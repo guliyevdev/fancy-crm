@@ -1,6 +1,6 @@
-import axiosInstance from "../utils/axiosInstance"; // or wherever your Axios instance is configured
+import axiosInstance from "../utils/axiosInstance"; 
 
-const BASE_URL = "/product/api/v1/color"; 
+const BASE_URL = "/product/api/v1/material";
 
 export const createMaterial = async (materialRequestDTO) => {
   const response = await axiosInstance.post(`${BASE_URL}/add`, materialRequestDTO);
@@ -28,18 +28,20 @@ export const getMaterialById = async (id) => {
   return response.data;
 };
 
+
+
 export const searchMaterials = async (searchParams, pageable = { page: 0, size: 10 }) => {
-  const params = {
-    ...searchParams,
+  const requestBody = {
+    name: searchParams.keyword || '', 
+    active: true, 
     page: pageable.page,
-    size: pageable.size,
+    size: pageable.size
   };
 
-  const response = await axiosInstance.get(BASE_URL, { params });
-  return response.data;
+  const response = await axiosInstance.post(`${BASE_URL}/search`, requestBody);
+  return response;
 };
-
 export const getAllMaterials = async () => {
-  const response = await axiosInstance.get(`${BASE_URL}/color-names`);
+  const response = await axiosInstance.get(`${BASE_URL}/material-names`);
   return response.data;
 };
