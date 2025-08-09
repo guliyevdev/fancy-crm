@@ -28,13 +28,13 @@ const PartnershipAgreementPDF = ({ partner }) => (
       <Text style={{ marginTop: 10 }}>
         On one side, hereinafter referred to as the "Company," represented by its Executive Director, acting based on its Charter,
         Fancy az LL company, Tax ID (7889645047), and on the other side, hereinafter referred to as the "Owner," an individual acting on their own behalf,
-        {` ${partner?.name || '____'} (Passport number ${partner?.passportNumber || '____'}, FIN: ${partner?.finCode || '____'}),`} collectively referred to as the "Parties," enter into this Partnership Agreement under the following terms:
+        {` ${partner?.name || '____'} (Passport number ${partner?.passportNumber || '____'}, FIN: ${partner?.fin || '____'}),`} collectively referred to as the "Parties," enter into this Partnership Agreement under the following terms:
       </Text>
       {/* ... the rest of your PDF content ... */}
       <Text style={{ marginTop: 10 }}>
         OWNER: {partner?.name || '____'}
         {'\n'}Passport №: {partner?.passportNumber || '____'}
-        {'\n'}FIN: {partner?.finCode || '____'}
+        {'\n'}FIN: {partner?.fin || '____'}
       </Text>
       <Text style={{ marginTop: 20 }}>Signature: ____________________________</Text>
     </Page>
@@ -49,19 +49,15 @@ const AddPartner = () => {
 
   const [partner, setPartner] = useState({
     name: '',
+    lastName: '',
     email: '',
     phone: '',
     address: '',
     passportSeries: '',
     passportNumber: '',
-    finCode: '',
+    fin: '',
     notes: '',
-    receivingBankName: '',
-    receivingBankCurrency: '',
-    bankTIN: '',
-    bankSwiftCode: '',
-    bankAccountNumber: '',
-    companyName: '',
+    userPassword: '',
   });
 
   const handleChange = (e) => {
@@ -72,8 +68,8 @@ const AddPartner = () => {
       newValue = value.toUpperCase().slice(0, 3);
     } else if (name === 'passportNumber') {
       newValue = value.replace(/\D/g, '').slice(0, 9);
-    } else if (name === 'finCode') {
-      newValue = value.replace(/\D/g, '').slice(0, 8);
+    } else if (name === 'fin') {
+      newValue = value.toUpperCase().slice(0, 8);
     }
 
     setPartner((prev) => ({
@@ -84,24 +80,22 @@ const AddPartner = () => {
 
   const isFormValid = () => {
     const {
-      name, email, phone, address, passportSeries, passportNumber,
-      finCode, receivingBankName, receivingBankCurrency,
-      bankTIN, bankSwiftCode, bankAccountNumber, companyName
+      name, lastName, email, phone, address, passportSeries, passportNumber,
+      fin, notes, userPassword
     } = partner;
 
     const allFilled = [
-      name, email, phone, address, passportSeries, passportNumber,
-      finCode, receivingBankName, receivingBankCurrency,
-      bankTIN, bankSwiftCode, bankAccountNumber, companyName
+      name, lastName, email, phone, address, passportSeries, passportNumber,
+      fin, notes, userPassword
     ].every(field => field.trim() !== '');
 
     const isPassportSeriesValid = /^[A-Z]{2,3}$/.test(passportSeries);
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isPhoneValid = /^\+?\d{8,15}$/.test(phone);
     const isPassportNumberValid = /^\d{6,9}$/.test(passportNumber);
-    const isFinCodeValid = /^\d{7,8}$/.test(finCode);
+    const isFinValid = /^[A-Z0-9]{7,8}$/.test(fin);
 
-    return allFilled && isPassportSeriesValid && isEmailValid && isPhoneValid && isPassportNumberValid && isFinCodeValid;
+    return allFilled && isPassportSeriesValid && isEmailValid && isPhoneValid && isPassportNumberValid && isFinValid;
   };
 
   const registerPartner = async () => {
@@ -179,7 +173,7 @@ const AddPartner = () => {
               maxLength={
                 field === 'passportSeries' ? 3 :
                 field === 'passportNumber' ? 9 :
-                field === 'finCode' ? 8 : undefined
+                field === 'fin' ? 8 : undefined
               }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
             />
@@ -195,8 +189,8 @@ const AddPartner = () => {
             {field === 'passportNumber' && partner.passportNumber && !/^\d{6,9}$/.test(partner.passportNumber) && (
               <p className="text-sm text-red-500">Must be 6–9 digits</p>
             )}
-            {field === 'finCode' && partner.finCode && !/^\d{7,8}$/.test(partner.finCode) && (
-              <p className="text-sm text-red-500">Must be 7–8 digits</p>
+            {field === 'fin' && partner.fin && !/^[A-Z0-9]{7,8}$/.test(partner.fin) && (
+              <p className="text-sm text-red-500">Must be 7–8 alphanumeric characters</p>
             )}
           </div>
         ))}
