@@ -8,9 +8,18 @@ const partnerService = {
     const response = await axiosInstance.post(`${BASE_URL}/physical`, partnerData);
     return response.data;
   },
+  registerCorporatePartner: async (partnerData) => {
+    const response = await axiosInstance.post(`${BASE_URL}/corporate`, partnerData);
+    return response.data;
+  },
 
   getPartnerById: async (partnerId) => {
-    const response = await axiosInstance.get(`${BASE_URL}/${partnerId}`);
+    const response = await axiosInstance.get(`${BASE_URL}/find-by-id`, {
+      headers: {
+        'id': partnerId,
+        'Accept-Language': 'az'
+      }
+    });
     return response.data;
   },
   getByPartnerCode: async (partnercode) => {
