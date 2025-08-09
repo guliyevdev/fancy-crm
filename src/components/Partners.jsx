@@ -24,11 +24,10 @@ const Partners = () => {
       if (keyword.trim()) criteria.keyword = keyword.trim();
 
       const response = await partnerService.searchPartners(criteria, page, size);
-      setPartners(response.content || []);
-      console.log(response.content);
+      setPartners(response.data.content || []);
       setPageInfo({
-        page: response.number,
-        size: response.size,
+        page: response.data.pageable.pageNumber,
+        size: response.data.pageable.pageSize,
         totalElements: response.totalElements,
       });
     } catch (error) {
