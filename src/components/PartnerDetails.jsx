@@ -48,7 +48,7 @@ const PartnerDetails = () => {
     const fetchPartner = async () => {
       try {
         const data = await partnerService.getPartnerById(id);
-        setPartner(data);
+        setPartner(data.data);
       } catch (error) {
         toast.error('Failed to fetch partner details.');
       } finally {
