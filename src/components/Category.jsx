@@ -16,22 +16,35 @@ const Category = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // Fetch categories with search and pagination
+
+
+
   const fetchCategories = async (page = 0, size = 10, name = "") => {
     try {
-      const criteria = {};
-      if (name.trim()) criteria.name = name.trim();
-
-      const pageable = { page, size };
-      const response = await categoryService.search(criteria, pageable);
-      setCategories(response.data.content);
-      setPageInfo({
-        page: response.data.number,
-        size: response.data.size,
-        totalElements: response.data.totalElements,
-      });
+      if (name.trim()) {
+        const response = await categoryService.getAll();
+        const filtered = response.data.data.filter(category =>
+          category.name.toLowerCase().includes(name.toLowerCase())
+        );
+        setCategories(filtered);
+        setPageInfo({
+          page: 0,
+          size: filtered.length,
+          totalElements: filtered.length,
+        });
+      } else {
+        // Normal səhifələmə üçün
+        const response = await categoryService.getAll();
+        setCategories(response.data.data || []);
+        setPageInfo({
+          page: 0,
+          size: response.data.data?.length || 10,
+          totalElements: response.data.data?.length || 0,
+        });
+      }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+      setCategories([]);
     }
   };
 
@@ -40,7 +53,12 @@ const Category = () => {
   }, []);
 
   const openAddModal = () => {
-    setSelectedCategory({ name: "", status: "ACTIVE" });
+    setSelectedCategory({
+      nameAz: "",
+      nameEn: "",
+      nameRu: "",
+      status: "ACTIVE"
+    });
     setAddOpen(true);
   };
 
@@ -62,23 +80,42 @@ const Category = () => {
   const saveAdd = async (e) => {
     e.preventDefault();
     try {
-      await categoryService.create(selectedCategory);
-      fetchCategories(pageInfo.page, pageInfo.size, searchName);
+      console.log("Current selectedCategory:", selectedCategory);
+
+      const payload = {
+        nameAz: selectedCategory.nameAz,
+        nameEn: selectedCategory.nameEn,
+        nameRu: selectedCategory.nameRu
+      };
+
+      console.log("Final payload:", payload);
+
+      const response = await categoryService.create(payload);
+      console.log("API Response:", response.data);
+
+      fetchCategories();
       setAddOpen(false);
     } catch (error) {
-      console.error("Failed to create category:", error);
+      console.error("Error:", error.response?.data || error.message);
     }
   };
-
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setSelectedCategory((prev) => ({ ...prev, [name]: value }));
   };
 
+
   const saveEdit = async (e) => {
     e.preventDefault();
     try {
-      await categoryService.update(selectedCategory.id, selectedCategory);
+      const payload = {
+        nameAz: selectedCategory.nameAz,
+        nameEn: selectedCategory.nameEn,
+        nameRu: selectedCategory.nameRu,
+        status: selectedCategory.status
+      };
+
+      await categoryService.update(selectedCategory.id, payload);
       fetchCategories(pageInfo.page, pageInfo.size, searchName);
       setEditOpen(false);
     } catch (error) {
@@ -155,11 +192,10 @@ const Category = () => {
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{category.name}</td>
               <td className="px-6 py-4 text-sm whitespace-nowrap">
                 <span
-                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
-                    category.status === "ACTIVE"
-                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
-                  }`}
+                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${category.status === "ACTIVE"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                    }`}
                 >
                   {category.status === "ACTIVE" ? "Active" : "Inactive"}
                 </span>
@@ -192,34 +228,32 @@ const Category = () => {
         </tbody>
       </table>
 
-     {/* Pagination Controls */}
-<div className="flex justify-center items-center mt-6 space-x-4">
-  <button
-    onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
-    disabled={pageInfo.page === 0}
-    className={`p-2 rounded-full ${
-      pageInfo.page === 0
-        ? "text-gray-400 cursor-not-allowed"
-        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-    }`}
-  >
-    <FaChevronLeft size={20} />
-  </button>
-  <span className="text-gray-800 dark:text-gray-200 text-sm">
-    Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
-  </span>
-  <button
-    onClick={() => fetchCategories(pageInfo.page + 1, pageInfo.size, searchName)}
-    disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
-    className={`p-2 rounded-full ${
-      (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
-        ? "text-gray-400 cursor-not-allowed"
-        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-    }`}
-  >
-    <FaChevronRight size={20} />
-  </button>
-</div>
+      {/* Pagination Controls */}
+      <div className="flex justify-center items-center mt-6 space-x-4">
+        <button
+          onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+          disabled={pageInfo.page === 0}
+          className={`p-2 rounded-full ${pageInfo.page === 0
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+        >
+          <FaChevronLeft size={20} />
+        </button>
+        <span className="text-gray-800 dark:text-gray-200 text-sm">
+          Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
+        </span>
+        <button
+          onClick={() => fetchCategories(pageInfo.page + 1, pageInfo.size, searchName)}
+          disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
+          className={`p-2 rounded-full ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+        >
+          <FaChevronRight size={20} />
+        </button>
+      </div>
 
 
       {/* Add Modal */}
@@ -233,21 +267,55 @@ const Category = () => {
         <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Add Category</h3>
         {selectedCategory && (
           <form onSubmit={saveAdd} className="space-y-4">
+            {/* Name (Az) */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                Name
+              <label htmlFor="nameAz" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Name (Azərbaycanca)
               </label>
               <input
-                id="name"
-                name="name"
+                id="nameAz"
+                name="nameAz"
                 type="text"
-                value={selectedCategory.name}
+                value={selectedCategory.nameAz || ""}
                 onChange={handleAddChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
               />
             </div>
 
+            {/* Name (English) */}
+            <div>
+              <label htmlFor="nameEn" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Name (English)
+              </label>
+              <input
+                id="nameEn"
+                name="nameEn"
+                type="text"
+                value={selectedCategory.nameEn || ""}
+                onChange={handleAddChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              />
+            </div>
+
+            {/* Name (Russian) */}
+            <div>
+              <label htmlFor="nameRu" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Name (Русский)
+              </label>
+              <input
+                id="nameRu"
+                name="nameRu"
+                type="text"
+                value={selectedCategory.nameRu || ""}
+                onChange={handleAddChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              />
+            </div>
+
+            {/* Status (eyni qalır) */}
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Status
@@ -283,6 +351,9 @@ const Category = () => {
         )}
       </Modal>
 
+     
+
+
       {/* Edit Modal */}
       <Modal
         isOpen={editOpen}
@@ -294,21 +365,55 @@ const Category = () => {
         <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Edit Category</h3>
         {selectedCategory && (
           <form onSubmit={saveEdit} className="space-y-4">
+            {/* Name (Az) */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                Name
+              <label htmlFor="nameAz" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Name (Azərbaycanca)
               </label>
               <input
-                id="name"
-                name="name"
+                id="nameAz"
+                name="nameAz"
                 type="text"
-                value={selectedCategory.name}
+                value={selectedCategory.nameAz || ""}
                 onChange={handleEditChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
               />
             </div>
 
+            {/* Name (English) */}
+            <div>
+              <label htmlFor="nameEn" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Name (English)
+              </label>
+              <input
+                id="nameEn"
+                name="nameEn"
+                type="text"
+                value={selectedCategory.nameEn || ""}
+                onChange={handleEditChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              />
+            </div>
+
+            {/* Name (Russian) */}
+            <div>
+              <label htmlFor="nameRu" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Name (Русский)
+              </label>
+              <input
+                id="nameRu"
+                name="nameRu"
+                type="text"
+                value={selectedCategory.nameRu || ""}
+                onChange={handleEditChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              />
+            </div>
+
+            {/* Status */}
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Status

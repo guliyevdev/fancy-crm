@@ -17,10 +17,6 @@ const occasionService = {
 
   delete: (id) => axiosInstance.delete(`${BASE_URL}/${id}`),
 
-  // search: (criteria = {}, page = 0, size = 10) =>
-  //   axiosInstance.get(BASE_URL, {
-  //     params: { ...criteria, page, size },
-  //   }),
 
   search: (criteria = {}, page = 0, size = 10) => {
     const body = {

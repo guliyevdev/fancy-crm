@@ -12,6 +12,7 @@ const colorService = {
   // update: (id, data) => axiosInstance.put(`${BASE_URL}/${id}`, data),
   update: (id, data) =>
     axiosInstance.put(`${BASE_URL}/upd`, {
+      
       id,
       ...data,
     }),
