@@ -38,12 +38,12 @@ const Partners = () => {
   const fetchAll = async () => {
     try {
 
-      const response = await partnerService.searchPartners();
+      const response = await partnerService.findAll();
       setPartners(response.data.content || []);
       setPageInfo({
-        page: response.number,
-        size: response.size,
-        totalElements: response.totalElements,
+        page: response.data.pageable.pageNumber,
+        size: response.data.pageable.pageSize,
+        totalElements: response.data.totalElements,
       });
     } catch (error) {
       console.error("Failed to fetch partners:", error);
@@ -189,10 +189,10 @@ const Partners = () => {
         <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
           {partners.map((partner) => (
             <tr key={partner.id}>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.name}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.name}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "ACTIVE"
                       ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
