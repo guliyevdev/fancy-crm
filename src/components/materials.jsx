@@ -18,15 +18,31 @@ const Materials = () => {
   const [searchName, setSearchName] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
 
-  const fetchMaterials = async () => {
+
+
+
+  const fetchMaterials = async (page = 0, size = 10, keyword = "") => {
     try {
-      const response = await axiosInstance.get("/materials/color-names",);
+      const criteria = keyword ? { name: keyword } : {};
+      const response = await searchMaterials(criteria, { page, size });
+
+
+
       setMaterials(response.data.content);
+      setPageInfo({
+        page: response.data.number,
+        size: response.data.size,
+        totalElements: response.data.totalElements,
+        totalPages: response.data.totalPages
+      });
     } catch (error) {
       console.error("Failed to fetch materials:", error);
     }
   };
 
+  useEffect(() => {
+    fetchMaterials();
+  }, []);
   useEffect(() => {
     fetchAllMaterials();
   }, []);
@@ -109,34 +125,33 @@ const Materials = () => {
   };
 
   const fetch = async (page = 0, size = 10, keyword = "") => {
-      try {
-        const criteria = {};
-        if (keyword.trim()) criteria.keyword = keyword.trim();
-  
-        const pageable = { page, size };
-        const response = await searchMaterials(criteria, pageable);
-        setMaterials(response.content);
-        setPageInfo({
-          page: response.data.number,
-          size: response.data.size,
-          totalElements: response.data.totalElements,
-        });
-      } catch (error) {
-        console.error("Failed to fetch materials:", error);
-      }
-    };
+    try {
+      const criteria = {};
+      if (keyword.trim()) criteria.keyword = keyword.trim();
 
-    const fetchAllMaterials = async () => {
-      const response = await getAllMaterials();
-      setMaterials(response.data);
-    };
-
-    const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    fetch(0, 10,searchName);
+      const pageable = { page, size };
+      const response = await searchMaterials(criteria, pageable);
+      setMaterials(response.data.data.content);
+      setPageInfo({
+        page: response.data.number,
+        size: response.data.size,
+        totalElements: response.data.totalElements,
+      });
+    } catch (error) {
+    }
   };
 
-  
+  const fetchAllMaterials = async () => {
+    const response = await getAllMaterials();
+    setMaterials(response.data);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetch(0, 10, searchName);
+  };
+
+
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -201,11 +216,10 @@ const Materials = () => {
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{material.name}</td>
               <td className="px-6 py-4 text-sm whitespace-nowrap">
                 <span
-                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
-                    material.status === "ACTIVE"
-                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
-                  }`}
+                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${material.status === "ACTIVE"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                    }`}
                 >
                   {material.status === "ACTIVE" ? "Active" : "Inactive"}
                 </span>
@@ -231,33 +245,31 @@ const Materials = () => {
         </tbody>
       </table>
       {/* Pagination Controls */}
-<div className="flex justify-center items-center mt-6 space-x-4">
-  <button
-    onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
-    disabled={pageInfo.page === 0}
-    className={`p-2 rounded-full ${
-      pageInfo.page === 0
-        ? "text-gray-400 cursor-not-allowed"
-        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-    }`}
-  >
-    <FaChevronLeft size={20} />
-  </button>
-  <span className="text-gray-800 dark:text-gray-200 text-sm">
-    Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
-  </span>
-  <button
-    onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
-    disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
-    className={`p-2 rounded-full ${
-      (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
-        ? "text-gray-400 cursor-not-allowed"
-        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-    }`}
-  >
-    <FaChevronRight size={20} />
-  </button>
-</div>
+      <div className="flex justify-center items-center mt-6 space-x-4">
+        <button
+          onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+          disabled={pageInfo.page === 0}
+          className={`p-2 rounded-full ${pageInfo.page === 0
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+        >
+          <FaChevronLeft size={20} />
+        </button>
+        <span className="text-gray-800 dark:text-gray-200 text-sm">
+          Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
+        </span>
+        <button
+          onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
+          disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
+          className={`p-2 rounded-full ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+        >
+          <FaChevronRight size={20} />
+        </button>
+      </div>
 
       {/* Add Modal */}
       <Modal
@@ -313,21 +325,7 @@ const Materials = () => {
               />
             </div>
 
-            {/* <div>
-              <label htmlFor="status" className="block text-sm font-medium mb-1">
-                Status
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={selectedMaterial.status}
-                onChange={handleAddChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-              >
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-              </select>
-            </div> */}
+
 
             <div className="flex justify-end gap-4">
               <button
