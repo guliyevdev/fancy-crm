@@ -164,9 +164,8 @@ const AddPartner = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
-          'name', 'email', 'phone', 'address', 'passportSeries', 'passportNumber',
-          'finCode', 'notes', 'receivingBankName', 'receivingBankCurrency',
-          'bankTIN', 'bankSwiftCode', 'bankAccountNumber', 'companyName',
+          'name', 'lastName', 'email', 'phone', 'address', 'passportSeries', 'passportNumber',
+          'fin', 'notes','userPassword'
         ].map((field) => (
           <div key={field}>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
