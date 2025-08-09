@@ -111,7 +111,12 @@ const AddPartner = () => {
       setTimeout(() => navigate('/partners'), 1500);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to register partner.');
+      // Extract error message from backend response
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.error || 
+                          err.message || 
+                          'Failed to register partner.';
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -147,7 +152,12 @@ const AddPartner = () => {
       console.log('Upload response:', response);
     } catch (error) {
       toast.dismiss();
-      toast.error('Failed to upload document.');
+      // Extract error message from backend response
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          'Failed to upload document.';
+      toast.error(errorMessage);
       console.error('Upload error:', error);
     }
   };
