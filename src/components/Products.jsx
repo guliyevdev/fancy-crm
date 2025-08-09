@@ -64,6 +64,10 @@ const Products = () => {
   };
 
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchProducts(0, pageInfo.size, searchName); // fetch yerine fetchProducts istifadə edin
+  };
 
 
   const fetchProducts = async (page = 0, size = 10, keyword = "") => {
@@ -74,9 +78,9 @@ const Products = () => {
         page,
         size,
       };
-
+      console.log("Göndərilən parametrlər:", params);
       const response = await productService.search(params);
-
+      console.log("Alınan cavab:", response.data);
       const apiData = response.data?.data || response.data;
       const productsData = apiData?.content || [];
 
@@ -134,12 +138,14 @@ const Products = () => {
     setDeleteOpen(true);
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    // Reset to page 0 for a new search
-    setPageInfo(prev => ({ ...prev, page: 0 }));
-    fetchProducts(0, pageInfo.size, searchName);
-  };
+  // const handleSearchSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Reset to page 0 for a new search
+  //   setPageInfo(prev => ({ ...prev, page: 0 }));
+  //   fetchProducts(0, pageInfo.size, searchName);
+  // };
+
+
 
   const confirmDelete = async () => {
     if (!selectedProduct) return;
@@ -245,28 +251,7 @@ const Products = () => {
       descAz: editProduct.descAz || "",
       descEn: editProduct.descEn || "",
       descRu: editProduct.descRu || "",
-      // categoryId: editProduct.categoryId || 0,
-      // colorIds: editProduct.colorIds || [],
-      // materialIds: editProduct.materialIds || [],
-      // occasionIds: editProduct.occasionIds || [],
-      // carat: editProduct.carat || "",
-      // quantity: editProduct.quantity || 0,
-      // weight: editProduct.weight || 0,
-      // size: editProduct.size || 0,
-      // productFor: editProduct.productFor || ["FOR_SALE"],
-      // salePrice: editProduct.salePrice || 0,
-      // rentPricePerDay: editProduct.rentPricePerDay || 0,
-      // saleCompanyPercent: editProduct.saleCompanyPercent || 0,
-      // salePartnerPercent: editProduct.salePartnerPercent || 0,
-      // damageCompanyCompensation: editProduct.damageCompanyCompensation || 0,
-      // lossCompanyCompensation: editProduct.lossCompanyCompensation || 0,
-      // partnerTakeBackFeePercent: editProduct.partnerTakeBackFeePercent || 0,
-      // rentCompanyPercent: editProduct.rentCompanyPercent || 0,
-      // rentPartnerPercent: editProduct.rentPartnerPercent || 0,
-      // returnFeePercent: editProduct.returnFeePercent || 0,
-      // customerLatePenaltyPercent: editProduct.customerLatePenaltyPercent || 0,
-      // validFrom: editProduct.validFrom || new Date().toISOString(),
-      // validTo: editProduct.validTo || new Date().toISOString()
+
     };
 
     try {
@@ -312,7 +297,7 @@ const Products = () => {
           type="text"
           placeholder="Search by name..."
           value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
+          onChange={handleSearchChange}
           className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
         />
         <button
@@ -376,7 +361,7 @@ const Products = () => {
         </table>
       </div>
 
-   
+
       <div className="flex justify-center items-center mt-6 space-x-4">
         <button
           onClick={() => handlePageChange(pageInfo.page - 1)}
@@ -427,7 +412,7 @@ const Products = () => {
 
 
 
-     
+
 
       {/* Add Product Modal */}
       <Modal
@@ -839,7 +824,7 @@ const Products = () => {
                 <textarea name="descRu" value={editProduct.descRu || ""} onChange={handleEditChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white" />
               </div>
 
-            
+
             </div>
 
             {/* Buttons */}

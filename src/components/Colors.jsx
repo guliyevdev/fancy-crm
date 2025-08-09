@@ -141,7 +141,6 @@ const Colors = () => {
 
       const response = await colorService.search(params);
 
-      // API strukturuna uyğun olaraq datanı çıxarın
       const apiData = response.data?.data || response.data;
       const colorsData = apiData?.content || [];
 
