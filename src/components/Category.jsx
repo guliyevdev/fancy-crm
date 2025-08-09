@@ -19,32 +19,29 @@ const Category = () => {
 
 
 
-  const fetchCategories = async (page = 0, size = 10, name = "") => {
+  const fetchCategories = async (page = 0, size = 10, keyword = "") => {
     try {
-      if (name.trim()) {
-        const response = await categoryService.getAll();
-        const filtered = response.data.data.filter(category =>
-          category.name.toLowerCase().includes(name.toLowerCase())
-        );
-        setCategories(filtered);
-        setPageInfo({
-          page: 0,
-          size: filtered.length,
-          totalElements: filtered.length,
-        });
-      } else {
-        // Normal səhifələmə üçün
-        const response = await categoryService.getAll();
-        setCategories(response.data.data || []);
-        setPageInfo({
-          page: 0,
-          size: response.data.data?.length || 10,
-          totalElements: response.data.data?.length || 0,
-        });
-      }
+      const params = {
+        name: keyword,
+        active: true,
+        page,
+        size,
+      };
+
+      const response = await categoryService.search(params);
+
+      const apiData = response.data?.data || response.data;
+      const categoriesData = apiData?.content || [];
+
+      setCategories(categoriesData);
+      setPageInfo({
+        page: apiData?.number || 0,
+        size: apiData?.size || size,
+        totalElements: apiData?.totalElements || 0,
+      });
     } catch (error) {
-      console.error("Failed to fetch categories:", error);
-      setCategories([]);
+      console.error("Fetch colors error:", error);
+      setColors([]);
     }
   };
 
@@ -351,7 +348,7 @@ const Category = () => {
         )}
       </Modal>
 
-     
+
 
 
       {/* Edit Modal */}

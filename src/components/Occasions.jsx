@@ -18,46 +18,59 @@ const Occasions = () => {
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
 
 
-  const fetchOccasions = async () => {
-    try {
-      const response = await occasionService.search();
-      setOccasions(response.data.content);
-    } catch (error) {
-      console.error("Failed to fetch occasions:", error);
-    }
-  };
+
+
 
   const fetch = async (page = 0, size = 10, keyword = "") => {
     try {
-      const criteria = {};
-      if (keyword.trim()) criteria.keyword = keyword.trim();
+      const params = {
+        name: keyword,
+        active: true,
+        page,
+        size,
+      };
 
-      const pageable = { page, size };
-      const response = await occasionService.search(criteria, pageable.page, pageable.size);
-      setOccasions(response.data.data.content);
-      console.log(response.data.data.content);
+      const response = await occasionService.search(params);
+
+      const apiData = response.data?.data || response.data;
+      const occasionsData = apiData?.content || [];
+
+      setOccasions(occasionsData);
       setPageInfo({
-        page: response.data.number,
-        size: response.data.size,
-        totalElements: response.data.totalElements,
+        page: apiData?.number || 0,
+        size: apiData?.size || size,
+        totalElements: apiData?.totalElements || 0,
       });
     } catch (error) {
-      console.error("Failed to fetch occasions:", error);
+      console.error("Fetch colors error:", error);
+      setColors([]);
     }
   };
+
 
 
 
 
   const fetchAllOccasions = async () => {
     try {
-      const response = await occasionService.getAll();
-      setOccasions(response.data.data);
+      const params = {
+        name: "",
+        active: true,
+        page: 0,
+        size: 1000,
+      };
+      const response = await occasionService.search(params);
+      const apiData = response.data?.data || response.data;
+      setOccasions(apiData?.content || []);
+      setPageInfo({
+        page: apiData?.number || 0,
+        size: apiData?.size || 10,
+        totalElements: apiData?.totalElements || 0,
+      });
     } catch (error) {
-      console.error("Failed to fetch occasions:", error);
+      console.error("Failed to fetch materials:", error);
     }
   };
-
 
 
   const handleSearchChange = (e) => {

@@ -19,15 +19,6 @@ const Colors = () => {
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
 
 
-  // const fetchColors = async () => {
-  //   try {
-  //     const response = await colorService.search({ page: 0, size: 100 });
-  //     setColors(response.data.data);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
 
   const fetchColors = async (page = 0, size = 10, keyword = "") => {
     try {
@@ -137,29 +128,6 @@ const Colors = () => {
   };
 
 
-
-
-  // const fetch = async (page = 0, size = 10, keyword = "") => {
-  //   try {
-  //     const params = {
-  //       name: keyword,
-  //       active: true,
-  //       page,
-  //       size,
-  //     };
-
-  //     const response = await colorService.search(params);
-
-  //     setColors(response.data.data.content);
-  //     setPageInfo({
-  //       page: response.data.data.number,
-  //       size: response.data.data.size,
-  //       totalElements: response.data.data.totalElements,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
 
   const fetch = async (page = 0, size = 10, keyword = "") => {
