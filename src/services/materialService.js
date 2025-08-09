@@ -1,4 +1,4 @@
-import axiosInstance from "../utils/axiosInstance"; 
+import axiosInstance from "../utils/axiosInstance";
 
 const BASE_URL = "/product/api/v1/material";
 
@@ -30,17 +30,27 @@ export const getMaterialById = async (id) => {
 
 
 
-export const searchMaterials = async (searchParams, pageable = { page: 0, size: 10 }) => {
-  const requestBody = {
-    name: searchParams.keyword || '', 
-    active: true, 
-    page: pageable.page,
-    size: pageable.size
-  };
+// export const searchMaterials = async (searchParams, pageable = { page: 0, size: 10 }) => {
+//   const requestBody = {
+//     name: searchParams.keyword || '',
+//     active: true,
+//     page: pageable.page,
+//     size: pageable.size
+//   };
 
-  const response = await axiosInstance.post(`${BASE_URL}/search`, requestBody);
-  return response;
-};
+
+//   const response = await axiosInstance.post(`${BASE_URL}/search`, requestBody);
+//   return response;
+// };
+
+
+export const searchMaterials = (params) =>
+  axiosInstance.post(`${BASE_URL}/search`, params);
+
+
+
+
+
 export const getAllMaterials = async () => {
   const response = await axiosInstance.get(`${BASE_URL}/material-names`);
   return response.data;

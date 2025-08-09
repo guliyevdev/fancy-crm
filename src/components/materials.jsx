@@ -20,26 +20,31 @@ const Materials = () => {
 
 
 
-
-  const fetchMaterials = async (page = 0, size = 10, keyword = "") => {
+  const fetchMaterials = async (page = 0, size = 10, name = "") => {
     try {
-      const criteria = keyword ? { name: keyword } : {};
-      const response = await searchMaterials(criteria, { page, size });
+      const params = {
+        name: name,
+        active: true,
+        page,
+        size,
+      };
 
+      const response = await materialService.search(params);
 
+      const apiData = response.data?.data || response.data;
+      const materialsData = apiData?.content || [];
 
-      setMaterials(response.data.content);
+      setMaterials(materialsData);
       setPageInfo({
-        page: response.data.number,
-        size: response.data.size,
-        totalElements: response.data.totalElements,
-        totalPages: response.data.totalPages
+        page: apiData?.number || 0,
+        size: apiData?.size || size,
+        totalElements: apiData?.totalElements || 0,
       });
     } catch (error) {
-      console.error("Failed to fetch materials:", error);
+      console.error("Fetch colors error:", error);
+      setColors([]);
     }
   };
-
   useEffect(() => {
     fetchMaterials();
   }, []);
@@ -124,10 +129,10 @@ const Materials = () => {
     }
   };
 
-  const fetch = async (page = 0, size = 10, keyword = "") => {
+  const fetch = async (page = 0, size = 10, name = "") => {
     try {
       const criteria = {};
-      if (keyword.trim()) criteria.keyword = keyword.trim();
+      if (name.trim()) criteria.name = name.trim();
 
       const pageable = { page, size };
       const response = await searchMaterials(criteria, pageable);
@@ -142,9 +147,26 @@ const Materials = () => {
   };
 
   const fetchAllMaterials = async () => {
-    const response = await getAllMaterials();
-    setMaterials(response.data);
+    try {
+      const params = {
+        name: "", 
+        active: true,
+        page: 0,
+        size: 1000, 
+      };
+      const response = await searchMaterials(params);
+      const apiData = response.data?.data || response.data;
+      setMaterials(apiData?.content || []);
+      setPageInfo({
+        page: apiData?.number || 0,
+        size: apiData?.size || 10,
+        totalElements: apiData?.totalElements || 0,
+      });
+    } catch (error) {
+      console.error("Failed to fetch materials:", error);
+    }
   };
+
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
