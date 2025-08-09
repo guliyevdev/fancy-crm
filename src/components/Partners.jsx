@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { PencilLine, Trash, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { PencilLine, Plus } from "lucide-react";
 import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";

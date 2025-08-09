@@ -1,11 +1,11 @@
 import axiosInstance from "../utils/axiosInstance";
 
-const BASE_URL = "/partners";
+const BASE_URL = "/partner/api/v1/partner";
 
 const partnerService = {
 
   registerPartner: async (partnerData) => {
-    const response = await axiosInstance.post(`${BASE_URL}/register`, partnerData);
+    const response = await axiosInstance.post(`${BASE_URL}/physical`, partnerData);
     return response.data;
   },
 

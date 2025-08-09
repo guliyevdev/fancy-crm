@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
 import partnerService from '../services/partnerService';
@@ -112,6 +112,7 @@ const PartnerDetails = () => {
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Partner Information</h3>
         <h4 className="block text-sm font-medium text-gray-700 dark:text-gray-300">Partner Code : {partner.code}</h4>
         <FormInput label="Name" name="name" value={partner.name} onChange={handleChange} />
+        <FormInput label="Last Name" name="lastName" value={partner.lastName} onChange={handleChange} />
         <FormInput label="Email" name="email" value={partner.email} onChange={handleChange} type="email" />
         <FormInput label="Phone" name="phone" value={partner.phone} onChange={handleChange} />
         <FormInput label="Address" name="address" value={partner.address} onChange={handleChange} />
