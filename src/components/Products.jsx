@@ -70,10 +70,10 @@ const Products = () => {
   };
 
 
-  const fetchProducts = async (page = 0, size = 10, keyword = "") => {
+  const fetchProducts = async (page = 0, size = 10, searchTerm = "") => {
     try {
       const params = {
-        name: keyword,
+        searchTerm: searchTerm,
         // active: false,
         page,
         size,
