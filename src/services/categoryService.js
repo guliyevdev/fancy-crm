@@ -15,6 +15,9 @@ const categoryService = {
   delete: (id) => axiosInstance.delete(`${BASE_URL}/${id}`),
   getById: (id) => axiosInstance.get(`${BASE_URL}/${id}`),
   search: (params) => axiosInstance.post(`${BASE_URL}/search`, params),
+  getByName: () => axiosInstance.get(`${BASE_URL}/category-names`),
+
+
 
 };
 

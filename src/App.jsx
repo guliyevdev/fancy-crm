@@ -31,6 +31,12 @@ import TelegramOrdersMock from "./components/TelegramOrders";
 import CampaignDiscounts from "./components/CampaignDiscounts";
 import MessageOrders from "./components/MessageOrders";
 import InventoryDetail from "./components/InventoryDetail";
+import Register from "./components/Register";
+import Login from "./components/Login";
+import ForgetPassword from "./components/ForgetPassword";
+import UserAccount from "./components/UserAccount";
+import PrivateRoute from "./components/routes/PrivateRoutes";
+
 function App() {
     const router = createBrowserRouter([
         {
@@ -62,10 +68,10 @@ function App() {
                     element: <Colors />,
                 },
                 {
-                    path:"inventory",
+                    path: "inventory",
                     element: <Inventory />
                 },
-                   {
+                {
                     path: "inventory/:id", // Yeni route
                     element: <InventoryDetail />,
                 },
@@ -133,15 +139,33 @@ function App() {
                 },
                 {
                     path: "/discounts",
-                    element: <CampaignDiscounts/>
+                    element: <CampaignDiscounts />
                 },
+
                 {
                     path: "/messages",
-                    element: <MessageOrders/>
+                    element: <MessageOrders />
+                },
+                {
+                    path: "/user-account",
+                    element: <UserAccount/>
                 }
-                
+
 
             ],
+
+        },
+        {
+            path: "/register",
+            element: <Register />,
+        },
+        {
+            path: "/login",
+            element: <Login />
+        },
+        {
+            path: "/forgot-password",
+            element: <ForgetPassword />
         },
     ]);
 
@@ -154,3 +178,141 @@ function App() {
 }
 
 export default App;
+
+
+// import PrivateRoute from "./components/PrivateRoute"; // import et
+
+// function App() {
+//     const router = createBrowserRouter([
+//         {
+//             path: "/",
+//             element: (
+//                 <PrivateRoute>
+//                     <Layout />
+//                 </PrivateRoute>
+//             ),
+//             children: [
+//                 {
+//                     index: true,
+//                     element: <DashboardPage />,
+//                 },
+//                 {
+//                     path: "calendar",
+//                     element: <CalendarComponent />,
+//                 },
+//                 {
+//                     path: "materials",
+//                     element: <Materials />,
+//                 },
+//                 {
+//                     path: "designers",
+//                     element: <Designers />,
+//                 },
+//                 {
+//                     path: "colors",
+//                     element: <Colors />,
+//                 },
+//                 {
+//                     path: "inventory",
+//                     element: <Inventory />
+//                 },
+//                 {
+//                     path: "inventory/:id",
+//                     element: <InventoryDetail />,
+//                 },
+//                 {
+//                     path: "daily-Sales",
+//                     element: <DailySales />,
+//                 },
+//                 {
+//                     path: "categorys",
+//                     element: <Category />,
+//                 },
+//                 {
+//                     path: "Occasions",
+//                     element: <Occasions />,
+//                 },
+//                 {
+//                     path: "carats",
+//                     element: <Carats />,
+//                 },
+//                 {
+//                     path: "settings",
+//                     element: <Settings />,
+//                 },
+//                 {
+//                     path: "products",
+//                     element: <Products />,
+//                 },
+//                 {
+//                     path: "products/:id",
+//                     element: <ProductDetail />,
+//                 },
+//                 {
+//                     path: "products/add",
+//                     element: <AddProduct />,
+//                 },
+//                 {
+//                     path: "partners",
+//                     element: <Partners />,
+//                 },
+//                 {
+//                     path: "partners/add",
+//                     element: <AddPartner />,
+//                 },
+//                 {
+//                     path: "partners/:id",
+//                     element: <PartnerDetails />,
+//                 },
+//                 {
+//                     path: "orders",
+//                     element: <Orders />,
+//                 },
+//                 {
+//                     path: "create/order",
+//                     element: <CreateOrderForm />,
+//                 },
+//                 {
+//                     path: "/order/:id",
+//                     element: <OrderDetails />,
+//                 },
+//                 {
+//                     path: "/telegram-orders",
+//                     element: <TelegramOrdersMock />,
+//                 },
+//                 {
+//                     path: "/discounts",
+//                     element: <CampaignDiscounts />,
+//                 },
+//                 {
+//                     path: "/messages",
+//                     element: <MessageOrders />,
+//                 },
+//                 {
+//                     path: "/user-account",
+//                     element: <UserAccount />
+//                 }
+//             ],
+//         },
+//         {
+//             path: "/register",
+//             element: <Register />,
+//         },
+//         {
+//             path: "/login",
+//             element: <Login />,
+//         },
+//         {
+//             path: "/forgot-password",
+//             element: <ForgetPassword />,
+//         },
+//     ]);
+
+//     return (
+//         <ThemeProvider storageKey="theme">
+//             <Toaster position="top-right" richColors />
+//             <RouterProvider router={router} />
+//         </ThemeProvider>
+//     );
+// }
+// export default App;

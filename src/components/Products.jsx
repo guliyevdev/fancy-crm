@@ -7,6 +7,12 @@ import { useNavigate } from "react-router-dom";
 import productService from "../services/productService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
+import categoryService from "../services/categoryService";
+import colorService from "../services/colorService";
+import occasionService from "../services/occasionService";
+import { getAllMaterials } from "../services/materialService";
+import CustomSelect from "../shared/CustomSelect";
+import partnerService from "../services/partnerService";
 
 Modal.setAppElement("#root");
 
@@ -19,6 +25,12 @@ const Products = () => {
   const [errors, setErrors] = React.useState({});
   const [editOpen, setEditOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
+
+  const [categories, setCategories] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [occasions, setOccasions] = useState([]);
+  const [partners, setPartners] = useState([]);
 
 
   const [addOpen, setAddOpen] = useState(false);
@@ -57,7 +69,6 @@ const Products = () => {
 
 
 
-  const navigate = useNavigate();
 
   const handleSearchChange = (e) => {
     setSearchName(e.target.value);
@@ -92,13 +103,37 @@ const Products = () => {
       });
     } catch (error) {
       console.error("Fetch colors error:", error);
-      setColors([]);
+      // setColors([]);
     }
   };
 
   useEffect(() => {
     fetchProducts(pageInfo.page, pageInfo.size, searchName);
   }, [pageInfo.page]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const categoriesRes = await categoryService.getByName();
+      setCategories(categoriesRes.data.data);
+      console.log(categoriesRes.data.data);
+
+      const colorsRes = await colorService.getByName();
+      setColors(colorsRes.data.data);
+      console.log(colorsRes.data.data);
+
+      const MaterialsRes = await getAllMaterials();
+      setMaterials(MaterialsRes.data);
+      console.log(MaterialsRes.data);
+
+      const occasionsRes = await occasionService.getByName();
+      setOccasions(occasionsRes.data.data);
+      console.log(occasionsRes.data.data);
+      const PartnerRes = await partnerService.getByName("lorem");
+      setPartners(PartnerRes.data.data);
+      console.log(PartnerRes.data.data);
+    };
+    fetchData();
+  }, []);
 
   const exportToExcel = () => {
     const data = products.map(
@@ -124,26 +159,14 @@ const Products = () => {
     saveAs(blob, "products.xlsx");
   };
 
-  // --- NAVIGATION HANDLERS ---
-  const navigateToAddProduct = () => {
-    navigate('/products/add'); // Navigate to the AddProduct component's route
-  };
 
-  const navigateToEditProduct = (product) => {
-    navigate(`/products/${product.id}`); // Navigate to the ProductDetail component's route
-  };
 
   const openDeleteModal = (product) => {
     setSelectedProduct(product);
     setDeleteOpen(true);
   };
 
-  // const handleSearchSubmit = (e) => {
-  //   e.preventDefault();
-  //   // Reset to page 0 for a new search
-  //   setPageInfo(prev => ({ ...prev, page: 0 }));
-  //   fetchProducts(0, pageInfo.size, searchName);
-  // };
+
 
 
 
@@ -152,7 +175,6 @@ const Products = () => {
     try {
       await productService.delete(selectedProduct.id);
       setDeleteOpen(false);
-      // Refetch the current page to reflect the deletion
       fetchProducts(pageInfo.page, pageInfo.size, searchName);
     } catch (error) {
       console.error("Failed to delete product:", error);
@@ -185,17 +207,14 @@ const Products = () => {
 
   const handleDateChange = (name, value) => {
     if (!value) {
-      // Əgər value boşdursa, state-i belə də saxlaya bilərsən
       setNewProduct(prev => ({ ...prev, [name]: "" }));
       return;
     }
 
     const date = new Date(value);
     if (!isNaN(date.getTime())) {
-      // Tarix keçərlidir, ISO formatına çevir
       setNewProduct(prev => ({ ...prev, [name]: date.toISOString() }));
     } else {
-      // Keçərsiz tarixdirsə, boş saxla və ya xəbərdar et
       console.error("Invalid date value:", value);
       setNewProduct(prev => ({ ...prev, [name]: "" }));
     }
@@ -492,7 +511,7 @@ const Products = () => {
             </div>
 
             {/* IDs */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Category ID</label>
               <input
                 type="number"
@@ -502,46 +521,117 @@ const Products = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
               />
               {renderError('categoryId')}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Partner ID</label>
-              <input
-                type="number"
-                name="partnerId"
-                value={newProduct.partnerId}
+            </div> */}
+            {/* <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Kateqoriya</label>
+              <select
+                name="categoryId"
+                value={newProduct.categoryId}
                 onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white text-red-500"
+              >
+                <option value={0}>Kateqoriya seçin</option>
+                {categories?.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              {renderError('categoryId')}
+            </div> */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
+                Kateqoriya
+              </label>
+
+              <CustomSelect
+                name="categoryId"
+                options={categories.map(category => ({
+                  value: category.id,
+                  label: category.name,
+                  name: 'categoryId' // Bu name handleAddChange funksiyası üçün vacibdir
+                }))}
+                value={newProduct.categoryId}
+                onChange={handleAddChange}
+                placeholder="Kateqoriya seçin"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
               />
+
+              {renderError('categoryId')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
+                Partner
+              </label>
+
+              <CustomSelect
+                name="partnerId"
+                options={partners.map(partner => ({
+                  value: partner.id,
+                  label: partner.name, // partner.name varsa, yoxsa partner.companyName və s.
+                  name: 'partnerId'
+                }))}
+                value={newProduct.partnerId}
+                onChange={handleAddChange}
+                placeholder="Partner seçin"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+
               {renderError('partnerId')}
             </div>
 
             {/* Arrays */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Color IDs</label>
-              <input
-                type="number"
-                value={newProduct.colorIds[0] || ""}
-                onChange={(e) => handleNumberArrayChange("colorIds", e.target.value)}
+              <CustomSelect
+                name="colorIds"
+                options={colors?.map(color => ({
+                  value: color.id,
+                  label: color.name,
+                  name: 'colorIds'
+                }))}
+                value={newProduct.colorIds}
+                onChange={handleAddChange}
+                placeholder="Rəng seçin"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
               />
               {renderError('colorIds')}
+
+
             </div>
+
+
+
+
+
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Material IDs</label>
-              <input
-                type="number"
-                value={newProduct.materialIds[0] || ""}
-                onChange={(e) => handleNumberArrayChange("materialIds", e.target.value)}
+              <CustomSelect
+                name="materialIds"
+                options={materials?.map(material => ({
+                  value: material.id,
+                  label: material.name,
+                  name: 'materialIds'
+                }))}
+                value={newProduct.materialIds}
+                onChange={handleAddChange}
+                placeholder="Material seçin"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
               />
               {renderError('materialIds')}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Occasion IDs</label>
-              <input
-                type="number"
-                value={newProduct.occasionIds[0] || ""}
-                onChange={(e) => handleNumberArrayChange("occasionIds", e.target.value)}
+              <CustomSelect
+                name="occasionIds"
+                options={occasions?.map(occasion => ({
+                  value: occasion.id,
+                  label: occasion.name,
+                  name: 'occasionIds'
+                }))}
+                value={newProduct.occasionIds}
+                onChange={handleAddChange}
+                placeholder="Occasion seçin"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
               />
               {renderError('occasionIds')}
