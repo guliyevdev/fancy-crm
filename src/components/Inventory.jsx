@@ -99,10 +99,10 @@ const Inventory = () => {
     };
 
 
-    const fetchProducts = async (page = 0, size = 10, searchTerm = "") => {
+    const fetchProducts = async (page = 0, size = 10, comment = "") => {
         try {
             const params = {
-                searchTerm: searchTerm,
+                comment: comment,
                 // active: false,
                 page,
                 size,
