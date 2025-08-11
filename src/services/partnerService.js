@@ -1,51 +1,62 @@
 import axiosInstance from "../utils/axiosInstance";
 
-const BASE_URL = "/partners";
+const BASE_URL = "/partner/api/v1/partner";
 
 const partnerService = {
-  // POST /partners/register
+
   registerPartner: async (partnerData) => {
-    const response = await axiosInstance.post(`${BASE_URL}/register`, partnerData);
+    const response = await axiosInstance.post(`${BASE_URL}/physical`, partnerData);
+    return response.data;
+  },
+  registerCorporatePartner: async (partnerData) => {
+    const response = await axiosInstance.post(`${BASE_URL}/corporate`, partnerData);
     return response.data;
   },
 
-  // GET /partners/{partnerId}
   getPartnerById: async (partnerId) => {
-    const response = await axiosInstance.get(`${BASE_URL}/${partnerId}`);
+    const response = await axiosInstance.get(`${BASE_URL}/find-by-id`, {
+      headers: {
+        'id': partnerId,
+        'Accept-Language': 'az'
+      }
+    });
     return response.data;
   },
   getByPartnerCode: async (partnercode) => {
-  const trimmedCode = typeof partnercode === 'string' 
-  ? partnercode.trim() 
-  : (partnercode?.code || '').trim();
-  const response = await axiosInstance.get(`${BASE_URL}/code/${encodeURIComponent(trimmedCode)}`);
-  return response.data;
-},
-getByPartnerFinCode: async (partnercode) => {
-  const trimmedCode = typeof partnercode === 'string' 
-  ? partnercode.trim() 
-  : (partnercode?.code || '').trim();
-  const response = await axiosInstance.get(`${BASE_URL}/finCode/${encodeURIComponent(trimmedCode)}`);
-  return response.data;
-},
+    const trimmedCode = typeof partnercode === 'string'
+      ? partnercode.trim()
+      : (partnercode?.code || '').trim();
+    const response = await axiosInstance.get(`${BASE_URL}/code/${encodeURIComponent(trimmedCode)}`);
+    return response.data;
+  },
+  getByPartnerFinCode: async (partnercode) => {
+    const trimmedCode = typeof partnercode === 'string'
+      ? partnercode.trim()
+      : (partnercode?.code || '').trim();
+    const response = await axiosInstance.get(`${BASE_URL}/finCode/${encodeURIComponent(trimmedCode)}`);
+    return response.data;
+  },
 
-  // PUT /partners/{partnerId}
+
   updatePartner: async (partnerId, updatedData) => {
     const response = await axiosInstance.put(`${BASE_URL}/${partnerId}`, updatedData);
     return response.data;
   },
 
-  // GET /partners?companyName=...&status=...&page=0&size=10
   searchPartners: async (criteria = {}, page = 0, size = 10) => {
     const params = {
       ...criteria,
       page,
       size
     };
-    const response = await axiosInstance.get(BASE_URL, { params });
+    const response = await axiosInstance.post(`${BASE_URL}/search`, params);
     return response.data;
   },
-  uploadDocument:async (file) => {
+  findAll: async () => {
+    const response = await axiosInstance.post(`${BASE_URL}/search`,{});
+    return response.data;
+  },
+  uploadDocument: async (file) => {
     const formData = new FormData();
     formData.append("file", file);
 

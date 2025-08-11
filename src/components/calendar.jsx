@@ -1,4 +1,3 @@
-import React from "react";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import {
   createViewMonthGrid,
@@ -29,7 +28,6 @@ const initialEvents = [
   },
 ];
 
-console.log("Initial Events:", initialEvents);
 
 const eventsServicePlugin = createEventsServicePlugin({
   calendars,

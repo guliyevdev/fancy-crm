@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { PencilLine, Trash, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { PencilLine, Plus } from "lucide-react";
 import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -24,11 +24,25 @@ const Partners = () => {
       if (keyword.trim()) criteria.keyword = keyword.trim();
 
       const response = await partnerService.searchPartners(criteria, page, size);
-      setPartners(response.content || []);
+      setPartners(response.data.content || []);
       setPageInfo({
-        page: response.number,
-        size: response.size,
-        totalElements: response.totalElements,
+        page: response.data.pageable.pageNumber,
+        size: response.data.pageable.pageSize,
+        totalElements: response.data.totalElements,
+      });
+    } catch (error) {
+      console.error("Failed to fetch partners:", error);
+    }
+  };
+  const fetchAll = async () => {
+    try {
+
+      const response = await partnerService.findAll();
+      setPartners(response.data.content || []);
+      setPageInfo({
+        page: response.data.pageable.pageNumber,
+        size: response.data.pageable.pageSize,
+        totalElements: response.data.totalElements,
       });
     } catch (error) {
       console.error("Failed to fetch partners:", error);
@@ -36,7 +50,7 @@ const Partners = () => {
   };
 
   useEffect(() => {
-    fetch();
+    fetchAll();
   }, []);
 
   const exportToExcel = () => {
@@ -167,8 +181,6 @@ const Partners = () => {
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Phone</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Address</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Company Name</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
             <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Actions</th>
           </tr>
@@ -176,18 +188,15 @@ const Partners = () => {
         <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
           {partners.map((partner) => (
             <tr key={partner.id}>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.name}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phone}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.address}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.companyName}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.name}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
-                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
-                    partner.status === "ACTIVE"
+                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "ACTIVE"
                       ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
                       : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
-                  }`}
+                    }`}
                 >
                   {partner.status}
                 </span>
@@ -196,7 +205,7 @@ const Partners = () => {
                 <button onClick={() => navigate(`/partners/${partner.id}`)} className="text-blue-600">
                   <PencilLine size={18} />
                 </button>
-                
+
               </td>
             </tr>
           ))}
@@ -217,11 +226,10 @@ const Partners = () => {
         <button
           onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
           disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
-          className={`p-2 rounded-full ${
-            (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+          className={`p-2 rounded-full ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
               ? "text-gray-400"
               : "text-gray-700 dark:text-white"
-          }`}
+            }`}
         >
           <FaChevronRight />
         </button>

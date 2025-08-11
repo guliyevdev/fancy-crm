@@ -15,6 +15,7 @@ import Colors from "./components/Colors";
 import DailySales from "./components/DailySales";
 import Category from "./components/Category";
 import Occasions from "./components/Occasions";
+import Inventory from "./components/Inventory";
 import Carats from "./components/Carats";
 import Products from "./components/Products";
 import ProductDetail from "./components/ProductDetail";
@@ -29,7 +30,7 @@ import { Toaster } from "sonner";
 import TelegramOrdersMock from "./components/TelegramOrders";
 import CampaignDiscounts from "./components/CampaignDiscounts";
 import MessageOrders from "./components/MessageOrders";
-
+import InventoryDetail from "./components/InventoryDetail";
 function App() {
     const router = createBrowserRouter([
         {
@@ -59,6 +60,14 @@ function App() {
                 {
                     path: "colors",
                     element: <Colors />,
+                },
+                {
+                    path:"inventory",
+                    element: <Inventory />
+                },
+                   {
+                    path: "inventory/:id", // Yeni route
+                    element: <InventoryDetail />,
                 },
                 {
                     path: "daily-Sales",

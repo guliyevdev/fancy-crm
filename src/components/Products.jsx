@@ -6,6 +6,7 @@ import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
 import productService from "../services/productService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { toast } from "sonner";
 
 Modal.setAppElement("#root");
 
@@ -15,31 +16,83 @@ const Products = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchName, setSearchName] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0, totalPages: 0 });
+  const [errors, setErrors] = React.useState({});
+  const [editOpen, setEditOpen] = useState(false);
+  const [editProduct, setEditProduct] = useState(null);
+
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    nameAz: "",
+    nameEn: "",
+    nameRu: "",
+    descAz: "",
+    descEn: "",
+    descRu: "",
+    categoryId: 0,
+    colorIds: [],
+    materialIds: [],
+    occasionIds: [],
+    partnerId: 0,
+    carat: "",
+    quantity: 0,
+    weight: 0,
+    size: 0,
+    productFor: ["FOR_SALE"],
+    salePrice: 0,
+    rentPricePerDay: 0,
+    saleCompanyPercent: 0,
+    salePartnerPercent: 0,
+    damageCompanyCompensation: 0,
+    lossCompanyCompensation: 0,
+    partnerTakeBackFeePercent: 0,
+    rentCompanyPercent: 0,
+    rentPartnerPercent: 0,
+    returnFeePercent: 0,
+    customerLatePenaltyPercent: 0,
+    validFrom: "",
+    validTo: "",
+    message: "",
+  });
+
+
 
   const navigate = useNavigate();
 
   const handleSearchChange = (e) => {
     setSearchName(e.target.value);
   };
-  
-  const fetchProducts = async (page = 0, size = 10, keyword = "") => {
-    try {
-      const criteria = {};
-      if (keyword.trim()) criteria.keyword = keyword.trim();
 
-      const pageable = { page, size };
-      const response = await productService.search(criteria, pageable);
-      
-      setProducts(response.data.content);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchProducts(0, pageInfo.size, searchName); // fetch yerine fetchProducts istifadə edin
+  };
+
+
+  const fetchProducts = async (page = 0, size = 10, searchTerm = "") => {
+    try {
+      const params = {
+        searchTerm: searchTerm,
+        // active: false,
+        page,
+        size,
+      };
+      console.log("Göndərilən parametrlər:", params);
+      const response = await productService.search(params);
+      console.log("Alınan cavab:", response.data);
+      const apiData = response.data?.data || response.data;
+      const productsData = apiData?.content || [];
+
+      setProducts(productsData);
       setPageInfo({
-        page: response.data.number,
-        size: response.data.size,
-        totalElements: response.data.totalElements,
-        totalPages: response.data.totalPages,
+        page: apiData?.number || 0,
+        size: apiData?.size || size,
+        totalElements: apiData?.totalElements || 0,
       });
     } catch (error) {
-      console.error("Failed to fetch products:", error);
-       toast.error("Failed to fetch products")
+      console.error("Fetch colors error:", error);
+      setColors([]);
     }
   };
 
@@ -49,13 +102,13 @@ const Products = () => {
 
   const exportToExcel = () => {
     const data = products.map(
-      ({ id, name, code, price, status, size, clicks, favorite, cart, type,raison }) => ({
+      ({ id, name, code, price, status, size, clicks, favorite, cart, type, raison }) => ({
         ID: id,
         Name: name,
         Code: code,
         Price: price,
         Status: status,
-        raison:raison,
+        raison: raison,
         Size: size,
         Clicks: clicks,
         Favorites: favorite,
@@ -75,7 +128,7 @@ const Products = () => {
   const navigateToAddProduct = () => {
     navigate('/products/add'); // Navigate to the AddProduct component's route
   };
-  
+
   const navigateToEditProduct = (product) => {
     navigate(`/products/${product.id}`); // Navigate to the ProductDetail component's route
   };
@@ -85,12 +138,14 @@ const Products = () => {
     setDeleteOpen(true);
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    // Reset to page 0 for a new search
-    setPageInfo(prev => ({ ...prev, page: 0 }));
-    fetchProducts(0, pageInfo.size, searchName);
-  };
+  // const handleSearchSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Reset to page 0 for a new search
+  //   setPageInfo(prev => ({ ...prev, page: 0 }));
+  //   fetchProducts(0, pageInfo.size, searchName);
+  // };
+
+
 
   const confirmDelete = async () => {
     if (!selectedProduct) return;
@@ -98,7 +153,7 @@ const Products = () => {
       await productService.delete(selectedProduct.id);
       setDeleteOpen(false);
       // Refetch the current page to reflect the deletion
-      fetchProducts(pageInfo.page, pageInfo.size, searchName); 
+      fetchProducts(pageInfo.page, pageInfo.size, searchName);
     } catch (error) {
       console.error("Failed to delete product:", error);
       toast.error("Failed to delete product")
@@ -107,9 +162,114 @@ const Products = () => {
 
   const handlePageChange = (newPage) => {
     if (newPage >= 0 && newPage < pageInfo.totalPages) {
-        setPageInfo(prev => ({...prev, page: newPage}));
+      setPageInfo(prev => ({ ...prev, page: newPage }));
     }
   }
+
+
+
+
+  const handleAddChange = (e) => {
+    const { name, value } = e.target;
+    setNewProduct(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleArrayChange = (field, value) => {
+    setNewProduct(prev => ({ ...prev, [field]: [value] }));
+  };
+
+  const handleNumberArrayChange = (field, value) => {
+    const numValue = parseInt(value, 10);
+    setNewProduct(prev => ({ ...prev, [field]: [numValue] }));
+  };
+
+  const handleDateChange = (name, value) => {
+    if (!value) {
+      // Əgər value boşdursa, state-i belə də saxlaya bilərsən
+      setNewProduct(prev => ({ ...prev, [name]: "" }));
+      return;
+    }
+
+    const date = new Date(value);
+    if (!isNaN(date.getTime())) {
+      // Tarix keçərlidir, ISO formatına çevir
+      setNewProduct(prev => ({ ...prev, [name]: date.toISOString() }));
+    } else {
+      // Keçərsiz tarixdirsə, boş saxla və ya xəbərdar et
+      console.error("Invalid date value:", value);
+      setNewProduct(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+
+
+
+  const saveAdd = async (e) => {
+    e.preventDefault();
+    try {
+      await productService.create(newProduct);
+      setAddOpen(false);
+      setErrors({}); // Xətaları təmizlə
+      fetchProducts(); // Refresh the list
+    }
+    catch (error) {
+      console.log("errr", error.response.data.data);
+      if (error.response && Array.isArray(error.response.data.data)) {
+        const validationErrors = {};
+        error.response.data.data.forEach(err => {
+          validationErrors[err.field] = err.message;
+        });
+        setErrors(validationErrors);
+      } else {
+        console.error("Failed to create product:", error.response?.data?.message);
+        toast.error(error.response?.data?.message || "Failed to create product");
+      }
+    }
+
+  };
+
+  const openEditModal = (product) => {
+    setEditProduct(product);
+    setErrors({});
+    setEditOpen(true);
+  };
+
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditProduct(prev => ({ ...prev, [name]: value }));
+  };
+
+  const saveEdit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      productId: editProduct.id,
+      nameAz: editProduct.nameAz,
+      nameEn: editProduct.nameEn,
+      nameRu: editProduct.nameRu || "",
+      descAz: editProduct.descAz || "",
+      descEn: editProduct.descEn || "",
+      descRu: editProduct.descRu || "",
+
+    };
+
+    try {
+      await productService.update(payload);
+      setEditOpen(false);
+      fetchProducts(pageInfo.page, pageInfo.size, searchName);
+      toast.success("Product updated successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update product");
+    }
+  };
+
+
+  const renderError = (fieldName) => {
+    return errors[fieldName] ? (
+      <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors[fieldName]}</p>
+    ) : null;
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -119,7 +279,7 @@ const Products = () => {
         </h2>
         <div className="flex gap-4">
           <button
-            onClick={navigateToAddProduct} // UPDATED: Navigates to the add product page
+            onClick={() => setAddOpen(true)}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
           >
             <Plus className="mr-2 h-4 w-4" /> Add Product
@@ -137,7 +297,7 @@ const Products = () => {
           type="text"
           placeholder="Search by name..."
           value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
+          onChange={handleSearchChange}
           className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
         />
         <button
@@ -150,59 +310,58 @@ const Products = () => {
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-800">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Code</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">For</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Size</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Code</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">For</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Size</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
             </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+          </thead>
+          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {products.map((product, index) => (
-                <tr key={product.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+              <tr key={product.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{product.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.code}</td>
-                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">${product.price?.toFixed(2) ?? "-"}</td>
+                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">${product.salePrice?.toFixed(2) ?? "-"}</td>
                 <td className="px-6 py-4 text-sm">
-                    <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
-                        product.status === "SALED"
-                        ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                  <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.status === "SALED"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
                     }`}>
                     {product.status}
-                    </span>
+                  </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                    <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
-                        product.raison === "FOR_SALE"
-                        ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
-                    }`}>
-                    {product.raison}
-                    </span>
+                  <span
+                    className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.forList?.includes("FOR_SALE")
+                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                      }`}
+                  >
+                    {product.forList?.join(", ")}
+                  </span>
+                </td>
 
-                  
-                  </td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.size || "-"}</td>
                 <td className="px-6 py-4 text-right text-sm font-medium flex gap-4 justify-end">
-                    <button onClick={() => navigateToEditProduct(product)} className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400" aria-label="Edit Product">
-                        <PencilLine size={20} />
-                    </button>
-                    <button onClick={() => openDeleteModal(product)} className="text-red-600 hover:text-red-900 dark:hover:text-red-400" aria-label="Delete Product">
-                        <Trash size={20} />
-                    </button>
+                  <button onClick={() => openEditModal(product)} className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400" aria-label="Edit Product">
+                    <PencilLine size={20} />
+                  </button>
+                  <button onClick={() => openDeleteModal(product)} className="text-red-600 hover:text-red-900 dark:hover:text-red-400" aria-label="Delete Product">
+                    <Trash size={20} />
+                  </button>
                 </td>
-                </tr>
+              </tr>
             ))}
-            </tbody>
+          </tbody>
         </table>
       </div>
 
-      {/* Pagination Controls */}
+
       <div className="flex justify-center items-center mt-6 space-x-4">
         <button
           onClick={() => handlePageChange(pageInfo.page - 1)}
@@ -221,7 +380,6 @@ const Products = () => {
         </button>
       </div>
 
-      {/* Delete Modal */}
       <Modal
         isOpen={deleteOpen}
         onRequestClose={() => setDeleteOpen(false)}
@@ -251,6 +409,438 @@ const Products = () => {
           </button>
         </div>
       </Modal>
+
+
+
+
+
+      {/* Add Product Modal */}
+      <Modal
+        isOpen={addOpen}
+        onRequestClose={() => setAddOpen(false)}
+        contentLabel="Add Product"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+        className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-4xl w-full p-6 outline-none overflow-y-auto max-h-screen"
+      >
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Add New Product</h3>
+        <form onSubmit={saveAdd} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Names */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Name (Azerbaijani)</label>
+              <input
+                name="nameAz"
+                value={newProduct.nameAz}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                required
+              />
+              {renderError('nameAz')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Name (English)</label>
+              <input
+                name="nameEn"
+                value={newProduct.nameEn}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                required
+              />
+              {renderError('nameEn')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Name (Russian)</label>
+              <input
+                name="nameRu"
+                value={newProduct.nameRu}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                required
+              />
+            </div>
+
+            {/* Descriptions */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Description (Azerbaijani)</label>
+              <textarea
+                name="descAz"
+                value={newProduct.descAz}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-1 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('descAz')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Description (English)</label>
+              <textarea
+                name="descEn"
+                value={newProduct.descEn}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-1 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('descEn')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Description (Russian)</label>
+              <textarea
+                name="descRu"
+                value={newProduct.descRu}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-1 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('descRu')}
+            </div>
+
+            {/* IDs */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Category ID</label>
+              <input
+                type="number"
+                name="categoryId"
+                value={newProduct.categoryId}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('categoryId')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Partner ID</label>
+              <input
+                type="number"
+                name="partnerId"
+                value={newProduct.partnerId}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('partnerId')}
+            </div>
+
+            {/* Arrays */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Color IDs</label>
+              <input
+                type="number"
+                value={newProduct.colorIds[0] || ""}
+                onChange={(e) => handleNumberArrayChange("colorIds", e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('colorIds')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Material IDs</label>
+              <input
+                type="number"
+                value={newProduct.materialIds[0] || ""}
+                onChange={(e) => handleNumberArrayChange("materialIds", e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('materialIds')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Occasion IDs</label>
+              <input
+                type="number"
+                value={newProduct.occasionIds[0] || ""}
+                onChange={(e) => handleNumberArrayChange("occasionIds", e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('occasionIds')}
+            </div>
+
+            {/* Product Details */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Carat</label>
+              <input
+                name="carat"
+                value={newProduct.carat}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('carat')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Quantity</label>
+              <input
+                type="number"
+                name="quantity"
+                value={newProduct.quantity}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('quantity')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Weight</label>
+              <input
+                type="number"
+                name="weight"
+                value={newProduct.weight}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('weight')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Size</label>
+              <input
+                type="number"
+                name="size"
+                value={newProduct.size}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('size')}
+            </div>
+
+            {/* Product For */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Product For</label>
+              <select
+                value={newProduct.productFor[0]}
+                onChange={(e) => handleArrayChange("productFor", e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              >
+                <option value="FOR_SALE">For Sale</option>
+                <option value="FOR_RENT">For Rent</option>
+              </select>
+              {renderError('productFor')}
+            </div>
+
+            {/* Prices */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Sale Price</label>
+              <input
+                type="number"
+                name="salePrice"
+                value={newProduct.salePrice}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('salePrice')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Rent Price Per Day</label>
+              <input
+                type="number"
+                name="rentPricePerDay"
+                value={newProduct.rentPricePerDay}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('rentPricePerDay')}
+            </div>
+
+            {/* Percentages */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Sale Company %</label>
+              <input
+                type="number"
+                name="saleCompanyPercent"
+                value={newProduct.saleCompanyPercent}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('saleCompanyPercent')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Sale Partner %</label>
+              <input
+                type="number"
+                name="salePartnerPercent"
+                value={newProduct.salePartnerPercent}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('salePartnerPercent')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Damage Compensation</label>
+              <input
+                type="number"
+                name="damageCompanyCompensation"
+                value={newProduct.damageCompanyCompensation}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('damageCompanyCompensation')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Loss Compensation</label>
+              <input
+                type="number"
+                name="lossCompanyCompensation"
+                value={newProduct.lossCompanyCompensation}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('lossCompanyCompensation')}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Take Back Fee %</label>
+              <input
+                type="number"
+                name="partnerTakeBackFeePercent"
+                value={newProduct.partnerTakeBackFeePercent}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('partnerTakeBackFeePercent')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Rent Company %</label>
+              <input
+                type="number"
+                name="rentCompanyPercent"
+                value={newProduct.rentCompanyPercent}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('rentCompanyPercent')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Rent Partner %</label>
+              <input
+                type="number"
+                name="rentPartnerPercent"
+                value={newProduct.rentPartnerPercent}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('rentPartnerPercent')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Return Fee %</label>
+              <input
+                type="number"
+                name="returnFeePercent"
+                value={newProduct.returnFeePercent}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('returnFeePercent')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Late Penalty %</label>
+              <input
+                type="number"
+                name="customerLatePenaltyPercent"
+                value={newProduct.customerLatePenaltyPercent}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('customerLatePenaltyPercent')}
+            </div>
+
+            {/* Dates */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Valid From</label>
+              <input
+                type="datetime-local"
+                onChange={(e) => handleDateChange("validFrom", e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('validFrom')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Valid To</label>
+              <input
+                type="datetime-local"
+                onChange={(e) => handleDateChange("validTo", e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('validTo')}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Carat</label>
+              <input
+                name="message"
+                value={newProduct.message}
+                onChange={handleAddChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+              />
+              {renderError('carat')}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => setAddOpen(false)}
+              className="px-4 py-2 rounded border border-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Add Product
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+
+      <Modal
+        isOpen={editOpen}
+        onRequestClose={() => setEditOpen(false)}
+        contentLabel="Edit Product"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+        className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-4xl w-full p-6 outline-none overflow-y-auto max-h-screen"
+      >
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Edit Product</h3>
+
+        {editProduct && (
+          <form onSubmit={saveEdit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* Name fields */}
+              <div>
+                <label className="block text-sm font-medium">Name (Azerbaijani)</label>
+                <input name="nameAz" value={editProduct.nameAz || ""} onChange={handleEditChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Name (English)</label>
+                <input name="nameEn" value={editProduct.nameEn || ""} onChange={handleEditChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Name (Russian)</label>
+                <input name="nameRu" value={editProduct.nameRu || ""} onChange={handleEditChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white" />
+              </div>
+
+              {/* Description fields */}
+              <div>
+                <label className="block text-sm font-medium">Description (AZ)</label>
+                <textarea name="descAz" value={editProduct.descAz || ""} onChange={handleEditChange} className="mt-1 block w-full px-3 py-0.3 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Description (EN)</label>
+                <textarea name="descEn" value={editProduct.descEn || ""} onChange={handleEditChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Description (RU)</label>
+                <textarea name="descRu" value={editProduct.descRu || ""} onChange={handleEditChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white" />
+              </div>
+
+
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-2 pt-4">
+              <button type="button" onClick={() => setEditOpen(false)} className="px-4 py-2 bg-gray-300 rounded-md">
+                Cancel
+              </button>
+              <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md">
+                Save Changes
+              </button>
+            </div>
+          </form>
+        )}
+      </Modal>
+
+
     </div>
   );
 };
