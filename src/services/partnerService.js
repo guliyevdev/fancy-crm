@@ -53,7 +53,10 @@ const partnerService = {
     return response.data;
   },
   findAll: async () => {
-    const response = await axiosInstance.post(`${BASE_URL}/search`,{});
+    const response = await axiosInstance.post(`${BASE_URL}/search`,{
+      page: 1,
+      size: 10
+    });
     return response.data;
   },
   uploadDocument: async (file) => {
