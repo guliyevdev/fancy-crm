@@ -31,6 +31,7 @@ import TelegramOrdersMock from "./components/TelegramOrders";
 import CampaignDiscounts from "./components/CampaignDiscounts";
 import MessageOrders from "./components/MessageOrders";
 import InventoryDetail from "./components/InventoryDetail";
+import AddPartnerDocument from "./components/AddPartnerDocument";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import ForgetPassword from "./components/ForgetPassword";
@@ -107,6 +108,10 @@ function App() {
                 {
                     path: "products/add",
                     element: <AddProduct />,
+                },
+                {
+                    path: "partners/add-document/:id",
+                    element: <AddPartnerDocument />,
                 },
                 {
                     path: "partners",

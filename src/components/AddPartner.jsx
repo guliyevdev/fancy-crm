@@ -147,7 +147,7 @@ const AddPartner = () => {
       };
       await partnerService.registerPartner(partnerData);
       toast.success('Partner registered successfully!');
-      setTimeout(() => navigate('/partners'), 1500);
+      setTimeout(() => navigate(`/partners/add-document/${partnerData.id}`), 1500);
     } catch (err) {
       console.error(err);
       // Extract error message from backend response
