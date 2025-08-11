@@ -18,15 +18,8 @@ const occasionService = {
   delete: (id) => axiosInstance.delete(`${BASE_URL}/${id}`),
 
 
-  // search: (criteria = {}, page = 0, size = 10) => {
-  //   const body = {
-  //     name: criteria.keyword || "", 
-  //     active: true,
-  //     page,
-  //     size,
-  //   };
-  //   return axiosInstance.post(`${BASE_URL}/search`, body);
-  // },
+  getByName: () => axiosInstance.get(`${BASE_URL}/occasion-names`),
+
 
   search: (params) => axiosInstance.post(`${BASE_URL}/search`, params),
 

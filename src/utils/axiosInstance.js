@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie"; // token üçün
 
 const axiosInstance = axios.create({
   baseURL: '/api',
@@ -8,7 +9,18 @@ const axiosInstance = axios.create({
   withCredentials: true, // Add this for cookies if needed
 });
 
-// Optional: global error handler (can be expanded)
+// Token interceptor əlavə olunur
+axiosInstance.interceptors.request.use((config) => {
+  const token = Cookies.get("accessToken");
+  if (token) {
+    config.headers.Authorization = ` ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+// Mövcud error handler (sənin kodun olduğu kimi qalır)
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -18,17 +30,17 @@ axiosInstance.interceptors.response.use(
 );
 
 export const uploadToServer = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const res = await axiosInstance.post('/upload', formData, {
-        headers: {
-        'Content-Type': 'multipart/form-data',
-        },
-    });
+  const res = await axiosInstance.post('/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 
-    return res.data.url; // Your backend must return this
-    };
+  return res.data.url; // Your backend must return this
+};
 export const backendBaseUrl = "/api/download";
 
 export default axiosInstance;
