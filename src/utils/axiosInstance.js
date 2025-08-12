@@ -3,9 +3,6 @@ import Cookies from "js-cookie"; // token üçün
 
 const axiosInstance = axios.create({
   baseURL: '/api',
-  headers: {
-    "Content-Type": "application/json",
-  },
   withCredentials: true, // Add this for cookies if needed
 });
 
