@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import profile from "../assets/profile.jpg"
+import { toast } from "sonner";
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -33,7 +34,7 @@ const Settings = () => {
     e.preventDefault();
     setLoadingProfile(true);
     setTimeout(() => {
-      alert("Profile updated!");
+      toast.success("Profile updated!");
       setLoadingProfile(false);
     }, 1000);
   };
@@ -42,7 +43,7 @@ const Settings = () => {
     e.preventDefault();
     setLoadingPassword(true);
     setTimeout(() => {
-      alert("Password changed!");
+      toast.success("Password changed!");
       setLoadingPassword(false);
     }, 1000);
   };

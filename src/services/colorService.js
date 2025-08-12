@@ -9,11 +9,12 @@ const colorService = {
 
   update: (id, data) =>
     axiosInstance.put(`${BASE_URL}/upd`, {
-      
+
       id,
       ...data,
     }),
   delete: (id) => axiosInstance.delete(`${BASE_URL}/${id}`),
+  getByName: () => axiosInstance.get(`${BASE_URL}/color-names`),
 };
 
 export default colorService;

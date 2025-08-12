@@ -4,6 +4,7 @@ import InventoryServices from '../services/inventoryService';
 import { toast } from 'sonner';
 import Modal from "react-modal";
 import { Plus, Trash } from 'lucide-react';
+import { FaChevronDown } from 'react-icons/fa';
 
 Modal.setAppElement("#root");
 
@@ -11,7 +12,6 @@ const InventoryDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // State-lər
     const [inventory, setInventory] = useState(null); // Inventory məlumatları
     const [loading, setLoading] = useState(true); // Yüklənmə statusu
     const [scanOpen, setScanOpen] = useState(false); // Skan modalının açıq/bağlı statusu
@@ -21,15 +21,15 @@ const InventoryDetail = () => {
         status: "OPEN" // Default status
     });
     const [closeModalOpen, setCloseModalOpen] = useState(false);
-    const [selectedStatus, setSelectedStatus] = useState('');
+    const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
     const statusOptions = [
-        { value: 'DRAFT', label: 'Məhsul əlavə olunub, amma hələ contract və ya təsdiq yoxdur' },
+        { value: 'SOLD', label: 'Məhsul satılıb və müştəriyə verilib' },
         { value: 'IN_THE_OFFICE', label: 'Məhsul aktivdir və hazırda ofisdədir' },
+        { value: 'DRAFT', label: 'Məhsul əlavə olunub, amma hələ contract və ya təsdiq yoxdur' },
         { value: 'RESERVED', label: 'Məhsul icarə və ya satış üçün rezerv olunub' },
         { value: 'AT_THE_CLIENT', label: 'Məhsul icarədədir (aktiv olaraq müştəridədir)' },
         { value: 'DELAYED_RETURN', label: ' Məhsulun geri qaytarılması gecikib' },
-        { value: 'SOLD', label: 'Məhsul satılıb və müştəriyə verilib' },
         { value: 'SERVICE', label: 'Məhsul servisdədir (məsələn: təmir, yoxlama)' },
         { value: 'CANCELLED_BY_PARTNER', label: 'Partner tərəfindən contract ləğv olunub, məhsul geri götürülüb' },
         { value: 'DEACTIVATED', label: ' Məhsul deaktiv vəziyyətdədir (ümumi deaktiv)' },
@@ -37,30 +37,22 @@ const InventoryDetail = () => {
         { value: 'EXPIRED_AGREEMENT', label: 'Partnyor-la muqavile vaxti bitibse' }
     ];
 
-    const handleCloseInventory = async () => {
-        // if (!selectedStatus) {
-        //     toast.error('Zəhmət olmasa status seçin');
-        //     return;
-        // }
 
+    const handleCloseInventory = async () => {
         try {
             await InventoryServices.closeScan({
                 id: id,
-                status: selectedStatus
+                status: "CLOSE"
             });
             toast.success('Inventory uğurla bağlandı');
             setCloseModalOpen(false);
 
-            // Inventory məlumatlarını yenilə
             const response = await InventoryServices.getById(id);
             setInventory(response.data.data);
-        }
-        catch (error) {
-            console.error('Inventory bağlanarkən xəta:', error);
-            // toast.error(error.response?.data?.message || 'Inventory bağlana bilmədi');
+        } catch (error) {
+            toast.error("Inventory bağlanarkən xəta baş verdi");
         }
     };
-
 
 
     useEffect(() => {
@@ -69,7 +61,6 @@ const InventoryDetail = () => {
                 const response = await InventoryServices.getById(id);
                 setInventory(response.data.data);
             } catch (error) {
-                console.error("Error fetching inventory details:", error);
                 toast.error("Inventory details could not be loaded");
                 navigate('/inventory');
             } finally {
@@ -80,26 +71,18 @@ const InventoryDetail = () => {
         fetchInventoryDetail();
     }, [id, navigate]);
 
-    // Skan modalını açmaq üçün funksiya
     const openScanModal = () => {
         setScanData({
-            inventoryId: id, // URL-dən gələn ID-ni istifadə edirik
-            productCodes: [""], // Boş inputla başlayırıq
-            status: "OPEN" // Default status
+            inventoryId: id,
+            productCodes: [""],
+            status: "SOLD"
         });
         setScanOpen(true);
     };
 
-    // Form inputlarının dəyərlərini dəyişmək üçün
-    const handleScanChange = (e) => {
-        const { name, value } = e.target;
-        setScanData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
 
-    // Skan formunu göndərmək üçün funksiya
+
+
     const handleScanSubmit = async (e) => {
         e.preventDefault();
 
@@ -111,22 +94,19 @@ const InventoryDetail = () => {
                 return;
             }
 
-            // Burada artıq bir requestlə göndəririk
             await InventoryServices.createScan({
                 inventoryId: scanData.inventoryId,
-                productCodes: validCodes, // array kimi gedir
+                productCode: validCodes,
                 status: scanData.status
             });
 
             toast.success(`${validCodes.length} məhsul kodu uğurla əlavə edildi`);
             setScanOpen(false);
 
-            // Yenidən inventory-ni yükləyirik
             const response = await InventoryServices.getById(id);
             setInventory(response.data.data);
 
         } catch (error) {
-            console.error("Skan əlavə edilərkən xəta:", error);
             toast.error(error.response?.data?.message || "Skan əlavə edilərkən xəta baş verdi");
         }
     };
@@ -161,34 +141,44 @@ const InventoryDetail = () => {
         return <div className="p-6">Loading...</div>;
     }
 
-    // Inventory tapılmadısa xəta mesajı
     if (!inventory) {
         return <div className="p-6">Inventory not found</div>;
     }
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
-            {/* Başlıq */}
             <h2 className="text-2xl font-semibold mb-6">Inventory Details</h2>
 
-            {/* Ümumi məlumatlar bölməsi */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
                 <h3 className="text-xl font-semibold mb-4">General Information</h3>
-                <div className='flex justify-between'>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex justify-between">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                         <div>
                             <p className="text-gray-600 dark:text-gray-300">ID: {inventory.id}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Status: {inventory.status}</p>
+                            <p className="text-gray-600 dark:text-gray-300">User ID: {inventory.userId ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Created By Code: {inventory.createdByCode ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Created By Name: {inventory.createdByName ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Created By Surname: {inventory.createdBySurname ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Created By Email: {inventory.createdByEmail ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Created By Phone: {inventory.createdByPhone ?? "-"}</p>
                             <p className="text-gray-600 dark:text-gray-300">Created At: {inventory.createdAt}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Closed At: {inventory.closedAt ?? "-"}</p>
                         </div>
                         <div>
+                            <p className="text-gray-600 dark:text-gray-300">Status: {inventory.status}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Comment: {inventory.comment}</p>
                             <p className="text-gray-600 dark:text-gray-300">Total Products: {inventory.totalProductCount}</p>
                             <p className="text-gray-600 dark:text-gray-300">Scanned: {inventory.scannedCount}</p>
                             <p className="text-gray-600 dark:text-gray-300">Not Scanned: {inventory.notScannedCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Matched: {inventory.matchedCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Not Matched: {inventory.notMatchedCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Total Elements: {inventory.totalElements}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Total Pages: {inventory.totalPages}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Size: {inventory.size}</p>
                         </div>
                     </div>
-                    {/* Skan et düyməsi */}
-                    <div>
+
+                    <div className="ml-4">
                         <button
                             onClick={openScanModal}
                             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
@@ -197,9 +187,9 @@ const InventoryDetail = () => {
                         </button>
                     </div>
                 </div>
+
             </div>
 
-            {/* Məhsul detalları bölməsi */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 className="text-xl font-semibold mb-4">Product Details</h3>
                 <div className="overflow-x-auto">
@@ -208,6 +198,8 @@ const InventoryDetail = () => {
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Product Code</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">System Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Scanned Status </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Comment</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Scanned</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Matched</th>
                             </tr>
@@ -217,6 +209,8 @@ const InventoryDetail = () => {
                                 <tr key={product.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
                                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{product.productCode}</td>
                                     <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.systemStatus}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.scannedStatus}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.comment}</td>
                                     <td className="px-6 py-4 text-sm">
                                         <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.scanned ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200'}`}>
                                             {product.scanned ? 'Yes' : 'No'}
@@ -244,7 +238,7 @@ const InventoryDetail = () => {
                 </button>
             </div>
 
-            {/* close modali  */}
+
 
             <Modal
                 isOpen={closeModalOpen}
@@ -254,42 +248,24 @@ const InventoryDetail = () => {
                 className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full p-6 outline-none"
             >
                 <h3 className="text-xl font-semibold mb-4">Inventory Bağlama</h3>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-2">
-                            Bağlama səbəbini seçin
-                        </label>
-                        <select
-                            value={selectedStatus}
-                            onChange={(e) => setSelectedStatus(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-                        >
-                            <option value="">Seçim edin</option>
-                            {statusOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="flex justify-end gap-4">
-                        <button
-                            onClick={() => setCloseModalOpen(false)}
-                            className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600"
-                        >
-                            Ləğv et
-                        </button>
-                        <button
-                            onClick={handleCloseInventory}
-                            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
-                        >
-                            Təsdiqlə
-                        </button>
-                    </div>
+                <p className="mb-6">Bağlama əməliyyatına əminsiniz?</p>
+                <div className="flex justify-end gap-4">
+                    <button
+                        onClick={() => setCloseModalOpen(false)}
+                        className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600"
+                    >
+                        Xeyr
+                    </button>
+                    <button
+                        onClick={handleCloseInventory}
+                        className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                    >
+                        Bəli
+                    </button>
                 </div>
             </Modal>
 
-            {/* Skan modalı */}
+
             <Modal
                 isOpen={scanOpen}
                 onRequestClose={() => setScanOpen(false)}
@@ -301,7 +277,6 @@ const InventoryDetail = () => {
                     Məhsul Skanı
                 </h3>
                 <form onSubmit={handleScanSubmit} className="space-y-4">
-                    {/* Inventory ID */}
                     <div>
                         <label className="block text-sm font-medium mb-1">
                             Inventory ID
@@ -314,57 +289,104 @@ const InventoryDetail = () => {
                         />
                     </div>
 
-                    {/* Məhsul kodları inputları */}
+
+
+
+
                     <div>
                         <label className="block text-sm font-medium mb-1">
                             Məhsul Kodları
                         </label>
-                        {scanData.productCodes.map((code, index) => (
-                            <div key={index} className="flex gap-2 mb-2">
-                                <input
-                                    value={code}
-                                    onChange={(e) => handleProductCodeChange(index, e.target.value)}
-                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-                                    required
-                                />
-                                {index === scanData.productCodes.length - 1 ? (
-                                    <button
-                                        type="button"
-                                        onClick={addProductCodeField}
-                                        className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                                    >
-                                        <Plus size={16} />
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeProductCodeField(index)}
-                                        className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                    >
-                                        <Trash size={16} />
-                                    </button>
-                                )}
-                            </div>
-                        ))}
+
+
+                        <div
+                            className="max-h-[160px] overflow-y-auto  px-2 py-2"
+                            style={{ scrollbarWidth: "thin" }}
+                        >
+                            {scanData.productCodes.map((code, index) => (
+                                <div key={index} className="flex gap-2 mb-2">
+                                    <input
+                                        value={code}
+                                        onChange={(e) => handleProductCodeChange(index, e.target.value)}
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                                        required
+                                    />
+                                    {index === scanData.productCodes.length - 1 ? (
+                                        <button
+                                            type="button"
+                                            onClick={addProductCodeField}
+                                            className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                                        >
+                                            <Plus size={16} />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeProductCodeField(index)}
+                                            className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                        >
+                                            <Trash size={16} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Status seçimi */}
+
                     <div>
                         <label className="block text-sm font-medium mb-1">
                             Status
                         </label>
-                        <select
-                            name="status"
-                            value={scanData.status}
-                            onChange={handleScanChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-                        >
-                            <option value="OPEN">OPEN</option>
-                            <option value="CLOSE">CLOSE</option>
-                        </select>
+
+
+
+                        <div className="relative">
+
+                            <div
+                                onClick={() => setStatusDropdownOpen(prev => !prev)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md 
+               dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 
+               cursor-pointer flex justify-between items-center"
+                            >
+                                <span>
+                                    {statusOptions.find(o => o.value === scanData.status)?.label || "Status seçin"}
+                                </span>
+                                <FaChevronDown
+                                    className={`ml-2 transition-transform duration-200 ${statusDropdownOpen ? "transform rotate-180" : ""
+                                        }`}
+                                    size={16}
+                                />
+                            </div>
+
+
+                            {statusDropdownOpen && (
+                                <div className="absolute mt-1 w-full bg-white dark:bg-gray-800 border 
+                    border-gray-300 dark:border-gray-700 rounded-md shadow-lg 
+                    max-h-60 overflow-auto z-10">
+                                    {statusOptions.map(option => (
+                                        <div
+                                            key={option.value}
+                                            onClick={() => {
+                                                setScanData(prev => ({ ...prev, status: option.value }));
+                                                setStatusDropdownOpen(false);
+                                            }}
+                                            className="px-3 py-2 text-sm text-gray-700 dark:text-gray-100 
+                     hover:bg-gray-100 dark:hover:bg-gray-700 
+                     cursor-pointer break-words"
+                                        >
+                                            {option.label}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+
+
                     </div>
 
-                    {/* Düymələr */}
+
                     <div className="flex justify-end gap-4 mt-6">
                         <button
                             type="button"

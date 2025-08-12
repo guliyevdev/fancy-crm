@@ -24,42 +24,65 @@ const Inventory = () => {
 
         comment: "",
     });
-   
+
 
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
-    const [filterStatus, setFilterStatus] = useState("");
+    const [filterStatus, setFilterStatus] = useState(null);
     const [filteredData, setFilteredData] = useState([]);
+ 
+
     const applyFilter = async (start, end, status) => {
         try {
             const fromDate = start ? start.toISOString() : null;
             const toDate = end ? end.toISOString() : null;
 
+          
+            const filterStatusParam = status === "" ? null : status;
+
             const response = await InventoryServices.search({
                 fromDate,
                 toDate,
-                status,
+                status: filterStatusParam,
+                searchTerm: searchName,
+                page: 0,
+                size: pageInfo.size,
             });
 
-            setFilteredData(response.data);
+            const apiData = response.data?.data || response.data;
+            const productsData = apiData?.content || [];
+
+            setProducts(productsData);
+            setPageInfo({
+                page: apiData?.number || 0,
+                size: apiData?.size || pageInfo.size,
+                totalElements: apiData?.totalElements || 0,
+                totalPages: apiData?.totalPages || 0,
+            });
         } catch (error) {
             console.error("Filtrləmə zamanı xəta:", error);
         }
     };
 
-    // Tarixlər dəyişəndə dərhal filter tətbiq et
+
+
     const handleDateChange = (dates) => {
         const [start, end] = dates;
         setStartDate(start);
         setEndDate(end);
+        setPageInfo(prev => ({ ...prev, page: 0 }));
         applyFilter(start, end, filterStatus);
     };
 
+  
     const handleStatusChange = (e) => {
-        const newStatus = e.target.value;
+        const newStatus = e.target.value || null; 
         setFilterStatus(newStatus);
+        setPageInfo(prev => ({ ...prev, page: 0 }));
         applyFilter(startDate, endDate, newStatus);
     };
+
+
 
 
 
@@ -76,10 +99,10 @@ const Inventory = () => {
     };
 
 
-    const fetchProducts = async (page = 0, size = 10, searchTerm = "") => {
+    const fetchProducts = async (page = 0, size = 10, comment = "") => {
         try {
             const params = {
-                searchTerm: searchTerm,
+                comment: comment,
                 // active: false,
                 page,
                 size,
@@ -231,10 +254,10 @@ const Inventory = () => {
                     </button>
                 </div>
             </div>
-     
 
-            <div className="flex items-center justify-between gap-6 mb-4">
-                {/* Search form */}
+
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 mb-4">
+
                 <form onSubmit={handleSearchSubmit} className="flex gap-2 items-center">
                     <input
                         type="text"
