@@ -147,6 +147,14 @@ const AddPartner = () => {
       };
       const response = await partnerService.registerPartner(partnerData);
       toast.success('Partner registered successfully!');
+      // If your response contains a URL to a PDF file and you want to download it:
+      // Let's assume the PDF URL is in response.data.pdfUrl
+
+      if (response.data && response.data.contractFilePath) {
+        const pdfUrl = response.data.contractFilePath;
+        window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+        toast.success('PDF opened in a new tab!');
+      }
       setTimeout(() => navigate(`/partners/add-document/${response.data.partnerId}`), 1500);
     } catch (err) {
       console.error(err);
