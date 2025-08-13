@@ -1,6 +1,6 @@
 import axiosInstance from "../utils/axiosInstance";
 
-const BASE_URL = "/partner/api/v1/partner";
+const BASE_URL = "partner/api/v1/partner";
 
 const partnerService = {
 
@@ -66,12 +66,19 @@ const partnerService = {
     });
     return response.data;
   },
-  uploadDocument: async (file) => {
+  uploadDocument: async (file, partnerId, documentType) => {
     const formData = new FormData();
     formData.append("file", file);
-
-    const response = await axiosInstance.post(`${BASE_URL}/upload`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+    const response = await axiosInstance.post(`${BASE_URL}/upload-file`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "partnerId": partnerId,
+        "documentType": documentType
+      }
     });
 
     return response.data;

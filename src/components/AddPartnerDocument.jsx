@@ -4,6 +4,7 @@ import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from 'sonner';
 import { useParams } from "react-router-dom";
+import partnerService from "../services/partnerService";
 
 const AddPartnerDocument = ({ onUpload }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -38,14 +39,21 @@ const AddPartnerDocument = ({ onUpload }) => {
     }
     setUploading(true);
     try {
-      // Simulate upload or call your upload service here
-      // Example: await partnerService.uploadDocument(selectedFile);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Document uploaded successfully!");
+      console.log("Selected file:", selectedFile);
+      console.log("File type:", selectedFile.type);
+      console.log("File size:", selectedFile.size);
+      console.log("Partner ID:", id);
+      
+      const response = await partnerService.uploadDocument(selectedFile, id, "PARTNERSHIP_AGREEMENT_SIGNED");
+      
       if (onUpload) onUpload(selectedFile);
       setSelectedFile(null);
+      console.log("Upload response:", response);
+
+      toast.success("Document uploaded successfully!");
     } catch (error) {
-      toast.error("Failed to upload document.");
+      console.error("Upload error:", error);
+      toast.error(`Failed to upload document: ${error.message || 'Unknown error'}`);
     } finally {
       setUploading(false);
     }
