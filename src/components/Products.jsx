@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PencilLine, Trash, Plus } from "lucide-react";
+import { PencilLine, Trash, Plus, Eye } from "lucide-react";
 import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -31,7 +31,7 @@ const Products = () => {
   const [materials, setMaterials] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [partners, setPartners] = useState([]);
-
+  const navigate = useNavigate();
 
   const [addOpen, setAddOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({
@@ -85,14 +85,15 @@ const Products = () => {
     try {
       const params = {
         searchTerm: searchTerm,
-        // active: false,
+        active: false,
         page,
         size,
       };
       console.log("Göndərilən parametrlər:", params);
       const response = await productService.search(params);
       console.log("Alınan cavab:", response.data);
-      const apiData = response.data?.data || response.data;
+
+      const apiData = response.data?.data || {};
       const productsData = apiData?.content || [];
 
       setProducts(productsData);
@@ -100,10 +101,11 @@ const Products = () => {
         page: apiData?.number || 0,
         size: apiData?.size || size,
         totalElements: apiData?.totalElements || 0,
+        totalPages: apiData?.totalPages || 1
       });
     } catch (error) {
-      console.error("Fetch colors error:", error);
-      // setColors([]);
+      console.error("Fetch products error:", error);
+      toast.error("Məhsullar gətirilərkən xəta baş verdi");
     }
   };
 
@@ -228,8 +230,8 @@ const Products = () => {
     try {
       await productService.create(newProduct);
       setAddOpen(false);
-      setErrors({}); // Xətaları təmizlə
-      fetchProducts(); // Refresh the list
+      setErrors({});
+      fetchProducts();
     }
     catch (error) {
       console.log("errr", error.response.data.data);
@@ -298,7 +300,7 @@ const Products = () => {
         </h2>
         <div className="flex gap-4">
           <button
-            onClick={() => setAddOpen(true)}
+            onClick={() => navigate("/products/addproduct")}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
           >
             <Plus className="mr-2 h-4 w-4" /> Add Product
@@ -328,21 +330,28 @@ const Products = () => {
       </form>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800">
+        <table className="min-w-full divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800 dark:text-white">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Image</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Code</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">For</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Size</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {products.map((product, index) => (
               <tr key={product.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <img
+                    src={product.mainMediaPath}
+                    alt={product.name || "Product"}
+                    className="max-w-[100px] max-h-[40px] rounded-[10px] object-cover"
+                  />
+                </td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{product.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.code}</td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">${product.salePrice?.toFixed(2) ?? "-"}</td>
@@ -365,13 +374,17 @@ const Products = () => {
                   </span>
                 </td>
 
-                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.size || "-"}</td>
-                <td className="px-6 py-4 text-right text-sm font-medium flex gap-4 justify-end">
+                <td className="px-6 py-4 text-right text-sm font-medium  gap-4 flex items-center justify-center  ">
                   <button onClick={() => openEditModal(product)} className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400" aria-label="Edit Product">
-                    <PencilLine size={20} />
+                    {/* <PencilLine size={20} /> */}
                   </button>
-                  <button onClick={() => openDeleteModal(product)} className="text-red-600 hover:text-red-900 dark:hover:text-red-400" aria-label="Delete Product">
-                    <Trash size={20} />
+
+                  <button
+                    onClick={() => navigate(`/products/${product.id}`)}
+                    className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400  p-2"
+                    title="View Details"
+                  >
+                    <Eye size={20} />
                   </button>
                 </td>
               </tr>
@@ -510,35 +523,7 @@ const Products = () => {
               {renderError('descRu')}
             </div>
 
-            {/* IDs */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Category ID</label>
-              <input
-                type="number"
-                name="categoryId"
-                value={newProduct.categoryId}
-                onChange={handleAddChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
-              />
-              {renderError('categoryId')}
-            </div> */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">Kateqoriya</label>
-              <select
-                name="categoryId"
-                value={newProduct.categoryId}
-                onChange={handleAddChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white text-red-500"
-              >
-                <option value={0}>Kateqoriya seçin</option>
-                {categories?.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-              {renderError('categoryId')}
-            </div> */}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
                 Kateqoriya

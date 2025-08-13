@@ -2,8 +2,6 @@ import react, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2, Download, UploadCloud, Loader2, FileText, Search, Check } from 'lucide-react';
 
-// --- SERVICE IMPORTS ---
-// The component relies on these services being correctly configured in your project.
 import productService from '../services/productService';
 import categoryService from '../services/categoryService';
 import caratService from '../services/caratService';
@@ -11,12 +9,9 @@ import { searchMaterials } from '../services/materialService';
 import designerService from '../services/designerService';
 import occasionService from '../services/occasionService';
 import colorService from '../services/colorService';
-import axios from 'axios';
-import axiosInstance, { uploadToServer } from '../utils/axiosInstance';
 import partnerService from '../services/partnerService';
 
 
-// --- Helper Components ---
 const Notification = ({ message, type, onDismiss }) => {
     if (!message) return null;
     const baseClasses = 'fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300 z-50';
@@ -28,7 +23,6 @@ const Notification = ({ message, type, onDismiss }) => {
     return <div className={`${baseClasses} ${typeClasses[type]}`}>{message}</div>;
 };
 
-// --- Reusable Form Components ---
 const FormInput = ({ id, label, ...props }) => (
     <div>
         <label htmlFor={id} className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>

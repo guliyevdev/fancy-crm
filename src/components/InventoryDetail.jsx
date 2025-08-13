@@ -16,8 +16,8 @@ const InventoryDetail = () => {
     const [loading, setLoading] = useState(true); // Yüklənmə statusu
     const [scanOpen, setScanOpen] = useState(false); // Skan modalının açıq/bağlı statusu
     const [scanData, setScanData] = useState({
-        inventoryId: "", // Inventory ID
-        productCodes: [], // Məhsul kodları arrayi
+        inventoryId: "", 
+        productCodes: [], 
         status: "OPEN" // Default status
     });
     const [closeModalOpen, setCloseModalOpen] = useState(false);

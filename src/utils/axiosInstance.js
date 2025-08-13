@@ -6,21 +6,18 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Add this for cookies if needed
+  withCredentials: true, 
 });
 
-// Token interceptor əlavə olunur
 axiosInstance.interceptors.request.use((config) => {
   const token = Cookies.get("accessToken");
   if (token) {
-    config.headers.Authorization = ` ${token}`;
+    config.headers.Authorization = `${token}`; 
   }
   return config;
-}, (error) => {
-  return Promise.reject(error);
 });
 
-// Mövcud error handler (sənin kodun olduğu kimi qalır)
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
