@@ -37,7 +37,8 @@ import Login from "./components/Login";
 import ForgetPassword from "./components/ForgetPassword";
 import UserAccount from "./components/UserAccount";
 import PrivateRoute from "./components/routes/PrivateRoutes";
-
+import ProductAdd from "./components/ProductAdd";
+import AllUsers from "./components/Auth/AllUsers";
 function App() {
     const router = createBrowserRouter([
         {
@@ -110,6 +111,10 @@ function App() {
                     element: <AddProduct />,
                 },
                 {
+                    path: "products/addproduct",
+                    element: <ProductAdd />,
+                },
+                {
                     path: "partners/add-document/:id",
                     element: <AddPartnerDocument />,
                 },
@@ -153,7 +158,11 @@ function App() {
                 },
                 {
                     path: "/user-account",
-                    element: <UserAccount/>
+                    element: <UserAccount />
+                },
+                {
+                    path: "/all-users",
+                    element: <AllUsers />
                 }
 
 

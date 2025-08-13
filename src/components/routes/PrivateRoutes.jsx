@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 const PrivateRoute = ({ children }) => {
-    // const token = Cookies.get("accessToken"); // cookie-dən oxuyur
+    const token = Cookies.get("accessToken");
 
     if (!token) {
         return <Navigate to="/login" replace />;
