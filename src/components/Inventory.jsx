@@ -30,14 +30,14 @@ const Inventory = () => {
     const [endDate, setEndDate] = useState(null);
     const [filterStatus, setFilterStatus] = useState(null);
     const [filteredData, setFilteredData] = useState([]);
- 
+
 
     const applyFilter = async (start, end, status) => {
         try {
             const fromDate = start ? start.toISOString() : null;
             const toDate = end ? end.toISOString() : null;
 
-          
+
             const filterStatusParam = status === "" ? null : status;
 
             const response = await InventoryServices.search({
@@ -74,9 +74,9 @@ const Inventory = () => {
         applyFilter(start, end, filterStatus);
     };
 
-  
+
     const handleStatusChange = (e) => {
-        const newStatus = e.target.value || null; 
+        const newStatus = e.target.value || null;
         setFilterStatus(newStatus);
         setPageInfo(prev => ({ ...prev, page: 0 }));
         applyFilter(startDate, endDate, newStatus);
@@ -118,6 +118,7 @@ const Inventory = () => {
                 page: apiData?.number || 0,
                 size: apiData?.size || size,
                 totalElements: apiData?.totalElements || 0,
+                totalPages: apiData?.totalPages || 1
             });
         } catch (error) {
             console.error("Fetch colors error:", error);

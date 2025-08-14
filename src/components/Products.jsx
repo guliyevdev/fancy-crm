@@ -77,7 +77,7 @@ const Products = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchProducts(0, pageInfo.size, searchName); // fetch yerine fetchProducts istifadə edin
+    fetchProducts(0, pageInfo.size, searchName);
   };
 
 
@@ -85,7 +85,7 @@ const Products = () => {
     try {
       const params = {
         searchTerm: searchTerm,
-        active: false,
+        // active: false,
         page,
         size,
       };
