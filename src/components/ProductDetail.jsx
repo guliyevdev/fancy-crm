@@ -321,7 +321,7 @@ const ProductDetail = () => {
       const response = await productService.uploadScannedFile(
         id,
         file,
-        "PARTNERSHIP_AGREEMENT" // Specific media type for partnership agreement
+        "INITIAL_HANDOVER_SIGNED" 
       );
       toast.success("Upload successful!", response.message);
     } catch (error) {
@@ -966,7 +966,6 @@ const ProductDetail = () => {
             ref={handleScannedFileUploadRef}
             onChange={handleScannedUploadChange}
             className="hidden"
-          // accept=".pdf,.jpg,.jpeg,.png" 
           />
           <button
             type="button"

@@ -35,20 +35,19 @@ const productService = {
       },
     });
   },
-  uploadScannedFile: (productId, file, mainMediaType = "INITIAL_HANDOVER_SIGNED", acceptLanguage = "az") => {
+  uploadScannedFile: (productId, file, documentType = "INITIAL_HANDOVER_SIGNED", acceptLanguage = "az") => {
     const formData = new FormData();
-    formData.append("images", file);
+    formData.append("file", file);
 
-    return axiosInstance.post(`${BASE_URL}/upload-media`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "productId": productId,
-        "mainMedia": mainMediaType,
-        "Accept-Language": acceptLanguage,
-      },
+    return axiosInstance.post(`${BASE_URL}/upload-file`, formData, {
+       headers: {
+      "Content-Type": "multipart/form-data",
+      "Product-Id": String(productId), // tam register
+      "Document-Type": documentType,   // tam register
+      "Accept-Language": acceptLanguage,
+    },
     });
   },
-
 };
 
 export default productService;

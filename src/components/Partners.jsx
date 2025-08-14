@@ -179,6 +179,7 @@ const Partners = () => {
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">customerCode</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Phone</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
@@ -189,13 +190,14 @@ const Partners = () => {
           {partners.map((partner) => (
             <tr key={partner.id}>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.name}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.customerCode}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "ACTIVE"
-                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
                     }`}
                 >
                   {partner.status}
@@ -227,8 +229,8 @@ const Partners = () => {
           onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
           disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
           className={`p-2 rounded-full ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
-              ? "text-gray-400"
-              : "text-gray-700 dark:text-white"
+            ? "text-gray-400"
+            : "text-gray-700 dark:text-white"
             }`}
         >
           <FaChevronRight />
