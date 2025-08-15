@@ -16,9 +16,9 @@ const InventoryDetail = () => {
     const [loading, setLoading] = useState(true); // Yüklənmə statusu
     const [scanOpen, setScanOpen] = useState(false); // Skan modalının açıq/bağlı statusu
     const [scanData, setScanData] = useState({
-        inventoryId: "", 
-        productCodes: [], 
-        status: "OPEN" // Default status
+        inventoryId: "",
+        productCodes: [],
+        status: "OPEN"
     });
     const [closeModalOpen, setCloseModalOpen] = useState(false);
     const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -112,21 +112,37 @@ const InventoryDetail = () => {
     };
 
 
+    // const handleProductCodeChange = (index, value) => {
+    //     const newProductCodes = [...scanData.productCodes];
+    //     newProductCodes[index] = value;
+    //     setScanData(prev => ({
+    //         ...prev,
+    //         productCodes: newProductCodes
+    //     }));
+    // };
+
+
+
     const handleProductCodeChange = (index, value) => {
         const newProductCodes = [...scanData.productCodes];
         newProductCodes[index] = value;
+
+        // Əgər bu sonuncu inputdursa və dəyər daxil edilibsə, yeni input əlavə et
+        if (index === newProductCodes.length - 1 && value.trim() !== "") {
+            newProductCodes.push("");
+        }
+
         setScanData(prev => ({
             ...prev,
             productCodes: newProductCodes
         }));
     };
-
-    const addProductCodeField = () => {
-        setScanData(prev => ({
-            ...prev,
-            productCodes: [...prev.productCodes, ""]
-        }));
-    };
+    // const addProductCodeField = () => {
+    //     setScanData(prev => ({
+    //         ...prev,
+    //         productCodes: [...prev.productCodes, ""]
+    //     }));
+    // };
 
     const removeProductCodeField = (index) => {
         if (scanData.productCodes.length <= 1) return;
@@ -309,17 +325,20 @@ const InventoryDetail = () => {
                                         value={code}
                                         onChange={(e) => handleProductCodeChange(index, e.target.value)}
                                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-                                        required
+
                                     />
-                                    {index === scanData.productCodes.length - 1 ? (
+                                    {/* Yalnız sonuncu input üçün "+" düyməsini göstər */}
+                                    {index === scanData.productCodes.length - 1 && (
                                         <button
                                             type="button"
-                                            onClick={addProductCodeField}
-                                            className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                                            onClick={() => removeProductCodeField(index)}
+                                            className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                                         >
-                                            <Plus size={16} />
+                                            <Trash size={16} />
                                         </button>
-                                    ) : (
+                                    )}
+                                    {/* Digər inputlar üçün yalnız "sil" düyməsi */}
+                                    {index !== scanData.productCodes.length - 1 && (
                                         <button
                                             type="button"
                                             onClick={() => removeProductCodeField(index)}
