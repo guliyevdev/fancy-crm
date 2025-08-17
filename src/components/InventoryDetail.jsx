@@ -337,7 +337,7 @@ const InventoryDetail = () => {
                                             <Trash size={16} />
                                         </button>
                                     )}
-                                    {/* Digər inputlar üçün yalnız "sil" düyməsi */}
+                                   
                                     {index !== scanData.productCodes.length - 1 && (
                                         <button
                                             type="button"
