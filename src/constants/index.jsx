@@ -39,6 +39,11 @@ export const navbarLinks = [
                 icon: Users2,
                 path: "/all-users",
             },
+            {
+                label: "Partner-Users",
+                icon: BarChart,
+                path: "/partner-users",
+            },
 
         ],
     },

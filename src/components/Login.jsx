@@ -3,17 +3,38 @@ import { Link, useNavigate } from "react-router-dom";
 import Authservices from "../services/authServices";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { FiEye, FiEyeOff } from "react-icons/fi"; 
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [error, setError] = useState("");
-    const [showPassword, setShowPassword] = useState(false); 
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setError("");
+    //     try {
+    //         const response = await Authservices.PostLogin(formData, {
+    //             headers: {
+    //                 deviceId: "some-device-id",
+    //                 "Accept-Language": "en",
+    //             },
+    //         });
+    //         const token = response.data.data.accessToken;
+    //         Cookies.set("accessToken", token, { expires: 7 });
+    //         toast.success("Daxil oldunuz!");
+    //         navigate("/user-account");
+    //     } catch (err) {
+    //         if (err.response?.data?.message) {
+    //             setError(err.response.data.message);
+    //         }
+    //     }
+    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,8 +46,13 @@ const Login = () => {
                     "Accept-Language": "en",
                 },
             });
-            const token = response.data.data.accessToken;
-            Cookies.set("accessToken", token, { expires: 7 });
+
+            const { accessToken, refreshToken } = response.data.data;
+
+            
+            Cookies.set("accessToken", accessToken, { expires: 0.3 }); 
+            Cookies.set("refreshToken", refreshToken, { expires: 7 }); 
+
             toast.success("Daxil oldunuz!");
             navigate("/user-account");
         } catch (err) {
@@ -35,6 +61,7 @@ const Login = () => {
             }
         }
     };
+
 
     return (
         <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center p-6 transition-colors duration-300">

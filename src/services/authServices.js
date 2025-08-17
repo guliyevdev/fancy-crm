@@ -4,8 +4,18 @@ const BASE_URL_Login = "/fancy-auth/api/v1/auth/";
 const BASE_URL_Register = "/fancy-auth/api/v1/user/";
 
 const Authservices = {
-    PostLogin: (data) => axiosInstance.post(`${BASE_URL_Login}login`, data),
-    PostLogOut: (data) => axiosInstance.post(`${BASE_URL_Login}logout`, data),
+    PostLogin: (data, customDeviceId) => {
+        return axiosInstance.post(
+            `${BASE_URL_Login}login`,
+            data,
+            {
+                headers: {
+                    deviceId: customDeviceId || "1",
+                    "Accept-Language": "en"
+                }
+            }
+        );
+    }, PostLogOut: (data) => axiosInstance.post(`${BASE_URL_Login}logout`, data),
     PostForgetPassword: (email) => axiosInstance.get(`${BASE_URL_Login}forgot-password`, {
         headers: {
             email: email
@@ -30,6 +40,22 @@ const Authservices = {
             }
         }
     ),
+    RefreshToken: () => {
+        const refreshToken = Cookies.get("refreshToken"); // refresh token cookie-dən alınır
+        return axios.get(`${BASE_URL_Login}refresh`, {
+            headers: {
+                "Refresh-Token": `${refreshToken}`,
+                "Accept-Language": "en", // lazım olsa az da yaza bilərsən
+            },
+            withCredentials: true,
+        });
+    },
+
+
+
+
+
+
 
     PostRegister: (data) => axiosInstance.post(`${BASE_URL_Register}register`, data),
     ChangePassword: (data) => axiosInstance.post(`${BASE_URL_Register}change-password`, data),
@@ -57,6 +83,7 @@ const Authservices = {
             }
         }
     )
+
 
 };
 

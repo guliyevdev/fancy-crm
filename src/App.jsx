@@ -39,6 +39,7 @@ import UserAccount from "./components/UserAccount";
 import PrivateRoute from "./components/routes/PrivateRoutes";
 import ProductAdd from "./components/ProductAdd";
 import AllUsers from "./components/Auth/AllUsers";
+import PartnerUsers from "./components/Auth/PartnerUsers";
 function App() {
     const router = createBrowserRouter([
         {
@@ -163,6 +164,10 @@ function App() {
                 {
                     path: "/all-users",
                     element: <AllUsers />
+                },
+                {
+                    path: "/partner-users",
+                    element: <PartnerUsers />
                 }
 
 
