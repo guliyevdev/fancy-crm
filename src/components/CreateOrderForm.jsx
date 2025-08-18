@@ -15,16 +15,17 @@ function generateOrderCode() {
 
 const CreateOrderForm = () => {
   const [orderData, setOrderData] = useState({
-    customerCode: '',
-    customerEmail: '',
-    orderCode: '',
-    type: 'SALE',
+    orderType: 'RENT',
+    fromDate: '',
+    toDate: '',
+    productCodes: [],
+    userId: 0,
+    userFin: '',
+    name: '',
+    surname: '',
+    email: '',
+    phone: '',
     paymentType: '',
-    depositPaid: 0.0,
-    penaltyFee: 0.0,
-    damageFee: 0.0,
-    totalPrice: 0.0,
-    orderItems: [],
   });
 
   const [contractFile, setContractFile] = useState(null);
@@ -35,18 +36,45 @@ const CreateOrderForm = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [code, setCode] = useState(false);
-
+  const [code, setCode] = useState('');
+  const [orderItems, setOrderItems] = useState([]);
+  const [calculatedPrice, setCalculatedPrice] = useState(0);
+  const [calculationLoading, setCalculationLoading] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const total = orderData.orderItems.reduce((sum, item) => {
-      const price = item.orderType === 'RENT' ? item.rentPrice : item.price;
-      return sum + price * item.quantity;
-    }, 0);
-    setOrderData(prev => ({ ...prev, totalPrice: total.toFixed(2) }));
-  }, [orderData.orderItems]);
+    const calculatePrice = async () => {
+      // Ən azı bir məhsul və tarix seçilibsə hesabla
+      if (orderData.productCodes.length > 0 && orderData.fromDate &&
+        (orderData.orderType === 'SALE' || orderData.toDate)) {
+        setCalculationLoading(true);
+        try {
+          const response = await orderService.CalCulaterPrice({
+            orderType: orderData.orderType,
+            fromDate: new Date(orderData.fromDate).toISOString(),
+            toDate: orderData.toDate ? new Date(orderData.toDate).toISOString() : new Date(orderData.fromDate).toISOString(),
+            productCodes: orderData.productCodes
+          });
+          setCalculatedPrice(response.totalPrice || 0);
+        } catch (error) {
+          console.error('Qiymət hesablanarkən xəta:', error);
+          toast.error('Qiymət hesablanarkən xəta baş verdi');
+        } finally {
+          setCalculationLoading(false);
+        }
+      } else {
+        setCalculatedPrice(0);
+      }
+    };
+
+    // Debounce istifadə edərək çox sayda sorğunun qarşısını alırıq
+    const timer = setTimeout(() => {
+      calculatePrice();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [orderData.orderType, orderData.fromDate, orderData.toDate, orderData.productCodes]);
 
 
   const handleFormChange = (e) => {
@@ -68,7 +96,6 @@ const CreateOrderForm = () => {
     }
   };
 
-
   const handleSearchProduct = async () => {
     if (!productCodeInput) return;
     setSearchLoading(true);
@@ -83,19 +110,79 @@ const CreateOrderForm = () => {
     setSearchLoading(false);
   };
 
+  // const handleAddItemToOrder = () => {
+  //   if (!searchedProduct || quantityToAdd <= 0) return;
+
+  //   const newItems = Array(Number(quantityToAdd)).fill(searchedProduct.code);
+
+  //   setOrderData(prev => ({
+  //     ...prev,
+  //     productCodes: [...prev.productCodes, ...newItems]
+  //   }));
+
+  //   // For display in the table
+  //   const existingItemIndex = orderItems.findIndex(
+  //     item => item.code === searchedProduct.code
+  //   );
+
+  //   if (existingItemIndex >= 0) {
+  //     const updatedItems = [...orderItems];
+  //     updatedItems[existingItemIndex].quantity += Number(quantityToAdd);
+  //     setOrderItems(updatedItems);
+  //   } else {
+  //     setOrderItems(prev => [
+  //       ...prev,
+  //       {
+  //         ...searchedProduct,
+  //         quantity: Number(quantityToAdd)
+  //       }
+  //     ]);
+  //   }
+
+  //   setSearchedProduct(null);
+  //   setProductCodeInput('');
+  //   setQuantityToAdd(1);
+  //   setSearchError('');
+  // };
+
+  // const removeOrderItem = (productCode) => {
+  //   setOrderData(prev => ({
+  //     ...prev,
+  //     productCodes: prev.productCodes.filter(code => code !== productCode)
+  //   }));
+
+  //   setOrderItems(prev => prev.filter(item => item.code !== productCode));
+  // };
+
+
+
   const handleAddItemToOrder = () => {
     if (!searchedProduct || quantityToAdd <= 0) return;
 
-    const newItem = {
-      ...JSON.parse(JSON.stringify(searchedProduct)), 
-      quantity: Number(quantityToAdd),
-      orderType: orderData.type,
-    };
+    // Əlavə ediləcək yeni məhsul kodları
+    const newProductCodes = Array(Number(quantityToAdd)).fill(searchedProduct.code);
 
     setOrderData(prev => ({
       ...prev,
-      orderItems: [...prev.orderItems, newItem],
+      productCodes: [...prev.productCodes, ...newProductCodes]
     }));
+
+    // Cədvəl üçün məhsul məlumatlarını yenilə
+    const existingItemIndex = orderItems.findIndex(item => item.code === searchedProduct.code);
+
+    if (existingItemIndex >= 0) {
+      const updatedItems = [...orderItems];
+      updatedItems[existingItemIndex].quantity += Number(quantityToAdd);
+      setOrderItems(updatedItems);
+    } else {
+      setOrderItems(prev => [
+        ...prev,
+        {
+          ...searchedProduct,
+          quantity: Number(quantityToAdd)
+        }
+      ]);
+    }
 
     setSearchedProduct(null);
     setProductCodeInput('');
@@ -103,22 +190,49 @@ const CreateOrderForm = () => {
     setSearchError('');
   };
 
+  const removeOrderItem = (productCode) => {
+    // Arraydən sonuncu uyğun elementi silirik
+    const indexToRemove = orderData.productCodes.lastIndexOf(productCode);
 
-  const removeOrderItem = (productCode, orderType) => {
-    setOrderData(prev => ({
-      ...prev,
-      orderItems: prev.orderItems.filter(
-        item => !(item.code === productCode && item.orderType === orderType)
-      ),
-    }));
+    if (indexToRemove !== -1) {
+      const newProductCodes = [...orderData.productCodes];
+      newProductCodes.splice(indexToRemove, 1);
+
+      setOrderData(prev => ({
+        ...prev,
+        productCodes: newProductCodes
+      }));
+
+      // Cədvəl üçün məhsul məlumatlarını yenilə
+      const itemIndex = orderItems.findIndex(item => item.code === productCode);
+      if (itemIndex !== -1) {
+        const updatedItems = [...orderItems];
+        if (updatedItems[itemIndex].quantity > 1) {
+          updatedItems[itemIndex].quantity -= 1;
+          setOrderItems(updatedItems);
+        } else {
+          setOrderItems(updatedItems.filter(item => item.code !== productCode));
+        }
+      }
+    }
   };
-
   const handleGenerateContract = async () => {
     try {
       toast('Generating contract...');
       const orderCode = generateOrderCode();
       setCode(orderCode);
-      const blob = await pdf(<ContractPDF order={orderData} orderCode={orderCode} />).toBlob();
+
+      // Create a temporary order object for the contract
+      const tempOrder = {
+        ...orderData,
+        orderCode,
+        orderItems: orderItems.map(item => ({
+          ...item,
+          orderType: orderData.orderType
+        }))
+      };
+
+      const blob = await pdf(<ContractPDF order={tempOrder} orderCode={orderCode} />).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -137,52 +251,54 @@ const CreateOrderForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitLoading(true);
-    orderData.orderCode = code;
+
     try {
       const payload = {
         ...orderData,
-        orderItems: orderData.orderItems.map(item => ({
-          pricePerUnit: item.price,
-          productId: item.id,
-          productCode: item.code,
-          quantity: item.quantity,
-        })),
-        file: contractFileData,
+        fromDate: new Date(orderData.fromDate).toISOString(),
+        toDate: new Date(orderData.toDate).toISOString()
       };
+
       await orderService.createOrder(payload);
 
       toast.success("Order created successfully");
-      await orderService.uploadToServer(contractFile);
-      toast.success('Document uploaded successfully!');
 
+      if (contractFile) {
+        await orderService.uploadToServer(contractFile);
+        toast.success('Document uploaded successfully!');
+      }
+
+      // Reset form
       setOrderData({
-        customerCode: '',
-        customerEmail: '',
-        type: 'SALE',
+        orderType: 'RENT',
+        fromDate: '',
+        toDate: '',
+        productCodes: [],
+        userId: 0,
+        userFin: '',
+        name: '',
+        surname: '',
+        email: '',
+        phone: '',
         paymentType: '',
-        depositPaid: 0.0,
-        penaltyFee: 0.0,
-        damageFee: 0.0,
-        totalPrice: 0.0,
-        orderItems: [],
       });
 
-
-
+      setOrderItems([]);
       setContractFile(null);
-      navigate("/orders")
+      navigate("/orders");
     } catch (error) {
       console.error('Create order failed:', error.response ?? error);
       toast.error("Failed to create order");
-      e.target.value = null;
     } finally {
       setSubmitLoading(false);
     }
   };
 
-
-
-
+  // Calculate total price
+  const totalPrice = orderItems.reduce((sum, item) => {
+    const price = orderData.orderType === 'RENT' ? item.rentPrice : item.price;
+    return sum + price * item.quantity;
+  }, 0);
 
   return (
     <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 shadow-md rounded-lg">
@@ -194,40 +310,80 @@ const CreateOrderForm = () => {
         {/* --- Left Column: Customer & Contract --- */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Customer & Order Details</h3>
+
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Customer Code</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">User FIN</label>
             <input
               type="text"
-              name="customerCode"
-              value={orderData.customerCode}
+              name="userFin"
+              value={orderData.userFin}
               onChange={handleFormChange}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Customer Email</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={orderData.name}
+              onChange={handleFormChange}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Surname</label>
+            <input
+              type="text"
+              name="surname"
+              value={orderData.surname}
+              onChange={handleFormChange}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email</label>
             <input
               type="email"
-              name="customerEmail"
-              value={orderData.customerEmail}
+              name="email"
+              value={orderData.email}
               onChange={handleFormChange}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </div>
+
           <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Phone</label>
+            <input
+              type="tel"
+              name="phone"
+              value={orderData.phone}
+              onChange={handleFormChange}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          {/* <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Order Type</label>
             <select
-              name="type"
-              value={orderData.type}
+              name="orderType"
+              value={orderData.orderType}
               onChange={handleFormChange}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="SALE">Sale</option>
               <option value="RENT">Rent</option>
             </select>
-          </div>
+          </div> */}
+
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Payment Type</label>
             <select
@@ -244,45 +400,29 @@ const CreateOrderForm = () => {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Deposit Paid</label>
+          {/* <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Start Date</label>
             <input
-              type="number"
-              name="depositPaid"
-              value={orderData.depositPaid || ''}
+              type="date"
+              name="fromDate"
+              value={orderData.fromDate}
               onChange={handleFormChange}
-              min="0"
-              step="0.01"
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Penalty Fee %</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">End Date</label>
             <input
-              type="number"
-              name="penaltyFee"
-              value={orderData.penaltyFee || ''}
+              type="date"
+              name="toDate"
+              value={orderData.toDate}
               onChange={handleFormChange}
-              min="0"
-              step="0.01"
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required={orderData.orderType === 'RENT'}
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Damage Fee %</label>
-            <input
-              type="number"
-              name="damageFee"
-              value={orderData.damageFee || ''}
-              onChange={handleFormChange}
-              min="0"
-              step="0.01"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
+          </div> */}
 
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Upload Signed Contract</label>
@@ -351,8 +491,6 @@ const CreateOrderForm = () => {
                 <div>
                   <strong className="text-gray-600 dark:text-gray-300 w-24 inline-block">Rent Price:</strong> ${searchedProduct.rentPrice.toFixed(2)}
                 </div>
-
-
               </div>
 
               <div className="flex items-center gap-4 pt-3 border-t border-gray-200 dark:border-gray-600">
@@ -365,6 +503,7 @@ const CreateOrderForm = () => {
                   max={searchedProduct.quantity}
                   className="w-20 px-3 py-1.5 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600"
                 />
+
                 <button
                   type="button"
                   onClick={handleAddItemToOrder}
@@ -376,27 +515,39 @@ const CreateOrderForm = () => {
             </div>
           )}
           <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Order Type</label>
+            <select
+              name="orderType"
+              value={orderData.orderType}
+              onChange={handleFormChange}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="SALE">Sale</option>
+              <option value="RENT">Rent</option>
+            </select>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Start Date</label>
             <input
-              type="Date"
-              //name="rentalStartDate"
-              //value={orderData.orderItems.rentalStartDate || ''}
-              //onChange={handleFormChange}
-              min="0"
-              step="0.01"
+              type="date"
+              name="fromDate"
+              value={orderData.fromDate}
+              onChange={handleFormChange}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">End Date</label>
             <input
-              type="Date"
-              //name="rentalEndDate"
-              //value={orderData.orderItems.rentalEndDate || ''}
-              //onChange={handleFormChange}
-              min="0"
-              step="0.01"
+              type="date"
+              name="toDate"
+              value={orderData.toDate}
+              onChange={handleFormChange}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required={orderData.orderType === 'RENT'}
             />
           </div>
         </div>
@@ -417,9 +568,9 @@ const CreateOrderForm = () => {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-              {orderData.orderItems.length > 0 ? (
-                orderData.orderItems.map((item) => {
-                  const unitPrice = item.orderType === 'RENT' ? item.rentPrice : item.price;
+              {orderItems.length > 0 ? (
+                orderItems.map((item) => {
+                  const unitPrice = orderData.orderType === 'RENT' ? item.rentPrice : item.price;
                   return (
                     <tr key={item.code}>
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</td>
@@ -431,7 +582,7 @@ const CreateOrderForm = () => {
                       <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           type="button"
-                          onClick={() => removeOrderItem(item.code, item.orderType)}
+                          onClick={() => removeOrderItem(item.code)}
                           className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
                         >
                           <Trash2 size={18} />
@@ -448,12 +599,26 @@ const CreateOrderForm = () => {
                 </tr>
               )}
             </tbody>
+            {/* <tfoot className="border-t-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <td colSpan="3" className="px-4 py-3 text-right text-sm font-bold text-gray-800 dark:text-gray-200 uppercase">
+                  Grand Total
+                </td>
+                <td colSpan="2" className="px-4 py-3 text-left text-lg font-bold text-gray-900 dark:text-gray-100">${totalPrice.toFixed(2)}</td>
+              </tr>
+            </tfoot> */}
             <tfoot className="border-t-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
               <tr>
                 <td colSpan="3" className="px-4 py-3 text-right text-sm font-bold text-gray-800 dark:text-gray-200 uppercase">
                   Grand Total
                 </td>
-                <td colSpan="2" className="px-4 py-3 text-left text-lg font-bold text-gray-900 dark:text-gray-100">${orderData.totalPrice}</td>
+                <td colSpan="2" className="px-4 py-3 text-left text-lg font-bold text-gray-900 dark:text-gray-100">
+                  {calculationLoading ? (
+                    <div className="w-5 h-5 border-2 border-blue-500/50 border-t-blue-500 rounded-full animate-spin"></div>
+                  ) : (
+                    `$${calculatedPrice.toFixed(2)}`
+                  )}
+                </td>
               </tr>
             </tfoot>
           </table>
@@ -470,8 +635,7 @@ const CreateOrderForm = () => {
         </button>
         <button
           type="submit"
-          disabled={submitLoading}
-          className="flex items-center justify-center gap-2 px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700"
+          className="flex items-center justify-center gap-2 px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 disabled:opacity-50"
         >
           {submitLoading && (
             <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>

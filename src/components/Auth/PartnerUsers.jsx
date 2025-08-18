@@ -40,15 +40,15 @@ const PartnerUsers = () => {
         <div className="p-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                    All Users
+                    Product Users
                 </h2>
                 <div className="flex gap-4">
-                    <button
+                    {/* <button
                         className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
                     >
                         <Plus className="mr-2 h-4 w-4" />
                         Add User
-                    </button>
+                    </button> */}
                     <button
                         className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm"
                     >
@@ -88,7 +88,7 @@ const PartnerUsers = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700 dark:text-white">
-                        {users.map((user, index) => (
+                        {users.filter(user => user.roles.includes("productUser")).map((user, index) => (
                             <tr key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
                                 <td className="px-6 py-4 break-words max-w-[200px]">{index + 1 + pageInfo.page * pageInfo.size}</td>
                                 <td className="px-6 py-4 break-words max-w-[200px]">{user.fullName}</td>
