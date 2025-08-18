@@ -236,6 +236,10 @@ function App() {
                     element: <Inventory />
                 },
                 {
+                    path: "partners/add-document/:id",
+                    element: <AddPartnerDocument />,
+                },
+                {
                     path: "inventory/:id",
                     element: <InventoryDetail />,
                 },
