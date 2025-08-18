@@ -41,11 +41,11 @@ const Authservices = {
         }
     ),
     RefreshToken: () => {
-        const refreshToken = Cookies.get("refreshToken"); // refresh token cookie-dən alınır
+        const refreshToken = Cookies.get("refreshToken"); 
         return axios.get(`${BASE_URL_Login}refresh`, {
             headers: {
                 "Refresh-Token": `${refreshToken}`,
-                "Accept-Language": "en", // lazım olsa az da yaza bilərsən
+                "Accept-Language": "en", 
             },
             withCredentials: true,
         });

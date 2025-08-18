@@ -1,10 +1,10 @@
 import axiosInstance from '../utils/axiosInstance';
 
-const ORDER_API = '/orders';
+const ORDER_API = '/order/api/v1/order/';
 
 const createOrder = async (orderData) => {
   try {
-    const response = await axiosInstance.post(ORDER_API, orderData);
+    const response = await axiosInstance.post(`${ORDER_API}/create-order-crm`, orderData);
     return response.data;
   } catch (error) {
     throw error;
@@ -20,30 +20,20 @@ const getOrderById = async (id) => {
   }
 };
 
-const searchOrders = async (searchCriteria, page = 0, size = 10) => {
-  try {
-    const params = {
-      ...searchCriteria,
-      page,
-      size
-    };
-    const response = await axiosInstance.get(`${ORDER_API}/search`, { params });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+
+const searchOrders = (params) => axiosInstance.post(`${ORDER_API}/search-order`, params);
+
+
+const uploadToServer = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await axiosInstance.post(`${ORDER_API}/upload`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  return response.data;
 };
-
-const uploadToServer=async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await axiosInstance.post(`${ORDER_API}/upload`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    return response.data;
-  };
 const downloadContract = async (fileId, fileName) => {
   try {
     const response = await axiosInstance.get(`/orders/download/${fileId}`, {
@@ -65,6 +55,15 @@ const downloadContract = async (fileId, fileName) => {
   }
 };
 
+const CalCulaterPrice = async (orderData) => {
+  try {
+    const response = await axiosInstance.post(`${ORDER_API}/calculate-price`, orderData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const orderService = {
   createOrder,
@@ -72,6 +71,7 @@ const orderService = {
   downloadContract,
   uploadToServer,
   searchOrders,
+  CalCulaterPrice
 };
 
 export default orderService;
