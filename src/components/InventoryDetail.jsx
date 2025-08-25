@@ -75,7 +75,7 @@ const InventoryDetail = () => {
         setScanData({
             inventoryId: id,
             productCodes: [""],
-            status: "SOLD"
+            // status: "SOLD"
         });
         setScanOpen(true);
     };
@@ -179,8 +179,6 @@ const InventoryDetail = () => {
                             <p className="text-gray-600 dark:text-gray-300">Created By Phone: {inventory.createdByPhone ?? "-"}</p>
                             <p className="text-gray-600 dark:text-gray-300">Created At: {inventory.createdAt}</p>
                             <p className="text-gray-600 dark:text-gray-300">Closed At: {inventory.closedAt ?? "-"}</p>
-                        </div>
-                        <div>
                             <p className="text-gray-600 dark:text-gray-300">Status: {inventory.status}</p>
                             <p className="text-gray-600 dark:text-gray-300">Comment: {inventory.comment}</p>
                             <p className="text-gray-600 dark:text-gray-300">Total Products: {inventory.totalProductCount}</p>
@@ -188,6 +186,30 @@ const InventoryDetail = () => {
                             <p className="text-gray-600 dark:text-gray-300">Not Scanned: {inventory.notScannedCount}</p>
                             <p className="text-gray-600 dark:text-gray-300">Matched: {inventory.matchedCount}</p>
                             <p className="text-gray-600 dark:text-gray-300">Not Matched: {inventory.notMatchedCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Draft Status Count: {inventory.draftStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">In The Office Status Count: {inventory.inTheOfficeStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Reserved Status Count: {inventory.reservedStatusCount}</p>
+
+                            <p className="text-gray-600 dark:text-gray-300">At The Client Status Count: {inventory.atTheClientStatusCount}</p>
+                        </div>
+
+                        <div>
+                            <p className="text-gray-600 dark:text-gray-300">Delayed Return Status Count: {inventory.delayedReturnStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Sold Status Count: {inventory.soldStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Service Status Count: {inventory.serviceStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Canceled By Partner Status Count: {inventory.canceledByPartnerStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Expired Agreement Status Count: {inventory.expiredAgreementStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Expected In Office Count: {inventory.expectedInOfficeCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Office Missing Count: {inventory.officeMissingCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Office Surplus Count: {inventory.officeSurplusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Matched In Office Count: {inventory.matchedInOfficeCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Scanned Rate Percent: {inventory.scannedRatePercent}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Matched Rate Percent: {inventory.matchedRatePercent}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Not Scanned Rate Percent: {inventory.notScannedRatePercent}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Not Matched Rate Percent: {inventory.notMatchedRatePercent}</p>
+                            <p className="text-gray-600 dark:text-gray-300">In Office Match Rate Percent: {inventory.inOfficeMatchRatePercent}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Office Missing Rate Percent: {inventory.officeMissingRatePercent}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Office Surplus Rate Percent: {inventory.officeSurplusRatePercent}</p>
                             <p className="text-gray-600 dark:text-gray-300">Total Elements: {inventory.totalElements}</p>
                             <p className="text-gray-600 dark:text-gray-300">Total Pages: {inventory.totalPages}</p>
                             <p className="text-gray-600 dark:text-gray-300">Size: {inventory.size}</p>
@@ -197,14 +219,15 @@ const InventoryDetail = () => {
                     <div className="ml-4">
                         <button
                             onClick={openScanModal}
-                            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm whitespace-nowrap"
                         >
                             <Plus className="mr-2 h-4 w-4" /> Skan et
                         </button>
+
                     </div>
                 </div>
-
             </div>
+
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 className="text-xl font-semibold mb-4">Product Details</h3>
@@ -212,9 +235,12 @@ const InventoryDetail = () => {
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                             <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">ID</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Product ID</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Product Code</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">System Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Scanned Status </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Scanned Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Scanned At</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Comment</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Scanned</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Matched</th>
@@ -223,24 +249,38 @@ const InventoryDetail = () => {
                         <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                             {inventory.productDetails.map((product) => (
                                 <tr key={product.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{product.id}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{product.productId}</td>
                                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{product.productCode}</td>
                                     <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.systemStatus}</td>
                                     <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.scannedStatus}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.comment}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.scannedAt ?? "-"}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.comment ?? "-"}</td>
                                     <td className="px-6 py-4 text-sm">
-                                        <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.scanned ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200'}`}>
-                                            {product.scanned ? 'Yes' : 'No'}
+                                        <span
+                                            className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.scanned
+                                                ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                                                : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200"
+                                                }`}
+                                        >
+                                            {product.scanned ? "Yes" : "No"}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-sm">
-                                        <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.matched ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200'}`}>
-                                            {product.matched ? 'Yes' : 'No'}
+                                        <span
+                                            className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.matched
+                                                ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                                                : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200"
+                                                }`}
+                                        >
+                                            {product.matched ? "Yes" : "No"}
                                         </span>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+
                 </div>
 
 
@@ -337,7 +377,7 @@ const InventoryDetail = () => {
                                             <Trash size={16} />
                                         </button>
                                     )}
-                                   
+
                                     {index !== scanData.productCodes.length - 1 && (
                                         <button
                                             type="button"
@@ -353,7 +393,7 @@ const InventoryDetail = () => {
                     </div>
 
 
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium mb-1">
                             Status
                         </label>
@@ -403,7 +443,7 @@ const InventoryDetail = () => {
 
 
 
-                    </div>
+                    </div> */}
 
 
                     <div className="flex justify-end gap-4 mt-6">

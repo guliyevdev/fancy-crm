@@ -44,6 +44,11 @@ export const navbarLinks = [
                 icon: BarChart,
                 path: "/partner-users",
             },
+            {
+                label: "Customer-Users",
+                icon: BarChart,
+                path: "/customers",
+            },
 
         ],
     },
@@ -115,16 +120,16 @@ export const navbarLinks = [
                 icon: Package,
                 path: "/orders",
             },
-            {
-                label: "Telegram Orders",
-                icon: Package,
-                path: "/telegram-orders"
-            },
-            {
-                label: "Message Orders",
-                icon: Package,
-                path: "/messages"
-            }
+            // {
+            //     label: "Telegram Orders",
+            //     icon: Package,
+            //     path: "/telegram-orders"
+            // },
+            // {
+            //     label: "Message Orders",
+            //     icon: Package,
+            //     path: "/messages"
+            // }
         ],
     },
     {

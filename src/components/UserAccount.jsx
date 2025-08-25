@@ -12,6 +12,7 @@ const UserAccount = () => {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState({})
     const navigate = useNavigate();
 
     const [profileData, setProfileData] = useState({
@@ -24,7 +25,7 @@ const UserAccount = () => {
         gainPercent: 0
     });
 
-    const [originalEmail, setOriginalEmail] = useState(""); 
+    const [originalEmail, setOriginalEmail] = useState("");
     const [passwords, setPasswords] = useState({
         current: "",
         new: "",
@@ -39,15 +40,15 @@ const UserAccount = () => {
             if (res?.data?.data) {
                 const user = res.data.data;
                 setProfileData({
-                    name: user.fullName || "",
-                    surname: user.fullName || "",
+                    name: user.name || "",
+                    surname: user.surname || "",
                     fin: user.fin || "",
                     email: user.email || "",
                     mobile: user.mobile || "",
                     depositAmount: user.depositAmount || 0,
                     gainPercent: user.gainPercent || 0
                 });
-                setOriginalEmail(user.email || ""); 
+                setOriginalEmail(user.email || "");
             }
         });
     }, []);
@@ -77,6 +78,14 @@ const UserAccount = () => {
             }
         } catch (err) {
             console.error(err);
+            if (err.response?.data?.data) {
+                const backendErrors = err.response.data.data; // [{field, message}, ...]
+                const formattedErrors = {};
+                backendErrors.forEach(e => {
+                    formattedErrors[e.field] = e.message;
+                });
+                setError(formattedErrors);
+            }
             toast.error(err.response?.data?.message || "Xəta baş verdi!");
         } finally {
             setLoadingProfile(false);
@@ -183,6 +192,8 @@ const UserAccount = () => {
                                         onChange={handleProfileChange}
                                         className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
+                                    {error.name && <p className="text-sm text-red-500 mt-1">{error.name}</p>}
+
                                 </div>
                                 <div>
                                     <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Soyad</label>
@@ -193,6 +204,8 @@ const UserAccount = () => {
                                         onChange={handleProfileChange}
                                         className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
+                                    {error.surname && <p className="text-sm text-red-500 mt-1">{error.surname}</p>}
+
                                 </div>
                                 <div>
                                     <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">FIN</label>
@@ -203,6 +216,8 @@ const UserAccount = () => {
                                         onChange={handleProfileChange}
                                         className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
+                                    {error.fin && <p className="text-sm text-red-500 mt-1">{error.fin}</p>}
+
                                 </div>
                                 <div>
                                     <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Telefon</label>
@@ -213,6 +228,8 @@ const UserAccount = () => {
                                         onChange={handleProfileChange}
                                         className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
+                                    {error.mobile && <p className="text-sm text-red-500 mt-1">{error.mobile}</p>}
+
                                 </div>
                                 <div className="md:col-span-2">
                                     <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Email</label>
@@ -223,6 +240,8 @@ const UserAccount = () => {
                                         onChange={handleProfileChange}
                                         className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
+                                    {error.email && <p className="text-sm text-red-500 mt-1">{error.email}</p>}
+
                                 </div>
                             </div>
 
@@ -240,7 +259,7 @@ const UserAccount = () => {
                             </div>
                         </form>
                     ) : (
-                       
+
                         <form onSubmit={handlePasswordSubmit} className="space-y-6">
                             <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Şifrəni Dəyiş</h3>
 

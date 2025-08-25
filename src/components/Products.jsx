@@ -347,7 +347,7 @@ const Products = () => {
               <tr key={product.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                   <img
-                    src={product.mainMediaPath}
+                    src={product.mainMediaUrl}
                     alt={product.name || "Product"}
                     className="max-w-[100px] max-h-[40px] rounded-[10px] object-cover"
                   />

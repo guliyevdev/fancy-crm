@@ -12,6 +12,15 @@ const productService = {
     });
     return response.data;
   },
+  getProductCodeByName: async (ProductCode) => {
+    const response = await axiosInstance.get(`${BASE_URL}/product-name-by-code`, {
+      headers: {
+        'Product-Code': ProductCode,
+        'Accept-Language': 'az'
+      }
+    });
+    return response.data;
+  },
   getByCode: (code) => axiosInstance.get(`${BASE_URL}/code/${code}`),
   search: (params) => axiosInstance.post(`${BASE_URL}/seacrh`, params),
   update: (productUpdateRequestDTO) =>
