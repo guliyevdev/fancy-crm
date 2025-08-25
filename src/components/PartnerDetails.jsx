@@ -17,7 +17,6 @@ const FormInput = ({ label, name, value, onChange, type = 'text' }) => (
   </div>
 );
 
-// New component for select dropdown
 const FormSelect = ({ label, name, value, onChange, options }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
@@ -145,7 +144,7 @@ const PartnerDetails = () => {
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-y-6">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Partner Information</h3>
-        
+
         {/* Basic Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormInput label="Partner Code" name="customerCode" value={partner.customerCode} onChange={handleChange} />
@@ -214,6 +213,7 @@ const PartnerDetails = () => {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

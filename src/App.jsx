@@ -40,166 +40,9 @@ import PrivateRoute from "./components/routes/PrivateRoutes";
 import ProductAdd from "./components/ProductAdd";
 import AllUsers from "./components/Auth/AllUsers";
 import PartnerUsers from "./components/Auth/PartnerUsers";
-// function App() {
-//     const router = createBrowserRouter([
-//         {
-//             path: "/",
-//             element: <Layout />,
-//             children: [
-//                 {
-//                     index: true,
-//                     element: <DashboardPage />,
-//                 },
-//                 {
-//                     path: "calendar",
-//                     element: <CalendarComponent />,
-//                 },
-//                 {
-//                     path: "reports",
-//                     element: <h1 className="title">Reports</h1>,
-//                 },
-//                 {
-//                     path: "materials",
-//                     element: <Materials />,
-//                 },
-//                 {
-//                     path: "designers",
-//                     element: <Designers />,
-//                 },
-//                 {
-//                     path: "colors",
-//                     element: <Colors />,
-//                 },
-//                 {
-//                     path: "inventory",
-//                     element: <Inventory />
-//                 },
-//                 {
-//                     path: "inventory/:id", // Yeni route
-//                     element: <InventoryDetail />,
-//                 },
-//                 {
-//                     path: "daily-Sales",
-//                     element: <DailySales />,
-//                 },
-//                 {
-//                     path: "categorys",
-//                     element: <Category />,
-//                 },
-//                 {
-//                     path: "Occasions",
-//                     element: <Occasions />,
-//                 },
-//                 {
-//                     path: "carats",
-//                     element: <Carats />,
-//                 },
-
-//                 {
-//                     path: "settings",
-//                     element: <Settings />,
-//                 },
-//                 {
-//                     path: "products",
-//                     element: <Products />,
-//                 },
-//                 {
-//                     path: "products/:id",
-//                     element: <ProductDetail />,
-//                 },
-//                 {
-//                     path: "products/add",
-//                     element: <AddProduct />,
-//                 },
-//                 {
-//                     path: "products/addproduct",
-//                     element: <ProductAdd />,
-//                 },
-//                 {
-//                     path: "partners/add-document/:id",
-//                     element: <AddPartnerDocument />,
-//                 },
-//                 {
-//                     path: "partners",
-//                     element: <Partners />,
-//                 },
-//                 {
-//                     path: "partners/add",
-//                     element: <AddPartner />,
-//                 },
-//                 {
-//                     path: "partners/:id",
-//                     element: <PartnerDetails />,
-//                 },
-//                 {
-//                     path: "orders",
-//                     element: <Orders />,
-//                 },
-//                 {
-//                     path: "create/order",
-//                     element: <CreateOrderForm />,
-//                 }
-//                 ,
-//                 {
-//                     path: "/order/:id",
-//                     element: <OrderDetails />,
-//                 },
-//                 {
-//                     path: "/telegram-orders",
-//                     element: <TelegramOrdersMock></TelegramOrdersMock>
-//                 },
-//                 {
-//                     path: "/discounts",
-//                     element: <CampaignDiscounts />
-//                 },
-
-//                 {
-//                     path: "/messages",
-//                     element: <MessageOrders />
-//                 },
-//                 {
-//                     path: "/user-account",
-//                     element: <UserAccount />
-//                 },
-//                 {
-//                     path: "/all-users",
-//                     element: <AllUsers />
-//                 },
-//                 {
-//                     path: "/partner-users",
-//                     element: <PartnerUsers />
-//                 }
-
-
-//             ],
-
-//         },
-//         {
-//             path: "/register",
-//             element: <Register />,
-//         },
-//         {
-//             path: "/login",
-//             element: <Login />
-//         },
-//         {
-//             path: "/forgot-password",
-//             element: <ForgetPassword />
-//         },
-//     ]);
-
-//     return (
-//         <ThemeProvider storageKey="theme">
-//             <Toaster position="top-right" richColors />
-//             <RouterProvider router={router} />
-//         </ThemeProvider>
-//     );
-// }
-
-// export default App;
-
-
-// import PrivateRoute from "./components/PrivateRoute"; // import et
+import AddUser from "./components/Auth/AddUser";
+import CustomerUser from "./components/Auth/Customers";
+import AllUserDetail from "./components/Auth/AllUserDetail";
 
 function App() {
     const router = createBrowserRouter([
@@ -326,6 +169,18 @@ function App() {
                 {
                     path: "/partner-users",
                     element: <PartnerUsers />
+                },
+                {
+                    path: "/user/add-user",
+                    element: <AddUser />
+                },
+                {
+                    path: "/alluser/:id",
+                    element: <AllUserDetail/>
+                },
+                {
+                    path: "/customers",
+                    element: <CustomerUser/>
                 }
             ],
         },

@@ -15,26 +15,6 @@ const Login = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     setError("");
-    //     try {
-    //         const response = await Authservices.PostLogin(formData, {
-    //             headers: {
-    //                 deviceId: "some-device-id",
-    //                 "Accept-Language": "en",
-    //             },
-    //         });
-    //         const token = response.data.data.accessToken;
-    //         Cookies.set("accessToken", token, { expires: 7 });
-    //         toast.success("Daxil oldunuz!");
-    //         navigate("/user-account");
-    //     } catch (err) {
-    //         if (err.response?.data?.message) {
-    //             setError(err.response.data.message);
-    //         }
-    //     }
-    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -47,11 +27,11 @@ const Login = () => {
                 },
             });
 
-            const { accessToken, refreshToken } = response.data.data;
+            const { accessToken } = response.data.data;
 
-            
-            Cookies.set("accessToken", accessToken, { expires: 0.3 }); 
-            Cookies.set("refreshToken", refreshToken, { expires: 7 }); 
+
+            Cookies.set("accessToken", accessToken, { expires: 0.3 });
+            // Cookies.set("refreshToken", refreshToken, { expires: 7 }); 
 
             toast.success("Daxil oldunuz!");
             navigate("/user-account");

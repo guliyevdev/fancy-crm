@@ -11,14 +11,14 @@ const createOrder = async (orderData) => {
   }
 };
 
-const getOrderById = async (id) => {
-  try {
-    const response = await axiosInstance.get(`${ORDER_API}/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+
+
+const getOrderById = (id) =>
+  axiosInstance.get(`${ORDER_API}/find-by-id`, {
+    headers: {
+      "Order-Id": id,
+    },
+  });
 
 
 const searchOrders = (params) => axiosInstance.post(`${ORDER_API}/search-order`, params);
@@ -55,9 +55,65 @@ const downloadContract = async (fileId, fileName) => {
   }
 };
 
+const uploadFile = async (orderId, file, fileType) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await axiosInstance.post(`${ORDER_API}upload-file`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Order-Id": orderId,
+        "File-Tipe": fileType // Burası əlavə edilməlidir
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 const CalCulaterPrice = async (orderData) => {
   try {
-    const response = await axiosInstance.post(`${ORDER_API}/calculate-price`, orderData);
+    const response = await axiosInstance.post(`${ORDER_API}/calculate-price-crm`, orderData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+const PostPayment = async (PaymentData) => {
+  try {
+    const response = await axiosInstance.post(`${ORDER_API}/office-pay`, PaymentData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const ReturnSattlement = async (data) => {
+  try {
+    const response = await axiosInstance.post(`${ORDER_API}/return-settlement`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+const FinishRentOrder = async (data) => {
+  try {
+    const response = await axiosInstance.post(`${ORDER_API}/finish-rent-order`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const CustomerTakeOrder = async (data) => {
+  try {
+    const response = await axiosInstance.post(`${ORDER_API}/customer-take-order`, data);
     return response.data;
   } catch (error) {
     throw error;
@@ -71,7 +127,12 @@ const orderService = {
   downloadContract,
   uploadToServer,
   searchOrders,
-  CalCulaterPrice
+  CalCulaterPrice,
+  uploadFile,
+  PostPayment,
+  ReturnSattlement,
+  FinishRentOrder,
+  CustomerTakeOrder
 };
 
 export default orderService;
