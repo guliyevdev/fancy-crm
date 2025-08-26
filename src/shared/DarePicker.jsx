@@ -3,7 +3,7 @@ import { Calendar } from 'lucide-react';
 
 const DatePicker = ({ value, onChange, disabled = false, placeholder = "Tarix seçin", disabledDates = [] }) => {
     const [showCalendar, setShowCalendar] = useState(false);
-    console.log("object", disabledDates)
+
     const handleDateSelect = (date) => {
         onChange(date);
         setShowCalendar(false);
@@ -53,15 +53,28 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
     const formatDisabledDates = () => {
         const dates = [];
 
+        // 26 Sentyabr 2023-dən əvvəlki bütün tarixləri disable et
+        const cutoffDate = new Date(2023, 8, 26); // 8 = Sentyabr (0-dan başlayır)
+
+        // Əgər xüsusi disabledDates verilibsə, onları da əlavə et
         disabledDates.forEach(dateRange => {
             const start = new Date(dateRange.startDate);
             const end = new Date(dateRange.endDate);
 
             // Tarix aralığındaki bütün tarixləri əlavə edirik
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-                dates.push(new Date(d).toISOString().split('T')[0]);
+                const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                dates.push(dateStr);
             }
         });
+
+        // 26 Sentyabrdan əvvəlki bütün tarixləri disable et
+        for (let d = new Date(2020, 0, 1); d < cutoffDate; d.setDate(d.getDate() + 1)) {
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            if (!dates.includes(dateStr)) {
+                dates.push(dateStr);
+            }
+        }
 
         return dates;
     };
@@ -82,7 +95,9 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
 
     const handleDateClick = (day) => {
         const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        const formattedDate = newDate.toISOString().split('T')[0];
+
+        // toISOString() əvəzinə yerli formatda tarix yaradın
+        const formattedDate = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')}`;
 
         // Əgər tarix bloklanmışdırsa, seçim etmirik
         if (isDateDisabled(formattedDate)) return;
@@ -119,10 +134,10 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
                 <div
                     key={day}
                     className={`h-8 flex items-center justify-center rounded-full ${isDisabled
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : isSelected
-                                ? 'bg-blue-500 text-white cursor-pointer'
-                                : 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : isSelected
+                            ? 'bg-blue-500 text-white cursor-pointer'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                         }`}
                     onClick={() => !isDisabled && handleDateClick(day)}
                 >
@@ -169,7 +184,7 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
             {disabledDateList.length > 0 && (
                 <div className="mt-3 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-md">
                     <p className="text-xs text-orange-700 dark:text-orange-300">
-                        * Boz rəngli tarixlər seçilə bilməz
+                        * Boz rəngli tarixlər (26 Sentyabr 2023-dən əvvəl) seçilə bilməz
                     </p>
                 </div>
             )}
