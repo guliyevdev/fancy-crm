@@ -1,40 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Authservices from '../../services/authServices';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
-const AddUser = () => {
+const CreateCustomer = () => {
     const [form, setForm] = useState({
-        name: '',
-        surname: '',
+        firstName: '',
+        lastName: '',
+        fin: '',
         email: '',
         phoneNumber: '',
         password: '',
-        depositAmount: '',
-        typeIds: '',
-        gainPercent: '',
-        fin: '',
-        passportNumber: '',
-        passportSeries: '' // ✅ əlavə etdim
+        repeatPassword: '',
+        passportSeries: '',
+        passportNumber: ''
     });
-    const [types, setTypes] = useState([]);
+
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-
-    // type listini gətiririk
-    useEffect(() => {
-        const fetchTypes = async () => {
-            try {
-                const response = await Authservices.GetTypesLists();
-                setTypes(response.data.data || []); // backenddən gələn array
-            } catch (error) {
-                console.error("Failed to fetch types", error);
-                toast.error("Failed to fetch types");
-            }
-        };
-        fetchTypes();
-    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -49,21 +33,15 @@ const AddUser = () => {
         setLoading(true);
         setErrors({});
         try {
-            const payload = {
-                ...form,
-                depositAmount: Number(form.depositAmount),
-                typeIds: form.typeIds ? [Number(form.typeIds)] : [],
-                gainPercent: Number(form.gainPercent)
-            };
-            const response = await Authservices.CreateUser(payload);
+            const payload = { ...form };
+            const response = await Authservices.PostRegister(payload);
             console.log('User created successfully:', response.data);
             toast.success('User created successfully!');
-            navigate("/all-users");
+            navigate("/customers");
         } catch (error) {
             console.error('Failed to create user:', error.response?.data || error.message);
 
             const backendData = error.response?.data;
-
             if (backendData?.status === 400 && backendData.data) {
                 const fieldErrors = {};
                 backendData.data.forEach((item) => {
@@ -86,14 +64,13 @@ const AddUser = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                    'name',
-                    'surname',
+                    'firstName',
+                    'lastName',
+                    'fin',
                     'email',
                     'phoneNumber',
                     'password',
-                    'depositAmount',
-                    'gainPercent',
-                    'fin',
+                    'repeatPassword',
                     'passportNumber'
                 ].map((field) => (
                     <div key={field}>
@@ -101,14 +78,14 @@ const AddUser = () => {
                             {field}
                         </label>
                         <input
-                            type="text"
+                            type={field.toLowerCase().includes("password") ? "password" : "text"}
                             name={field}
                             value={form[field]}
                             onChange={handleChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 
-                         dark:border-gray-700 rounded-md shadow-sm focus:outline-none 
-                         focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm 
-                         dark:bg-gray-800 dark:text-white"
+                                dark:border-gray-700 rounded-md shadow-sm focus:outline-none 
+                                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm 
+                                dark:bg-gray-800 dark:text-white"
                         />
                         {errors[field] && (
                             <p className="text-sm text-red-500 mt-1">{errors[field]}</p>
@@ -116,7 +93,7 @@ const AddUser = () => {
                     </div>
                 ))}
 
-                {/* PASSPORT SERIES SELECT */}
+                {/* Passport Series select */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Passport Series
@@ -126,9 +103,9 @@ const AddUser = () => {
                         value={form.passportSeries}
                         onChange={handleChange}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 
-                        dark:border-gray-700 rounded-md shadow-sm focus:outline-none 
-                        focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm 
-                        dark:bg-gray-800 dark:text-white"
+                            dark:border-gray-700 rounded-md shadow-sm focus:outline-none 
+                            focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm 
+                            dark:bg-gray-800 dark:text-white"
                     >
                         <option value="">Select passport series</option>
                         <option value="AA">AA</option>
@@ -136,32 +113,6 @@ const AddUser = () => {
                     </select>
                     {errors.passportSeries && (
                         <p className="text-sm text-red-500 mt-1">{errors.passportSeries}</p>
-                    )}
-                </div>
-
-                {/* TYPE SELECT */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Type
-                    </label>
-                    <select
-                        name="typeIds"
-                        value={form.typeIds}
-                        onChange={handleChange}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 
-                        dark:border-gray-700 rounded-md shadow-sm focus:outline-none 
-                        focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm 
-                        dark:bg-gray-800 dark:text-white"
-                    >
-                        <option value="">Select type</option>
-                        {types.map((type) => (
-                            <option key={type.id} value={type.id}>
-                                {type.name}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.typeIds && (
-                        <p className="text-sm text-red-500 mt-1">{errors.typeIds}</p>
                     )}
                 </div>
             </div>
@@ -179,4 +130,4 @@ const AddUser = () => {
     );
 };
 
-export default AddUser;
+export default CreateCustomer;

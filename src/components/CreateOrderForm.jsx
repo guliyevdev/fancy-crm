@@ -28,6 +28,8 @@ const CreateOrderForm = () => {
     email: '',
     phone: "",
     paymentType: '',
+    customerPassportSeries: 'AA',
+    customerPassportNumber: ''
   });
 
   const [contractFile, setContractFile] = useState(null);
@@ -133,6 +135,8 @@ const CreateOrderForm = () => {
       setLoading(false);
     }
   };
+
+  
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setOrderData(prev => ({ ...prev, [name]: value }));
