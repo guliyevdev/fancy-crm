@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/contexts/theme-context";
 import Layout from "@/routes/layout";
 import DashboardPage from "@/routes/dashboard/page";
 import Customers from "./components/materials";
-import CreateCustomer from "./components/createCustomer";
+import CreateCustomer from "./components/Auth/CreateCustomer";
 import Bookings from "./components/bookings";
 import Settings from "./components/settings";
 import CalendarComponent from "./components/calendar";
@@ -181,6 +181,10 @@ function App() {
                 {
                     path: "/customers",
                     element: <CustomerUser/>
+                },
+                {
+                    path: "/customers/create",
+                    element: <CreateCustomer/>
                 }
             ],
         },

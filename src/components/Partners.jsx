@@ -18,10 +18,10 @@ const Partners = () => {
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
   const navigate = useNavigate();
 
-  const fetch = async (page = 0, size = 10, keyword = "") => {
+  const fetch = async (page = 0, size = 10, searchBox = "") => {
     try {
       const criteria = {};
-      if (keyword.trim()) criteria.keyword = keyword.trim();
+      if (searchBox.trim()) criteria.searchBox = searchBox.trim();
 
       const response = await partnerService.searchPartners(criteria, page, size);
       setPartners(response.data.content || []);
@@ -34,23 +34,9 @@ const Partners = () => {
       console.error("Failed to fetch partners:", error);
     }
   };
-  const fetchAll = async () => {
-    try {
-
-      const response = await partnerService.findAll();
-      setPartners(response.data.content || []);
-      setPageInfo({
-        page: response.data.pageable.pageNumber,
-        size: response.data.pageable.pageSize,
-        totalElements: response.data.totalElements,
-      });
-    } catch (error) {
-      console.error("Failed to fetch partners:", error);
-    }
-  };
 
   useEffect(() => {
-    fetchAll();
+    fetch(0, 10, ""); // İlk yükləndikdə 0-cı səhifəni gətir
   }, []);
 
   const exportToExcel = () => {
@@ -72,24 +58,21 @@ const Partners = () => {
     saveAs(blob, "partners.xlsx");
   };
 
-
   const saveEdit = async (e) => {
     e.preventDefault();
     try {
       await partnerService.updatePartner(selectedPartner.id, selectedPartner);
-      fetch();
+      fetch(pageInfo.page, pageInfo.size, searchName);
       setEditOpen(false);
     } catch (error) {
       console.error("Failed to update partner:", error);
     }
   };
 
-
-
   const confirmDelete = async () => {
     try {
       await partnerService.deletePartner(selectedPartner.id);
-      fetch();
+      fetch(pageInfo.page, pageInfo.size, searchName);
       setDeleteOpen(false);
     } catch (error) {
       console.error("Failed to delete partner:", error);
@@ -98,7 +81,7 @@ const Partners = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetch(0, 10, searchName);
+    fetch(0, 10, searchName); // Axtarış etdikdə 0-cı səhifəyə qayıt
   };
 
   const handleChange = (e) => {
@@ -207,7 +190,6 @@ const Partners = () => {
                 <button onClick={() => navigate(`/partners/${partner.id}`)} className="text-blue-600">
                   <PencilLine size={18} />
                 </button>
-
               </td>
             </tr>
           ))}

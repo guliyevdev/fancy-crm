@@ -212,21 +212,26 @@ const AllUsers = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <select
-                                        className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
-                                        value={user.roles}
-                                        onChange={(e) => {
-                                            const selectedRoles = Array.from(e.target.selectedOptions, option => option.value);
-                                            console.log("Yeni seçilən rollar:", selectedRoles);
-                                        }}
-                                    >
-                                        {["admin", "productUser", "agency", "user"].map((role) => (
-                                            <option key={role} value={role}>
-                                                {role}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    {user.roles && user.roles.length > 0 ? (
+                                        <select
+                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
+                                            value={user.roles}
+                                            onChange={(e) => {
+                                                const selectedRoles = Array.from(e.target.selectedOptions, option => option.value);
+                                                console.log("Yeni seçilən rollar:", selectedRoles);
+                                            }}
+                                        >
+                                            {user.roles.map((role) => (
+                                                <option key={role} value={role}>
+                                                    {role}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span className="text-gray-500 italic">Rol təyin edilməyib</span>
+                                    )}
                                 </td>
+
 
                                 <td className="px-6 py-4">{user.deposit}</td>
                                 <td className="px-6 py-4">{new Date(user.createdDate).toLocaleString()}</td>

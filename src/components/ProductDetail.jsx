@@ -221,6 +221,19 @@ const ProductDetail = () => {
   const fileInputRef = useRef(null);
 
 
+  const handleArrayChange = (field, value, checked) => {
+    setEditProduct((prev) => {
+      let newArray = [...prev[field]];
+      if (checked) {
+        if (!newArray.includes(value)) {
+          newArray.push(value);
+        }
+      } else {
+        newArray = newArray.filter((item) => item !== value);
+      }
+      return { ...prev, [field]: newArray };
+    });
+  };
 
 
   useEffect(() => {
@@ -321,7 +334,7 @@ const ProductDetail = () => {
       const response = await productService.uploadScannedFile(
         id,
         file,
-        "INITIAL_HANDOVER_SIGNED" 
+        "INITIAL_HANDOVER_SIGNED"
       );
       toast.success("Upload successful!", response.message);
     } catch (error) {
@@ -577,16 +590,23 @@ const ProductDetail = () => {
 
                 <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium dark:text-white">Partner <span className="text-red-500">*</span></label>
+                  {console.log("editProduct.partnerId:", editProduct.partnerId)}
+                  {console.log("partners:", partners)}
+                  {console.log("options:", partners.map(partner => ({
+                    value: partner.id,
+                    label: partner.customerCode ? partner.customerCode : `${partner.partnerInfo?.name || ''} ${partner.partnerInfo?.surname || ''}`.trim()
+                  })))}
                   <CustomSelect
                     name="partnerId"
                     options={partners.map(partner => ({
+
                       value: partner.id,
                       label: partner.customerCode
                         ? partner.customerCode
                         : `${partner.partnerInfo?.name || ''} ${partner.partnerInfo?.surname || ''}`.trim(),
                       name: 'partnerId'
                     }))}
-                    value={editProduct.partnerId}
+                    value={editProduct.partnerId || ''}
                     onChange={handleEditChange}
                     placeholder="Partner seçin"
                     className="w-full border px-4 py-3 rounded-md"
@@ -716,20 +736,40 @@ const ProductDetail = () => {
               <h3 className="font-semibold text-lg dark:text-white">Məhsul növü</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                   <label className="block text-sm font-medium dark:text-white">Məhsul üçün</label>
-                  <select
-                    value={editProduct.productFor[0]}
-                    onChange={(e) => handleArrayChange("productFor", e.target.value)}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  >
-                    <option value="FOR_SALE">Satış üçün</option>
-                    <option value="FOR_RENT">Kirayə üçün</option>
-                  </select>
-                  {renderError('productFor')}
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="forSale"
+                      checked={editProduct.productFor.includes("FOR_SALE")}
+                      onChange={(e) =>
+                        handleArrayChange("productFor", "FOR_SALE", e.target.checked)
+                      }
+                      className="h-4 w-4"
+                    />
+                    <label htmlFor="forSale" className="dark:text-white">Satış üçün</label>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="forRent"
+                      checked={editProduct.productFor.includes("FOR_RENT")}
+                      onChange={(e) =>
+                        handleArrayChange("productFor", "FOR_RENT", e.target.checked)
+                      }
+                      className="h-4 w-4"
+                    />
+                    <label htmlFor="forRent" className="dark:text-white">Kirayə üçün</label>
+                  </div>
+
+                  {renderError("productFor")}
                 </div>
               </div>
             </div>
+
 
             {/* Prices */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4">

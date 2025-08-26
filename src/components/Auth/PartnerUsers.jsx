@@ -4,7 +4,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Authservices from "../../services/authServices";
 import { useNavigate } from "react-router-dom";
 
-const AllUsers = () => {
+const PartnerUser = () => {
     const [users, setUsers] = useState([]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
@@ -37,7 +37,7 @@ const AllUsers = () => {
                 size,
             };
 
-            const response = await Authservices.search(params);
+            const response = await Authservices.searchPartners(params);
             const apiData = response.data?.data || response.data;
             const authData = apiData?.users || [];
 
@@ -199,7 +199,7 @@ const AllUsers = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700 dark:text-white">
-                                              {users.filter(user => user.roles.includes("productUser")).map((user, index) => (
+                        {users.map((user, index) => (
 
                             <tr key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
                                 <td className="px-6 py-4 break-words max-w-[200px]">{index + 1 + pageInfo.page * pageInfo.size}</td>
@@ -214,21 +214,26 @@ const AllUsers = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <select
-                                        className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
-                                        value={user.roles}
-                                        onChange={(e) => {
-                                            const selectedRoles = Array.from(e.target.selectedOptions, option => option.value);
-                                            console.log("Yeni seçilən rollar:", selectedRoles);
-                                        }}
-                                    >
-                                        {["admin", "productUser", "agency", "user"].map((role) => (
-                                            <option key={role} value={role}>
-                                                {role}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    {user.roles && user.roles.length > 0 ? (
+                                        <select
+                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
+                                            value={user.roles}
+                                            onChange={(e) => {
+                                                const selectedRoles = Array.from(e.target.selectedOptions, option => option.value);
+                                                console.log("Yeni seçilən rollar:", selectedRoles);
+                                            }}
+                                        >
+                                            {user.roles.map((role) => (
+                                                <option key={role} value={role}>
+                                                    {role}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span className="text-gray-500 italic">Rol təyin edilməyib</span>
+                                    )}
                                 </td>
+
 
                                 <td className="px-6 py-4">{user.deposit}</td>
                                 <td className="px-6 py-4">{new Date(user.createdDate).toLocaleString()}</td>
@@ -401,4 +406,4 @@ const AllUsers = () => {
     );
 };
 
-export default AllUsers;
+export default PartnerUser;
