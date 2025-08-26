@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import partnerService from '../services/partnerService';
 import { toast } from 'sonner';
@@ -37,6 +37,13 @@ const AddPartner = () => {
     branchCode: '',
     note: '',
   });
+
+  // FIN dəyişdikdə avtomatik axtarış et
+  useEffect(() => {
+    if (activeTab === 'physical' && fin.length >= 7) {
+      handleFindUserByFin();
+    }
+  }, [fin]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -127,7 +134,6 @@ const AddPartner = () => {
     } catch (error) {
       console.error("İstifadəçi yaradılarkən xəta:", error.response?.data?.data);
 
-      // Backend xətalarını əldə et və state-ə yaz
       if (error.response?.data?.data) {
         const backendErrors = {};
         error.response.data.data.forEach((e) => {
@@ -140,7 +146,6 @@ const AddPartner = () => {
 
         setErrors(prev => ({ ...prev, ...backendErrors }));
 
-        // Hər bir xəta mesajını toast ilə göstər
         Object.values(backendErrors).forEach(errorMsg => {
           toast.error(errorMsg);
         });
@@ -148,7 +153,7 @@ const AddPartner = () => {
         toast.error("İstifadəçi yaradılarkən gözlənilməz xəta baş verdi.");
       }
 
-      throw error; // Xətanı yenidən throw et ki, registerPartner funksiyası da bilə
+      throw error;
     }
   };
 
@@ -160,7 +165,8 @@ const AddPartner = () => {
 
     setSaving(true);
     try {
-      if (!userFound && userSearched) {
+      // Əgər istifadəçi tapılmayıbsa, əvvəlcə istifadəçi yarat
+      if (!userFound) {
         try {
           await createUser();
           toast.success('İstifadəçi uğurla yaradıldı!');
@@ -272,10 +278,8 @@ const AddPartner = () => {
     }
   };
 
-  const handleFindUserByFinSubmit = async (e) => {
-    e.preventDefault();
-    if (!fin.trim()) {
-      toast.error("FIN daxil edin");
+  const handleFindUserByFin = async () => {
+    if (!fin.trim() || fin.length < 7) {
       return;
     }
 
@@ -303,7 +307,18 @@ const AddPartner = () => {
         toast.success("İstifadəçi məlumatları uğurla yükləndi!");
       } else {
         setUserFound(false);
-        toast.warning("Heç bir istifadəçi tapılmadı. Məlumatları əl ilə daxil edin.");
+        // İstifadəçi tapılmayanda inputları aktiv edirik
+        setPartner(prev => ({
+          ...prev,
+          name: '',
+          surname: '',
+          email: '',
+          phoneNumber: '994',
+          fin: fin,
+          passportSeries: '',
+          passportNumber: ''
+        }));
+        toast.warning("Heç bir istifadəçi tapılmadı. Məlumatları daxil edin.");
       }
     } catch (error) {
       console.error(error);
@@ -311,6 +326,11 @@ const AddPartner = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFindUserByFinSubmit = async (e) => {
+    e.preventDefault();
+    await handleFindUserByFin();
   };
 
   const physicalFields = [
@@ -341,6 +361,7 @@ const AddPartner = () => {
     { name: 'note', label: 'Qeydlər', type: 'text', required: false }
   ];
 
+  // Inputların disabled olub olmamasını təyin edirik
   const isPhysicalInputDisabled = activeTab === 'physical' && !userSearched;
 
   const renderField = (field) => {
@@ -374,7 +395,7 @@ const AddPartner = () => {
             name={field.name}
             value={value}
             onChange={handleChange}
-            disabled={activeTab === 'physical' ? isPhysicalInputDisabled : false}
+            disabled={isPhysicalInputDisabled}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400 ${error ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
               }`}
             style={field.name === 'fin' ? { textTransform: 'uppercase' } : {}}
@@ -438,6 +459,9 @@ const AddPartner = () => {
               {loading ? "Axtarılır..." : "Axtar"}
             </button>
           </form>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            FIN daxil etdikdə avtomatik axtarış ediləcək (minimum 7 simvol)
+          </p>
         </div>
       )}
 
@@ -457,7 +481,8 @@ const AddPartner = () => {
               name="userPassword"
               value={partner.userPassword}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white ${errors.userPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
+              disabled={isPhysicalInputDisabled}
+              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400 ${errors.userPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
                 }`}
             />
             {errors.userPassword && (
@@ -470,9 +495,9 @@ const AddPartner = () => {
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           onClick={activeTab === 'physical' ? registerPartner : registerCorporatePartner}
-          disabled={saving}
+          disabled={saving || (activeTab === 'physical' && !userSearched)}
           className={`px-6 py-2 rounded-md text-white ${saving ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
-            }`}
+            } ${activeTab === 'physical' && !userSearched ? 'bg-gray-400 cursor-not-allowed' : ''}`}
         >
           {saving ? 'Yadda saxlanılır...' : 'Partneri Qeydiyyat Et'}
         </button>
