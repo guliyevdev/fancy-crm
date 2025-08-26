@@ -468,6 +468,34 @@ const OrderDetails = () => {
       </div>
 
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {order.orderFiles.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white shadow-md rounded-xl p-4 flex flex-col justify-between border hover:shadow-xl transition"
+          >
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                {item.fileType}
+              </h3>
+              <p className="text-sm text-gray-500">
+                Yüklənmə tarixi:{" "}
+                {new Date(item.uploadedAt).toLocaleString("az-AZ")}
+              </p>
+            </div>
+
+            <button
+              onClick={() => window.open(item.fileUrl, "_blank")}
+              className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition"
+            >
+              📄 Bax / Yüklə
+            </button>
+          </div>
+        ))}
+      </div>
+
+
+
 
 
 
