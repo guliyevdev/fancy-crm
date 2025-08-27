@@ -36,6 +36,7 @@ const AddPartner = () => {
     bankSwift: '',
     branchCode: '',
     note: '',
+    typeIds: ["4"]
   });
 
   // FIN dəyişdikdə avtomatik axtarış et
@@ -126,7 +127,8 @@ const AddPartner = () => {
         phoneNumber: partner.phoneNumber,
         passportSeries: partner.passportSeries,
         passportNumber: partner.passportNumber,
-        password: partner.userPassword
+        password: partner.userPassword,
+        typeIds: ["4"]
       };
 
       const response = await Authservices.CreateUser(userData);

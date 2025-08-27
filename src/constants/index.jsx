@@ -40,15 +40,21 @@ export const navbarLinks = [
                 path: "/all-users",
             },
             {
+                label: "Company-Workers",
+                icon: PenTool,
+                path: "/company-workers",
+            },
+            {
                 label: "Partner-Users",
                 icon: BarChart,
                 path: "/partner-users",
             },
             {
                 label: "Customer-Users",
-                icon: BarChart,
+                icon: Tag,
                 path: "/customers",
             },
+
 
         ],
     },
@@ -59,21 +65,22 @@ export const navbarLinks = [
                 label: "Materials",
                 icon: Gem,
                 path: "/materials",
-            }, {
-                label: "Designers",
-                icon: PenTool,
-                path: "/designers",
             },
+            // {
+            //     label: "Designers",
+            //     icon: PenTool,
+            //     path: "/designers",
+            // },
             {
                 label: "Colors",
                 icon: Palette,
                 path: "/colors",
             },
-            {
-                label: "Daily Sales",
-                icon: BarChart,
-                path: "/daily-Sales",
-            },
+            // {
+            //     label: "Daily Sales",
+            //     icon: BarChart,
+            //     path: "/daily-Sales",
+            // },
             {
                 label: "Category",
                 icon: Layers,
@@ -84,11 +91,12 @@ export const navbarLinks = [
                 icon: PartyPopper,
                 path: "/occasions",
             }
-            , {
-                label: "Karats",
-                icon: Tag,
-                path: "/carats",
-            },
+            ,
+            // {
+            //     label: "Karats",
+            //     icon: Tag,
+            //     path: "/carats",
+            // },
             {
                 label: "Products",
                 icon: ShoppingCart,

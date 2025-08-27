@@ -43,6 +43,7 @@ import PartnerUsers from "./components/Auth/PartnerUsers";
 import AddUser from "./components/Auth/AddUser";
 import CustomerUser from "./components/Auth/Customers";
 import AllUserDetail from "./components/Auth/AllUserDetail";
+import CompanyUser from "./components/Auth/CompanyUser";
 
 function App() {
     const router = createBrowserRouter([
@@ -176,15 +177,19 @@ function App() {
                 },
                 {
                     path: "/alluser/:id",
-                    element: <AllUserDetail/>
+                    element: <AllUserDetail />
                 },
                 {
                     path: "/customers",
-                    element: <CustomerUser/>
+                    element: <CustomerUser />
                 },
                 {
                     path: "/customers/create",
-                    element: <CreateCustomer/>
+                    element: <CreateCustomer />
+                },
+                {
+                    path: "/company-workers",
+                    element: <CompanyUser />
                 }
             ],
         },

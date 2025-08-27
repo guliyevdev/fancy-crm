@@ -53,13 +53,20 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
     const formatDisabledDates = () => {
         const dates = [];
 
-        // 26 Sentyabr 2023-dən əvvəlki bütün tarixləri disable et
-        const cutoffDate = new Date(2023, 8, 26); // 8 = Sentyabr (0-dan başlayır)
+        // Bugünün tarixini alıb 26 gün əvvəlini hesablayırıq
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // 26 gün əvvəlki tarixi hesablayırıq
+        const cutoffDate = new Date(today);
+        cutoffDate.setDate(today.getDate() - 26);
 
         // Əgər xüsusi disabledDates verilibsə, onları da əlavə et
         disabledDates.forEach(dateRange => {
             const start = new Date(dateRange.startDate);
+            start.setHours(0, 0, 0, 0);
             const end = new Date(dateRange.endDate);
+            end.setHours(0, 0, 0, 0);
 
             // Tarix aralığındaki bütün tarixləri əlavə edirik
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
@@ -68,8 +75,8 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
             }
         });
 
-        // 26 Sentyabrdan əvvəlki bütün tarixləri disable et
-        for (let d = new Date(2020, 0, 1); d < cutoffDate; d.setDate(d.getDate() + 1)) {
+        // 26 gün əvvəlki tarixdən bugünə qədər olan bütün tarixləri disable et
+        for (let d = new Date(cutoffDate); d <= today; d.setDate(d.getDate() + 1)) {
             const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             if (!dates.includes(dateStr)) {
                 dates.push(dateStr);
@@ -95,6 +102,7 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
 
     const handleDateClick = (day) => {
         const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        newDate.setHours(0, 0, 0, 0); // Saatı sıfırla
 
         // toISOString() əvəzinə yerli formatda tarix yaradın
         const formattedDate = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')}`;
@@ -134,7 +142,7 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
                 <div
                     key={day}
                     className={`h-8 flex items-center justify-center rounded-full ${isDisabled
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
                         : isSelected
                             ? 'bg-blue-500 text-white cursor-pointer'
                             : 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
@@ -148,6 +156,12 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
 
         return days;
     };
+
+    // Bugünün tarixini və 26 gün əvvəlini hesablayırıq
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const cutoffDate = new Date(today);
+    cutoffDate.setDate(today.getDate() - 26);
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg">
@@ -184,7 +198,7 @@ const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates 
             {disabledDateList.length > 0 && (
                 <div className="mt-3 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-md">
                     <p className="text-xs text-orange-700 dark:text-orange-300">
-                        * Boz rəngli tarixlər (26 Sentyabr 2023-dən əvvəl) seçilə bilməz
+                        * Boz rəngli tarixlər ({cutoffDate.toLocaleDateString('az-AZ')} - {today.toLocaleDateString('az-AZ')} arası) seçilə bilməz
                     </p>
                 </div>
             )}

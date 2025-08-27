@@ -68,10 +68,8 @@ const ProductDetail = () => {
       try {
         const response = await productService.getProductById(id);
         const p = response.data;
-        console.log(p.contractFileList)
         setContractFiles(p.contractFileList);
         setBarcode(p);
-        console.log(response.data.barcodeBase64)
 
         const formatDateForInput = (dateString) => {
           if (!dateString) return "";
@@ -101,7 +99,7 @@ const ProductDetail = () => {
           colorIds: p.colorsInfo?.map(c => c.id) || [],
           materialIds: p.materialsInfo?.map(m => m.id) || [],
           occasionIds: p.occasionsInfo?.map(o => o.id) || [],
-          partnerId: p.partnerInfo?.id || "hello",
+          partnerId: p.partnerInfo?.id || 0,
           carat: p.carat || "",
           quantity: p.quantity || 0,
           weight: p.weight || 0,
@@ -138,7 +136,6 @@ const ProductDetail = () => {
     const fetchPartners = async () => {
       const res = await partnerService.getByName(partnerSearch);
       setPartners(res.data.data);
-      console.log(res.data.data)
     };
     fetchPartners();
   }, [partnerSearch]);
@@ -341,6 +338,24 @@ const ProductDetail = () => {
       toast.error("Upload failed: " + (error.response?.data?.message || error.message));
     }
   };
+
+  useEffect(() => {
+  const fetchData = async () => {
+    const categoriesRes = await categoryService.getByName();
+    setCategories(categoriesRes.data.data);
+    const colorsRes = await colorService.getByName();
+    setColors(colorsRes.data.data);
+    const MaterialsRes = await getAllMaterials();
+    setMaterials(MaterialsRes.data);
+    const occasionsRes = await occasionService.getByName();
+    setOccasions(occasionsRes.data.data);
+    
+    // Partner məlumatlarını da ilkin yüklə
+    const PartnerRes = await partnerService.getByName("");
+    setPartners(PartnerRes.data.data);
+  };
+  fetchData();
+}, []);
 
 
   const renderError = (fieldName) => {
@@ -590,20 +605,14 @@ const ProductDetail = () => {
 
                 <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium dark:text-white">Partner <span className="text-red-500">*</span></label>
-                  {console.log("editProduct.partnerId:", editProduct.partnerId)}
-                  {console.log("partners:", partners)}
-                  {console.log("options:", partners.map(partner => ({
-                    value: partner.id,
-                    label: partner.customerCode ? partner.customerCode : `${partner.partnerInfo?.name || ''} ${partner.partnerInfo?.surname || ''}`.trim()
-                  })))}
+                 
                   <CustomSelect
                     name="partnerId"
                     options={partners.map(partner => ({
-
                       value: partner.id,
                       label: partner.customerCode
                         ? partner.customerCode
-                        : `${partner.partnerInfo?.name || ''} ${partner.partnerInfo?.surname || ''}`.trim(),
+                        : `${partner.name || ''} ${partner.surname || ''}`.trim(),
                       name: 'partnerId'
                     }))}
                     value={editProduct.partnerId || ''}
@@ -983,10 +992,8 @@ const ProductDetail = () => {
         <button
           type="button"
           onClick={() => {
-            console.log("object")
             if (contractFiles?.length > 0) {
-              console.log("click")
-              const fullUrl = contractFiles[0]?.filePath;
+              const fullUrl = contractFiles[0]?.fileUrl;
               window.open(fullUrl, "_blank");
             }
           }}

@@ -71,7 +71,7 @@ const ProductAdd = () => {
             quantity: 0,
             weight: 0,
             size: 0,
-            salePrice: isSale ? 0 : isRent ? null : prev.saleCompanyPercent,
+            salePrice: 0,
             rentPricePerDay: isRent ? 0 : isSale ? null : prev.returnFeePercent,
             damageCompanyCompensation: isRent ? 0 : isSale ? null : prev.rentCompanyPercent,
             lossCompanyCompensation: isRent ? 0 : isSale ? null : prev.rentCompanyPercent,
@@ -114,6 +114,20 @@ const ProductAdd = () => {
         setNewProduct(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleDateChange = (name, value) => {
+        if (!value) {
+            setNewProduct(prev => ({ ...prev, [name]: "" }));
+            return;
+        }
+
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+            setNewProduct(prev => ({ ...prev, [name]: date.toISOString() }));
+        } else {
+            console.error("Invalid date value:", value);
+            setNewProduct(prev => ({ ...prev, [name]: "" }));
+        }
+    };
 
     const handleSaveAndUpload = async (e) => {
         e.preventDefault();
@@ -527,11 +541,9 @@ const ProductAdd = () => {
                                         type="number"
                                         value={newProduct.salePrice}
                                         onChange={(e) => handleAddChange({ target: { name: 'salePrice', value: e.target.value } })}
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
-                                        disabled={newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE")}
+                                        className="w-full border dark:bg-gray-700 dark:text-white px-4 py-3 rounded-md"
+
+                                    // disabled={newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE")}
 
 
 
