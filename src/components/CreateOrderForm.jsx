@@ -50,10 +50,11 @@ const CreateOrderForm = () => {
   const [disabledDates, setDisabledDates] = useState([]);
   const [fin, setFin] = useState("");
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]); // array üçün
+  const [users, setUsers] = useState([]); 
   const navigate = useNavigate();
 
   useEffect(() => {
+
     const calculatePrice = async () => {
       if (orderData.productCodes.length > 0 && orderData.fromDate &&
         (orderData.orderType === 'SALE' || orderData.toDate)) {
@@ -91,7 +92,6 @@ const CreateOrderForm = () => {
 
     return () => clearTimeout(timer);
   }, [orderData.orderType, orderData.fromDate, orderData.toDate, orderData.productCodes]);
-
 
 
 
@@ -136,7 +136,7 @@ const CreateOrderForm = () => {
     }
   };
 
-  
+
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setOrderData(prev => ({ ...prev, [name]: value }));
@@ -163,12 +163,10 @@ const CreateOrderForm = () => {
         const product = response.data[0];
         setProductInfo(product);
 
-        // Set order type based on product availability
         if (product.forSale && !product.forRent) {
           setOrderData(prev => ({ ...prev, orderType: 'SALE' }));
         } else if (!product.forSale && product.forRent) {
           setOrderData(prev => ({ ...prev, orderType: 'RENT' }));
-          // Parse disabled dates for calendar
           if (product.deactiveDates && product.deactiveDates.length > 0) {
             const dates = [];
             product.deactiveDates.forEach(dateRange => {
@@ -214,7 +212,6 @@ const CreateOrderForm = () => {
     setOrderData(prev => ({
       ...prev,
       productCodes: [...prev.productCodes, ...newProductCodes],
-      // Auto-set order type based on product availability
       orderType: product.forSale && !product.forRent ? 'SALE' : 'RENT'
     }));
 
@@ -338,7 +335,8 @@ const CreateOrderForm = () => {
       navigate("/orders");
     } catch (error) {
       console.error('Create order failed:', error.response ?? error);
-      toast.error("Failed to create order");
+      toast.error(error.response.data.message);
+
     } finally {
       setSubmitLoading(false);
     }

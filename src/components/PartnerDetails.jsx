@@ -201,7 +201,7 @@ const PartnerDetails = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-400">{doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : 'N/A'}</p>
                   </div>
                   <a
-                    href={doc.filePath}
+                    href={doc.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"

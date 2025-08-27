@@ -20,6 +20,7 @@ const Authservices = {
     search: (params) => axiosInstance.post(`${BASE_URL_Register}/search-users`, params),
     searchPartners: (params) => axiosInstance.post(`${BASE_URL_Register}/search-partners`, params),
     searchCustomers: (params) => axiosInstance.post(`${BASE_URL_Register}/search-customers`, params),
+    searchWorkers: (params) => axiosInstance.post(`${BASE_URL_Register}/search-workers`, params),
 
     PostLogOut: (data) => axiosInstance.post(`${BASE_URL_Login}logout`, data),
     PostForgetPassword: (email) => axiosInstance.get(`${BASE_URL_Login}forgot-password`, {
