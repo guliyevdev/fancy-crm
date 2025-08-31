@@ -44,6 +44,9 @@ import AddUser from "./components/Auth/AddUser";
 import CustomerUser from "./components/Auth/Customers";
 import AllUserDetail from "./components/Auth/AllUserDetail";
 import CompanyUser from "./components/Auth/CompanyUser";
+import ProductEdit from "./components/ProductEdit";
+import PartnerEdit from "./components/PartnerEdit";
+import UserEdit from "./components/Auth/UserEdit";
 
 function App() {
     const router = createBrowserRouter([
@@ -180,6 +183,10 @@ function App() {
                     element: <AllUserDetail />
                 },
                 {
+                    path: "/user-upload/:id",
+                    element: <UserEdit />
+                },
+                {
                     path: "/customers",
                     element: <CustomerUser />
                 },
@@ -190,6 +197,14 @@ function App() {
                 {
                     path: "/company-workers",
                     element: <CompanyUser />
+                },
+                {
+                    path: "/upload-product/:id",
+                    element: <ProductEdit />
+                },
+                {
+                    path: "/partner-upload/:id",
+                    element: <PartnerEdit />
                 }
             ],
         },

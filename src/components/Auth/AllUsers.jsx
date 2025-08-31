@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { PencilLine, Plus, X } from "lucide-react";
+import { Eye, PencilLine, Plus, X } from "lucide-react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Authservices from "../../services/authServices";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const AllUsers = () => {
     const [users, setUsers] = useState([]);
@@ -28,11 +29,41 @@ const AllUsers = () => {
     };
 
 
-    const fetchUsers = async (page = 0, size = 10, keyword = "") => {
+    // const fetchUsers = async (page = 0, size = 10, keyword = "") => {
+    //     try {
+    //         const params = {
+    //             search: keyword,
+    //             active: searchStatus === "all" ? null : searchStatus === "active", // true/false/null olmalıdır
+    //             page,
+    //             size,
+    //         };
+
+    //         const response = await Authservices.search(params);
+    //         const apiData = response.data?.data || response.data;
+    //         const authData = apiData?.users || [];
+
+    //         setUsers(authData);
+    //         setCurrentPage(page); // Cari səhifəni saxlayın
+
+    //         setPageInfo({
+    //             page: page, // API cavabında number olmadığı üçün parametrdən istifadə edin
+    //             size: apiData?.size || size,
+    //             totalElements: apiData?.totalElements || 0,
+    //             totalPages: apiData?.totalPages || 1,
+    //         });
+    //     } catch (error) {
+    //         console.error("Fetch users error:", error);
+    //         setUsers([]);
+    //     }
+    // };
+ const fetchUsers = async (page = 0, size = 10, keyword = "") => {
+        const token = Cookies.get("accessToken");
+        if (!token) return; // Token yoxdursa heç fetch etmə
+
         try {
             const params = {
                 search: keyword,
-                active: searchStatus === "all" ? null : searchStatus === "active", // true/false/null olmalıdır
+                active: searchStatus === "all" ? null : searchStatus === "active",
                 page,
                 size,
             };
@@ -42,20 +73,24 @@ const AllUsers = () => {
             const authData = apiData?.users || [];
 
             setUsers(authData);
-            setCurrentPage(page); // Cari səhifəni saxlayın
+            setCurrentPage(page);
 
             setPageInfo({
-                page: page, // API cavabında number olmadığı üçün parametrdən istifadə edin
+                page,
                 size: apiData?.size || size,
                 totalElements: apiData?.totalElements || 0,
                 totalPages: apiData?.totalPages || 1,
             });
         } catch (error) {
             console.error("Fetch users error:", error);
-            setUsers([]);
+            // 401 status gələrsə login səhifəsinə yönləndir
+            if (error.response?.status === 401) {
+                navigate("/login");
+            } else {
+                setUsers([]);
+            }
         }
     };
-
     useEffect(() => {
         fetchUsers(0);
     }, []);
@@ -242,11 +277,17 @@ const AllUsers = () => {
 
 
                                     >
+                                        <Eye size={20} />
+                                    </button>
+                                    <button
+                                        className="text-blue-600 hover:text-blue-900"
+                                        onClick={() => navigate(`/user-upload/${user.id}`)}
+
+
+                                    >
                                         <PencilLine size={20} />
                                     </button>
-                                    {/* <button className="text-red-600 hover:text-red-900">
-                                        <Trash size={20} />
-                                    </button> */}
+
                                 </td>
                             </tr>
                         ))}
@@ -274,7 +315,7 @@ const AllUsers = () => {
                 </button>
             </div>
 
-            {isEditModalOpen && (
+            {/* {isEditModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
@@ -399,7 +440,7 @@ const AllUsers = () => {
                         </form>
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
     );
 };

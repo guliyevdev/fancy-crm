@@ -7,12 +7,13 @@ import { toast } from "sonner";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import CustomSelect from "../shared/CustomSelect";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [finishingOrderId, setFinishingOrderId] = useState(null); // Yeni: Bitirilən sifarişin ID-si
+  const [finishingOrderId, setFinishingOrderId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({
     currentPage: 0,
@@ -20,18 +21,28 @@ const Orders = () => {
     totalElements: 0,
     totalPages: 1
   });
+  const [type, setType] = useState('')
 
   const navigate = useNavigate();
 
-  const fetchOrders = async (page = 0, size = pagination.pageSize, keyword = searchTerm) => {
+  const fetchOrders = async (
+    page = 0,
+    size = pagination.pageSize,
+    keyword = searchTerm,
+    orderType = type
+  ) => {
     setLoading(true);
     try {
       const params = {
-        searchCodes : keyword,
+        searchCodes: keyword,
         active: true,
         page,
         size,
+        type: orderType || '',
       };
+
+      // 🔥 BURDA YAZ
+      console.log("🔎 Backend-ə gedən params:", params);
 
       const response = await orderService.searchOrders(params);
 
@@ -53,6 +64,7 @@ const Orders = () => {
       setLoading(false);
     }
   };
+
 
   const handleFinishOrder = async (orderId, orderCode) => {
     setFinishingOrderId(orderId); // Loading state üçün
@@ -123,7 +135,24 @@ const Orders = () => {
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <div className="flex items-center justify-end mb-4 flex-wrap gap-2">
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigate("/create/order")}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md"
+          >
+            <Plus className="mr-2 h-4 w-4" /> Yeni Sifariş
+          </button>
+          <button
+            onClick={() => exportOrdersToExcel(orders)}
+            className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md">
+            Excelə çıxar
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-4 flex flex-col lg:flex-row  lg:justify-between lg:items-center  gap-4">
+
         <form
           onSubmit={handleSearchSubmit}
           className="flex gap-2"
@@ -142,21 +171,27 @@ const Orders = () => {
             Axtar
           </button>
         </form>
+        <CustomSelect
+          value={type}
+          options={[
+            { value: '', label: 'All' },
 
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate("/create/order")}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Yeni Sifariş
-          </button>
-          <button
-            onClick={() => exportOrdersToExcel(orders)}
-            className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md">
-            Excelə çıxar
-          </button>
-        </div>
+            { value: 'RENT', label: 'Rent' },
+            { value: 'SALE', label: 'Sale' }
+          ]}
+          onChange={(selected) => {
+            const value = selected?.target?.value || '';
+            console.log("Seçilən dəyər:", value);
+            setType(value);
+            fetchOrders(0, pagination.pageSize, searchTerm, value);
+          }}
+          placeholder="Növ seçin"
+          className="w-full border px-4 py-3 rounded-md max-w-[200px]"
+          isMulti={false}
+        />
       </div>
+
+
 
       <div className="card-header">
         <p className="card-title">Bütün Sifarişlər</p>

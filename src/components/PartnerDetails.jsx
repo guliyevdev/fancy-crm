@@ -4,7 +4,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import partnerService from '../services/partnerService';
 import { toast } from 'sonner';
 
-const FormInput = ({ label, name, value, onChange, type = 'text' }) => (
+const FormInput = ({ label, name, value, onChange, type = 'text', disabled = true }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
     <input
@@ -12,19 +12,27 @@ const FormInput = ({ label, name, value, onChange, type = 'text' }) => (
       name={name}
       value={value || ''}
       onChange={onChange}
-      className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      disabled={disabled}
+      className={`w-full p-2 border rounded 
+        dark:bg-gray-800 dark:border-gray-600 dark:text-white
+        disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed
+        dark:disabled:bg-gray-700 dark:disabled:text-gray-400`}
     />
   </div>
 );
 
-const FormSelect = ({ label, name, value, onChange, options }) => (
+const FormSelect = ({ label, name, value, onChange, options, disabled = true }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
     <select
       name={name}
       value={value || ''}
       onChange={onChange}
-      className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      disabled={disabled}
+      className={`w-full p-2 border rounded 
+        dark:bg-gray-800 dark:border-gray-600 dark:text-white
+        disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed
+        dark:disabled:bg-gray-700 dark:disabled:text-gray-400`}
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
@@ -34,6 +42,7 @@ const FormSelect = ({ label, name, value, onChange, options }) => (
     </select>
   </div>
 );
+
 
 const PartnerDetails = () => {
   const { id } = useParams();
@@ -133,13 +142,13 @@ const PartnerDetails = () => {
         >
           <ArrowLeft size={16} className="mr-2" /> Back
         </button>
-        <button
+        {/* <button
           onClick={saveChanges}
           disabled={saving}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold shadow disabled:opacity-50"
         >
           <Save size={18} /> {saving ? 'Saving...' : 'Save Changes'}
-        </button>
+        </button> */}
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-y-6">

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { PencilLine, Plus } from "lucide-react";
+import { Eye, PencilLine, Plus } from "lucide-react";
 import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import partnerService from "../services/partnerService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import CustomSelect from "../shared/CustomSelect";
 
 Modal.setAppElement("#root");
 
@@ -16,19 +17,25 @@ const Partners = () => {
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [searchName, setSearchName] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
+  const [partnerType, setPartnerType] = useState('');
+  const [status, setStatus] = useState('');
+
   const navigate = useNavigate();
 
-  const fetch = async (page = 0, size = 10, searchBox = "") => {
+  const fetchPartners = async (page = 0, size = 10, search = "", type = '', statusFilter = '') => {
     try {
       const criteria = {};
-      if (searchBox.trim()) criteria.searchBox = searchBox.trim();
+      if (search.trim()) criteria.searchBox = search.trim();
+      if (type) criteria.partnerType = type;
+      if (statusFilter) criteria.status = statusFilter;
 
       const response = await partnerService.searchPartners(criteria, page, size);
+
       setPartners(response.data.content || []);
       setPageInfo({
         page: response.data.pageable.pageNumber,
         size: response.data.pageable.pageSize,
-        totalElements: response.data.totalElements,
+        totalElements: response.data.totalElements
       });
     } catch (error) {
       console.error("Failed to fetch partners:", error);
@@ -36,9 +43,27 @@ const Partners = () => {
   };
 
   useEffect(() => {
-    fetch(0, 10, ""); // İlk yükləndikdə 0-cı səhifəni gətir
+    fetchPartners(0, pageInfo.size, searchName, partnerType, status);
   }, []);
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchPartners(0, pageInfo.size, searchName, partnerType, status);
+  };
+  // 📄 CustomSelect partnerType filter
+  const handlePartnerTypeChange = (event) => {
+    const value = event.target.value || '';
+    setPartnerType(value);
+    fetchPartners(0, pageInfo.size, searchName, value);
+  };
+
+  const handleStatusChange = (event) => {
+    const value = event.target.value || '';
+    setStatus(value);
+    fetchPartners(0, pageInfo.size, searchName, partnerType, value);
+  };
+
+  // 📊 Export to Excel
   const exportToExcel = () => {
     const data = partners.map((p) => ({
       ID: p.id,
@@ -58,30 +83,27 @@ const Partners = () => {
     saveAs(blob, "partners.xlsx");
   };
 
+  // 📝 Edit Partner
   const saveEdit = async (e) => {
     e.preventDefault();
     try {
       await partnerService.updatePartner(selectedPartner.id, selectedPartner);
-      fetch(pageInfo.page, pageInfo.size, searchName);
+      fetchPartners(pageInfo.page, pageInfo.size, searchName, partnerType);
       setEditOpen(false);
     } catch (error) {
       console.error("Failed to update partner:", error);
     }
   };
 
+  // ❌ Delete Partner
   const confirmDelete = async () => {
     try {
       await partnerService.deletePartner(selectedPartner.id);
-      fetch(pageInfo.page, pageInfo.size, searchName);
+      fetchPartners(pageInfo.page, pageInfo.size, searchName, partnerType);
       setDeleteOpen(false);
     } catch (error) {
       console.error("Failed to delete partner:", error);
     }
-  };
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    fetch(0, 10, searchName); // Axtarış etdikdə 0-cı səhifəyə qayıt
   };
 
   const handleChange = (e) => {
@@ -89,6 +111,7 @@ const Partners = () => {
     setSelectedPartner((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 💻 Edit Modal
   const renderEditModal = () => (
     <Modal
       isOpen={editOpen}
@@ -145,19 +168,59 @@ const Partners = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="Search by company name"
-          value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
-          className="px-3 py-2 border rounded w-64 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-        />
-        <button type="submit" className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md">
-          Search
-        </button>
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex flex-col lg:flex-row  lg:justify-between lg:items-center  gap-4">
+        {/* Search input + button */}
+        <div className="flex flex-col sm:flex-row gap-2 flex-1 min-h-[66px] ">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            className="flex-1 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+          >
+            Search
+          </button>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-col md:flex-row gap-2 w-full lg:w-auto">
+          <CustomSelect
+            value={partnerType}
+            options={[
+              { value: '', label: 'All' },
+              { value: 'PHYSICAL', label: 'PHYSICAL' },
+              { value: 'CORPORATE', label: 'CORPORATE' }
+            ]}
+            onChange={handlePartnerTypeChange}
+            placeholder="Növ seçin"
+            className="w-full md:w-64 border px-4 py-3 rounded-md"
+            isMulti={false}
+          />
+          <CustomSelect
+            value={status}
+            options={[
+              { value: '', label: 'All' },
+
+              { value: 'PENDING', label: 'PENDING' },
+              { value: 'VERIFIED', label: 'VERIFIED' },
+              { value: 'REJECTED', label: 'REJECTED' }
+            ]}
+            onChange={handleStatusChange}
+            placeholder="Status"
+            className="w-full md:w-64 border px-4 py-3 rounded-md"
+            isMulti={false}
+          />
+        </div>
       </form>
 
+
+
+
+      {/* Partners Table */}
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
@@ -165,6 +228,7 @@ const Partners = () => {
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">customerCode</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Phone</th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Partner Type</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
             <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Actions</th>
           </tr>
@@ -176,6 +240,7 @@ const Partners = () => {
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.customerCode}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.partnerType}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "ACTIVE"
@@ -186,8 +251,12 @@ const Partners = () => {
                   {partner.status}
                 </span>
               </td>
+
               <td className="px-4 py-2 text-right flex justify-end gap-2">
                 <button onClick={() => navigate(`/partners/${partner.id}`)} className="text-blue-600">
+                  <Eye size={18} />
+                </button>
+                <button onClick={() => navigate(`/partner-upload/${partner.id}`)} className="text-blue-600">
                   <PencilLine size={18} />
                 </button>
               </td>

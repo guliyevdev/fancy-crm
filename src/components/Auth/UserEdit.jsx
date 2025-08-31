@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Authservices from '../../services/authServices';
 
-const AllUserDetail = () => {
+const UserEdit = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [form, setForm] = useState({
@@ -159,13 +159,13 @@ const AllUserDetail = () => {
     };
 
     const fields = [
-        { label: 'Name', name: 'name', disabled: true },
-        { label: 'Surname', name: 'surname', disabled: true },
+        { label: 'Name', name: 'name', disabled: false },
+        { label: 'Surname', name: 'surname', disabled: false },
         { label: 'Email', name: 'email', disabled: true },
-        { label: 'FIN', name: 'fin', disabled: true },
-        { label: 'Mobile', name: 'mobile', disabled: true },
-        { label: 'Deposit Amount', name: 'depositAmount', disabled: true },
-        { label: 'Gain Percent', name: 'gainPercent', disabled: true },
+        { label: 'FIN', name: 'fin', disabled: false },
+        { label: 'Mobile', name: 'mobile', disabled: false },
+        { label: 'Deposit Amount', name: 'depositAmount', disabled: false },
+        { label: 'Gain Percent', name: 'gainPercent', disabled: false },
         { label: 'Last Login', name: 'lastLogin', disabled: true },
         { label: 'Created Date', name: 'createdDate', disabled: true }
     ];
@@ -185,12 +185,9 @@ const AllUserDetail = () => {
                                 name={field.name}
                                 value={form[field.name]}
                                 onChange={handleChange}
-                           disabled={field.disabled}
-  className={`mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 
-    rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
-    sm:text-sm dark:bg-gray-800 dark:text-white 
-    disabled:bg-gray-200 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400 
-    disabled:cursor-not-allowed`}  />
+                                disabled={field.disabled}
+                                className={`mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white disabled:bg-gray-200 disabled:text-gray-500`}
+                            />
                             {errors[field.name] && (
                                 <p className="text-sm text-red-500 mt-1">{errors[field.name]}</p>
                             )}
@@ -198,7 +195,7 @@ const AllUserDetail = () => {
                         </div>
                     ))}
                 </div>
-                {/* <div className="mt-6">
+                <div className="mt-6">
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
@@ -206,10 +203,46 @@ const AllUserDetail = () => {
                     >
                         {loading ? 'Saving...' : 'Update User'}
                     </button>
-                </div> */}
+                </div>
             </div>
 
+            <div className="max-w-5xl mx-auto p-6 bg-white shadow rounded-md dark:bg-gray-900 w-[100%] flex justify-between items-start">
+                <h2 className="text-2xl font-bold mb-4 dark:text-gray-200">Change User Active Status</h2>
+                <div className="">
+                    <button
+                        onClick={handleChangeStatus}
+                        disabled={loading}
+                        className={`px-6 py-2 rounded-md text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : form.active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}
+                    >
+                        {loading ? 'Saving...' : form.active ? 'Deactivate et' : 'Activate et'}
+                    </button>
+                </div>
+            </div>
 
+            <div className="max-w-5xl mx-auto p-6 bg-white shadow rounded-md dark:bg-gray-900 w-[100%]">
+                <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-2xl font-bold dark:text-gray-200">Current Roles</h2>
+                    <button
+                        onClick={openRoleModal}
+                        disabled={loading}
+                        className={`px-6 py-2 rounded-md text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                    >
+                        Change Roles
+                    </button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {form.userTypes && form.userTypes.length > 0 ? (
+                        form.userTypes.map(role => (
+                            <span key={role.id} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                {role.name}
+                            </span>
+                        ))
+                    ) : (
+                        <p className="text-gray-500">No roles assigned</p>
+                    )}
+                </div>
+            </div>
 
             {/* Role Management Modal */}
             {showRoleModal && (
@@ -266,4 +299,4 @@ const AllUserDetail = () => {
     );
 };
 
-export default AllUserDetail;
+export default UserEdit;
