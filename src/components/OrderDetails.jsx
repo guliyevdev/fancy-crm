@@ -171,7 +171,7 @@ const OrderDetails = () => {
         <p className="card-title">Order Details</p>
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium rounded-md"
+          className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600  text-gray-800 dark:text-gray-200 text-sm font-medium rounded-md"
         >
           <ArrowLeft size={16} />
           Back to List
@@ -180,7 +180,7 @@ const OrderDetails = () => {
 
       <div className="card-body grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* General Info */}
-        <div className="space-y-4">
+        <div className="space-y-4  text-gray-800 dark:text-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
             General Information
           </h3>
@@ -236,7 +236,7 @@ const OrderDetails = () => {
         </div>
 
         {/* Financial Info */}
-        <div className="space-y-4">
+        <div className="space-y-4  text-gray-800 dark:text-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
             Financial Summary
           </h3>
@@ -465,17 +465,17 @@ const OrderDetails = () => {
           <SiTaketwointeractivesoftware size={16} />
           {downloading ? "Processing..." : "Take Order"}
         </button>
-    </div>
+      </div>
 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {order.orderFiles.map((item) => (
           <div
             key={item.id}
-            className="bg-white shadow-md rounded-xl p-4 flex flex-col justify-between border hover:shadow-xl transition"
+            className="bg-white dark:bg-gray-800  text-gray-800 dark:text-white shadow-md rounded-xl p-4 flex flex-col justify-between border hover:shadow-xl transition"
           >
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold  text-gray-800 dark:text-gray-200 mb-2">
                 {item.fileType}
               </h3>
               <p className="text-sm text-gray-500">

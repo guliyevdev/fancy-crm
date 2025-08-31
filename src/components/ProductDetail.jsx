@@ -61,7 +61,7 @@ const ProductDetail = () => {
   const [contractFiles, setContractFiles] = useState([]);
   const [mainMediaIndex, setMainMediaIndex] = useState(0);
   const [barcode, setBarcode] = useState({});
-
+  const [img, setImg] = useState([])
 
   useEffect(() => {
     const fetchProductDetail = async () => {
@@ -69,6 +69,7 @@ const ProductDetail = () => {
         const response = await productService.getProductById(id);
         const p = response.data;
         setContractFiles(p.contractFileList);
+        setImg(p.mediaList)
         setBarcode(p);
 
         const formatDateForInput = (dateString) => {
@@ -340,22 +341,22 @@ const ProductDetail = () => {
   };
 
   useEffect(() => {
-  const fetchData = async () => {
-    const categoriesRes = await categoryService.getByName();
-    setCategories(categoriesRes.data.data);
-    const colorsRes = await colorService.getByName();
-    setColors(colorsRes.data.data);
-    const MaterialsRes = await getAllMaterials();
-    setMaterials(MaterialsRes.data);
-    const occasionsRes = await occasionService.getByName();
-    setOccasions(occasionsRes.data.data);
-    
-    // Partner məlumatlarını da ilkin yüklə
-    const PartnerRes = await partnerService.getByName("");
-    setPartners(PartnerRes.data.data);
-  };
-  fetchData();
-}, []);
+    const fetchData = async () => {
+      const categoriesRes = await categoryService.getByName();
+      setCategories(categoriesRes.data.data);
+      const colorsRes = await colorService.getByName();
+      setColors(colorsRes.data.data);
+      const MaterialsRes = await getAllMaterials();
+      setMaterials(MaterialsRes.data);
+      const occasionsRes = await occasionService.getByName();
+      setOccasions(occasionsRes.data.data);
+
+      // Partner məlumatlarını da ilkin yüklə
+      const PartnerRes = await partnerService.getByName("");
+      setPartners(PartnerRes.data.data);
+    };
+    fetchData();
+  }, []);
 
 
   const renderError = (fieldName) => {
@@ -371,115 +372,51 @@ const ProductDetail = () => {
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
 
         <div className='flex flex-col'>
-          <form onSubmit={handleUpload} className="space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
-              <h3 className="font-semibold text-lg mb-4">Şəkillər</h3>
 
-              {/* Fayl əlavə etmə zonası */}
-              <div
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 flex items-center justify-center h-44 bg-gray-50 mb-4 dark:bg-gray-800 dark:text-white"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div className="text-center text-gray-400 dark:bg-gray-800 dark:text-white">
-                  <svg className="mx-auto mb-2 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M7 7V4a2 2 0 012-2h6a2 2 0 012 2v3" />
-                  </svg>
-                  <p className="text-sm">Şəkilləri bura sürükləyin və ya klikləyin</p>
-                  <p className="text-xs mt-1 text-gray-300">Yalnız *.png, *.jpg və *.jpeg qəbul olunur (max 5MB)</p>
-                </div>
-              </div>
 
-              {/* Seçilmiş şəkillərin siyahısı */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                {previews.map((preview, index) => (
-                  <div key={index} className="relative group">
+
+
+
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+            <h3 className="font-semibold text-lg mb-4">Şəkillər</h3>
+
+            <div className="flex flex-col gap-6">
+              {/* Əsas şəkil */}
+              <div className="relative group">
+                {img.filter(item => item.main).map((item, index) => (
+                  <div key={index} className="relative">
                     <img
-                      src={preview}
-                      alt={`Preview ${index}`}
-                      className={`w-full h-32 object-cover rounded-md border-2 ${mainMediaIndex === index ? 'border-blue-500' : 'border-transparent'
-                        }`}
+                      src={item.mediaUrl}
+                      alt="Main"
+                      className="w-64 h-64 object-cover rounded-xl shadow-md border mx-auto"
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setMainMediaIndex(index);
-                        }}
-                        className={`px-2 py-1 text-xs rounded ${mainMediaIndex === index
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white text-gray-800'
-                          }`}
-                      >
-                        {mainMediaIndex === index ? 'Əsas şəkil' : 'Əsas et'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newFiles = [...files];
-                          const newPreviews = [...previews];
-                          newFiles.splice(index, 1);
-                          newPreviews.splice(index, 1);
-                          setFiles(newFiles);
-                          setPreviews(newPreviews);
-                          if (mainMediaIndex === index) {
-                            setMainMediaIndex(0);
-                          } else if (mainMediaIndex > index) {
-                            setMainMediaIndex(mainMediaIndex - 1);
-                          }
-                        }}
-                        className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded"
-                      >
-                        Sil
-                      </button>
+                    {/* Hover yazısı */}
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition">
+                      <span className="text-white font-semibold">Əsas şəkil</span>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png, image/jpeg"
-                onChange={handleFileChange}
-                className="hidden"
-                multiple
-              />
-
-              <div className="mt-4 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-2 bg-white border rounded-md text-sm shadow-sm"
-                >
-                  Fayl seç ({files.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFiles([]);
-                    setPreviews([]);
-                    setMainMediaIndex(0);
-                  }}
-                  className="px-3 py-2 bg-red-50 text-red-600 border rounded-md text-sm"
-                  disabled={files.length === 0}
-                >
-                  Hamısını sil
-                </button>
-
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 disabled:opacity-50"
-                  disabled={files.length === 0}
-                >
-                  Şəkilləri Yüklə
-                </button>
+              {/* Əlavə şəkillər */}
+              <div className="grid grid-cols-2 gap-4">
+                {img.filter(item => !item.main).map((item, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={item.mediaUrl}
+                      alt={`Extra ${index}`}
+                      className="w-full h-28 object-cover rounded-lg shadow-sm border"
+                    />
+                    {/* Hover yazısı */}
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 transition">
+                      <span className="text-white text-sm">Əlavə şəkil</span>
+                    </div>
+                  </div>
+                ))}
               </div>
+
             </div>
-          </form>
+          </div>
 
 
 
@@ -508,7 +445,14 @@ const ProductDetail = () => {
                     value={editProduct.nameAz}
                     onChange={(e) => handleEditChange({ target: { name: 'nameAz', value: e.target.value } })}
                     placeholder="Məhsulun adı az"
-                    className={`w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white ${errors.nameAz ? 'border-red-500' : ''}`}
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled
                   />
                   {renderError('nameAz')}
                 </div>
@@ -523,8 +467,15 @@ const ProductDetail = () => {
                     value={editProduct.nameEn}
                     onChange={(e) => handleEditChange({ target: { name: 'nameEn', value: e.target.value } })}
                     placeholder="Məhsulun adı en"
-                    className={`w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white ${errors.nameEn ? 'border-red-500' : ''}`} // Error olduqda border rəngini dəyişir
-                  // required
+                    // required
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled
                   />
                   {renderError('nameEn')}
                 </div>
@@ -539,8 +490,14 @@ const ProductDetail = () => {
                     value={editProduct.nameRu}
                     onChange={(e) => handleEditChange({ target: { name: 'nameRu', value: e.target.value } })}
                     placeholder="Məhsulun adı ru"
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('nameRu')}
                 </div>
 
@@ -550,8 +507,14 @@ const ProductDetail = () => {
                     value={editProduct.descAz}
                     onChange={(e) => handleEditChange({ target: { name: 'descAz', value: e.target.value } })}
                     placeholder="Təsviri burada yazın..."
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('descAz')}
                 </div>
 
@@ -562,8 +525,14 @@ const ProductDetail = () => {
                     value={editProduct.descEn}
                     onChange={(e) => handleEditChange({ target: { name: 'descEn', value: e.target.value } })}
                     placeholder="Type your text here..."
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('descEn')}
                 </div>
 
@@ -574,8 +543,14 @@ const ProductDetail = () => {
                     value={editProduct.descRu}
                     onChange={(e) => handleEditChange({ target: { name: 'descRu', value: e.target.value } })}
                     placeholder="Введите текст здесь..."
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('descRu')}
                 </div>
               </div>
@@ -599,13 +574,15 @@ const ProductDetail = () => {
                     placeholder="Kateqoriya seçin"
                     className="w-full border px-4 py-3 rounded-md"
                     isMulti={false}
+                    disabled
+
                   />
                   {renderError('categoryId')}
                 </div>
 
                 <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium dark:text-white">Partner <span className="text-red-500">*</span></label>
-                 
+
                   <CustomSelect
                     name="partnerId"
                     options={partners.map(partner => ({
@@ -620,6 +597,7 @@ const ProductDetail = () => {
                     placeholder="Partner seçin"
                     className="w-full border px-4 py-3 rounded-md"
                     isMulti={false}
+                    disabled
                     onSearchChange={(val) => setPartnerSearch(val)}
                   />
                   {renderError('partnerId')}
@@ -642,6 +620,7 @@ const ProductDetail = () => {
                       label: color.name,
                       name: 'colorIds'
                     }))}
+                    disabled
                     value={editProduct.colorIds || []}
                     onChange={handleEditChange}
                     placeholder="Rəng seçin"
@@ -660,6 +639,7 @@ const ProductDetail = () => {
                       label: material.name,
                       name: 'materialIds'
                     }))}
+                    disabled
                     value={editProduct.materialIds || []}
                     onChange={handleEditChange}
                     placeholder="Material seçin"
@@ -678,6 +658,7 @@ const ProductDetail = () => {
                       label: occasion.name,
                       name: 'occasionIds'
                     }))}
+                    disabled
                     value={editProduct.occasionIds || []}
                     onChange={handleEditChange}
                     placeholder="Münasibət seçin"
@@ -700,8 +681,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.carat}
                     onChange={(e) => handleEditChange({ target: { name: 'carat', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('carat')}
                 </div>
 
@@ -711,8 +698,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.quantity}
                     onChange={(e) => handleEditChange({ target: { name: 'quantity', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('quantity')}
                 </div>
 
@@ -722,8 +715,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.weight}
                     onChange={(e) => handleEditChange({ target: { name: 'weight', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('weight')}
                 </div>
 
@@ -733,8 +732,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.size}
                     onChange={(e) => handleEditChange({ target: { name: 'size', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('size')}
                 </div>
               </div>
@@ -757,6 +762,7 @@ const ProductDetail = () => {
                         handleArrayChange("productFor", "FOR_SALE", e.target.checked)
                       }
                       className="h-4 w-4"
+                      disabled
                     />
                     <label htmlFor="forSale" className="dark:text-white">Satış üçün</label>
                   </div>
@@ -770,6 +776,7 @@ const ProductDetail = () => {
                         handleArrayChange("productFor", "FOR_RENT", e.target.checked)
                       }
                       className="h-4 w-4"
+                      disabled
                     />
                     <label htmlFor="forRent" className="dark:text-white">Kirayə üçün</label>
                   </div>
@@ -791,8 +798,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.salePrice}
                     onChange={(e) => handleEditChange({ target: { name: 'salePrice', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('salePrice')}
                 </div>
 
@@ -802,8 +815,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.rentPricePerDay}
                     onChange={(e) => handleEditChange({ target: { name: 'rentPricePerDay', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('rentPricePerDay')}
                 </div>
               </div>
@@ -820,8 +839,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.saleCompanyPercent}
                     onChange={(e) => handleEditChange({ target: { name: 'saleCompanyPercent', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('saleCompanyPercent')}
                 </div>
 
@@ -831,8 +856,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.salePartnerPercent}
                     onChange={(e) => handleEditChange({ target: { name: 'salePartnerPercent', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('salePartnerPercent')}
                 </div>
 
@@ -842,8 +873,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.rentCompanyPercent}
                     onChange={(e) => handleEditChange({ target: { name: 'rentCompanyPercent', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('rentCompanyPercent')}
                 </div>
 
@@ -853,8 +890,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.rentPartnerPercent}
                     onChange={(e) => handleEditChange({ target: { name: 'rentPartnerPercent', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('rentPartnerPercent')}
                 </div>
 
@@ -864,8 +907,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.returnFeePercent}
                     onChange={(e) => handleEditChange({ target: { name: 'returnFeePercent', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('returnFeePercent')}
                 </div>
 
@@ -875,8 +924,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.customerLatePenaltyPercent}
                     onChange={(e) => handleEditChange({ target: { name: 'customerLatePenaltyPercent', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('customerLatePenaltyPercent')}
                 </div>
               </div>
@@ -893,8 +948,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.damageCompanyCompensation}
                     onChange={(e) => handleEditChange({ target: { name: 'damageCompanyCompensation', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('damageCompanyCompensation')}
                 </div>
 
@@ -904,8 +965,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.lossCompanyCompensation}
                     onChange={(e) => handleEditChange({ target: { name: 'lossCompanyCompensation', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('lossCompanyCompensation')}
                 </div>
 
@@ -915,8 +982,14 @@ const ProductDetail = () => {
                     type="number"
                     value={editProduct.partnerTakeBackFeePercent}
                     onChange={(e) => handleEditChange({ target: { name: 'partnerTakeBackFeePercent', value: e.target.value } })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('partnerTakeBackFeePercent')}
                 </div>
               </div>
@@ -935,8 +1008,14 @@ const ProductDetail = () => {
                     type="datetime-local"
                     value={editProduct.validFrom}
                     onChange={(e) => setEditProduct({ ...editProduct, validFrom: e.target.value })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('validFrom')}
                 </div>
 
@@ -947,8 +1026,14 @@ const ProductDetail = () => {
                     type="datetime-local"
                     value={editProduct.validTo}
                     onChange={(e) => setEditProduct({ ...editProduct, validTo: e.target.value })}
-                    className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white "
-                  />
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
                   {renderError('validTo')}
                 </div>
               </div>
@@ -963,21 +1048,22 @@ const ProductDetail = () => {
                 <input
                   value={editProduct.message}
                   onChange={(e) => handleEditChange({ target: { name: 'message', value: e.target.value } })}
-                  className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
-                />
+                  className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                  disabled />
               </div>
               {renderError('message')}
             </div>
 
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm flex justify-end">
-              <button
-                type="submit"
-                className="px-6 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700"
-              >
-                Məhsulu Yadda Saxla
-              </button>
-            </div>
+
+
+
           </div>
 
         </form>

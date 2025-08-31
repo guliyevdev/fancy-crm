@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PencilLine, Plus, X } from "lucide-react";
+import { Eye, PencilLine, Plus, X } from "lucide-react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Authservices from "../../services/authServices";
 import { useNavigate } from "react-router-dom";
@@ -244,11 +244,16 @@ const CustomerUser = () => {
 
 
                                     >
+                                        <Eye size={20} />
+                                    </button>
+                                    <button
+                                        className="text-blue-600 hover:text-blue-900"
+                                        onClick={() => navigate(`/user-upload/${user.id}`)}
+
+
+                                    >
                                         <PencilLine size={20} />
                                     </button>
-                                    {/* <button className="text-red-600 hover:text-red-900">
-                                        <Trash size={20} />
-                                    </button> */}
                                 </td>
                             </tr>
                         ))}

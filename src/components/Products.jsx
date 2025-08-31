@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PencilLine, Trash, Plus, Eye } from "lucide-react";
+import { PencilLine, Trash, Plus, Eye, Pencil } from "lucide-react";
 import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -32,6 +32,14 @@ const Products = () => {
   const [occasions, setOccasions] = useState([]);
   const [partners, setPartners] = useState([]);
   const navigate = useNavigate();
+  const [partnerSearch, setPartnerSearch] = useState("");
+
+  // Filter states
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [selectedPartner, setSelectedPartner] = useState(null);
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedMaterials, setSelectedMaterials] = useState([]);
+  const [selectedOccasions, setSelectedOccasions] = useState([]);
 
   const [addOpen, setAddOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({
@@ -41,11 +49,11 @@ const Products = () => {
     descAz: "",
     descEn: "",
     descRu: "",
-    categoryId: 0,
+    categoryIds: [],
     colorIds: [],
     materialIds: [],
     occasionIds: [],
-    partnerId: 0,
+    partnerId: null,
     carat: "",
     quantity: 0,
     weight: 0,
@@ -67,28 +75,29 @@ const Products = () => {
     message: "",
   });
 
-
-
-
   const handleSearchChange = (e) => {
     setSearchName(e.target.value);
   };
-
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchProducts(0, pageInfo.size, searchName);
   };
 
-
   const fetchProducts = async (page = 0, size = 10, searchTerm = "") => {
     try {
       const params = {
         searchTerm: searchTerm,
-        // active: false,
         page,
         size,
+        categoryIds: selectedCategory || [],
+        colorIds: selectedColors || [],
+        partnerId: selectedPartner ? selectedPartner.value : null,
+        materialIds: selectedMaterials || [],
+        occasionIds: selectedOccasions || [],
       };
+
+
       console.log("Göndərilən parametrlər:", params);
       const response = await productService.search(params);
       console.log("Alınan cavab:", response.data);
@@ -111,31 +120,84 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts(pageInfo.page, pageInfo.size, searchName);
-  }, [pageInfo.page]);
+  }, [pageInfo.page, selectedCategory, selectedPartner, selectedColors, selectedMaterials, selectedOccasions]);
 
   useEffect(() => {
     const fetchData = async () => {
       const categoriesRes = await categoryService.getByName();
       setCategories(categoriesRes.data.data);
-      console.log(categoriesRes.data.data);
 
       const colorsRes = await colorService.getByName();
       setColors(colorsRes.data.data);
-      console.log(colorsRes.data.data);
 
       const MaterialsRes = await getAllMaterials();
       setMaterials(MaterialsRes.data);
-      console.log(MaterialsRes.data);
 
       const occasionsRes = await occasionService.getByName();
       setOccasions(occasionsRes.data.data);
-      console.log(occasionsRes.data.data);
-      const PartnerRes = await partnerService.getByName("lorem");
+
+      // İlk açılışda boş search ilə partnerləri gətir
+      const PartnerRes = await partnerService.getByName("");
       setPartners(PartnerRes.data.data);
-      console.log(PartnerRes.data.data);
     };
     fetchData();
   }, []);
+
+  const handlePartnerSearch = async (val) => {
+    try {
+      const res = await partnerService.getByName(val);
+      setPartners(res.data.data);
+    } catch (error) {
+      console.error("Partner search error:", error);
+    }
+  };
+  useEffect(() => {
+    console.log("Selected filters:", {
+      selectedCategory,
+      selectedPartner,
+      selectedColors,
+      selectedMaterials,
+      selectedOccasions
+    });
+  }, [selectedCategory, selectedPartner, selectedColors, selectedMaterials, selectedOccasions]);
+
+
+  const handleFilterChange = (setter) => (selectedOptions) => {
+
+    if (selectedOptions?.target) {
+      setter(selectedOptions.target.value);
+    } else {
+      setter(selectedOptions);
+    }
+  };
+
+  const handleSingleFilterChange = (setter) => (event) => {
+    console.log("Partner seçimi event:", event);
+    const value = event.target.value;
+
+    if (value) {
+      // Seçilmiş partnerin tam məlumatlarını tapırıq
+      const selectedPartner = partners.find(partner => partner.id === parseInt(value));
+      if (selectedPartner) {
+        setter({
+          value: selectedPartner.id,
+          label: selectedPartner.customerCode || `${selectedPartner.name || ''} ${selectedPartner.surname || ''}`.trim()
+        });
+      }
+    } else {
+      setter(null);
+    }
+  };
+
+
+  const clearFilters = () => {
+    setSelectedCategory([]);
+    setSelectedPartner(null);
+    setSelectedColors([]);
+    setSelectedMaterials([]);
+    setSelectedOccasions([]);
+    setSearchName("");
+  };
 
   const exportToExcel = () => {
     const data = products.map(
@@ -160,15 +222,6 @@ const Products = () => {
     const blob = new Blob([wbout], { type: "application/octet-stream" });
     saveAs(blob, "products.xlsx");
   };
-
-
-
-  const openDeleteModal = (product) => {
-    setSelectedProduct(product);
-    setDeleteOpen(true);
-  };
-
-
 
 
 
@@ -202,10 +255,7 @@ const Products = () => {
     setNewProduct(prev => ({ ...prev, [field]: [value] }));
   };
 
-  const handleNumberArrayChange = (field, value) => {
-    const numValue = parseInt(value, 10);
-    setNewProduct(prev => ({ ...prev, [field]: [numValue] }));
-  };
+
 
   const handleDateChange = (name, value) => {
     if (!value) {
@@ -249,41 +299,10 @@ const Products = () => {
 
   };
 
-  const openEditModal = (product) => {
-    setEditProduct(product);
-    setErrors({});
-    setEditOpen(true);
-  };
 
 
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditProduct(prev => ({ ...prev, [name]: value }));
-  };
 
-  const saveEdit = async (e) => {
-    e.preventDefault();
 
-    const payload = {
-      productId: editProduct.id,
-      nameAz: editProduct.nameAz,
-      nameEn: editProduct.nameEn,
-      nameRu: editProduct.nameRu || "",
-      descAz: editProduct.descAz || "",
-      descEn: editProduct.descEn || "",
-      descRu: editProduct.descRu || "",
-
-    };
-
-    try {
-      await productService.update(payload);
-      setEditOpen(false);
-      fetchProducts(pageInfo.page, pageInfo.size, searchName);
-      toast.success("Product updated successfully");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update product");
-    }
-  };
 
 
   const renderError = (fieldName) => {
@@ -313,6 +332,7 @@ const Products = () => {
           </button>
         </div>
       </div>
+
       <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
         <input
           type="text"
@@ -327,7 +347,115 @@ const Products = () => {
         >
           Search
         </button>
+        <button
+          type="button"
+          onClick={clearFilters}
+          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md"
+        >
+          Clear Filters
+        </button>
       </form>
+
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6">
+        <div className="flex flex-col gap-1 w-full">
+          <label className="block text-sm font-medium dark:text-white">
+            Kateqoriya
+          </label>
+          <CustomSelect
+            value={selectedCategory}
+            options={categories.map(category => ({
+              value: category.id,
+              label: category.name
+            }))}
+            onChange={handleFilterChange(setSelectedCategory)}
+            placeholder="Rəng seçin"
+            className="w-full border px-4 py-3 rounded-md"
+            isMulti={true}
+          />
+        </div>
+        <div className="flex flex-col gap-1 w-full">
+          <label className="block text-sm font-medium dark:text-white">
+            Partner
+          </label>
+          <CustomSelect
+            value={selectedPartner ? selectedPartner.value : ""}
+            options={[
+              { value: "", label: "All" }, // boş seçim əlavə edilir
+              ...partners.map(partner => ({
+                value: partner.id,
+                label: partner.customerCode || `${partner.name || ''} ${partner.surname || ''}`.trim()
+              }))
+            ]}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value) {
+                const selected = partners.find(partner => partner.id === parseInt(value));
+                setSelectedPartner({
+                  value: selected.id,
+                  label: selected.customerCode || `${selected.name || ''} ${selected.surname || ''}`.trim()
+                });
+              } else {
+                setSelectedPartner(null); // "All" seçiləndə null təyin olunur
+              }
+            }}
+            placeholder="Partner seçin"
+            className="w-full border px-4 py-3 rounded-md"
+            isMulti={false}
+            onSearchChange={handlePartnerSearch}
+          />
+
+        </div>
+
+        {/* Rənglər */}
+        <div className="flex flex-col gap-1 w-full">
+          <label className="block text-sm font-medium dark:text-white">Rənglər</label>
+          <CustomSelect
+            value={selectedColors}
+            options={colors.map(color => ({
+              value: color.id,
+              label: color.name
+            }))}
+            onChange={handleFilterChange(setSelectedColors)}
+            placeholder="Rəng seçin"
+            className="w-full border px-4 py-3 rounded-md"
+            isMulti={true}
+          />
+        </div>
+
+        {/* Materiallar */}
+        <div className="flex flex-col gap-1 w-full">
+          <label className="block text-sm font-medium dark:text-white">Materiallar</label>
+          <CustomSelect
+            value={selectedMaterials}
+            options={materials.map(material => ({
+              value: material.id,
+              label: material.name
+            }))}
+            onChange={handleFilterChange(setSelectedMaterials)}
+            placeholder="Material seçin"
+            className="w-full border px-4 py-3 rounded-md"
+            isMulti={true}
+          />
+        </div>
+
+        {/* Occasions */}
+        <div className="flex flex-col gap-1 w-full">
+          <label className="block text-sm font-medium dark:text-white">Occasions</label>
+          <CustomSelect
+            value={selectedOccasions}
+            options={occasions.map(occasion => ({
+              value: occasion.id,
+              label: occasion.name
+            }))}
+            onChange={handleFilterChange(setSelectedOccasions)}
+            placeholder="Münasibət seçin"
+            className="w-full border px-4 py-3 rounded-md"
+            isMulti={true}
+          />
+        </div>
+      </div>
+
+
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
@@ -385,6 +513,13 @@ const Products = () => {
                     title="View Details"
                   >
                     <Eye size={20} />
+                  </button>
+                  <button
+                    onClick={() => navigate(`/upload-product/${product.id}`)}
+                    className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400  p-2"
+                    title="View Details"
+                  >
+                    <Pencil size={20} />
                   </button>
                 </td>
               </tr>
