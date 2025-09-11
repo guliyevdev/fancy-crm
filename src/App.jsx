@@ -47,6 +47,7 @@ import CompanyUser from "./components/Auth/CompanyUser";
 import ProductEdit from "./components/ProductEdit";
 import PartnerEdit from "./components/PartnerEdit";
 import UserEdit from "./components/Auth/UserEdit";
+import SiteCategory from "./components/Web-Site/Category";
 
 function App() {
     const router = createBrowserRouter([
@@ -205,6 +206,10 @@ function App() {
                 {
                     path: "/partner-upload/:id",
                     element: <PartnerEdit />
+                },
+                {
+                    path: "/site-category",
+                    element: <SiteCategory />
                 }
             ],
         },

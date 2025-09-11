@@ -49,14 +49,32 @@ const productService = {
     formData.append("file", file);
 
     return axiosInstance.post(`${BASE_URL}/upload-file`, formData, {
-       headers: {
-      "Content-Type": "multipart/form-data",
-      "Product-Id": String(productId), // tam register
-      "Document-Type": documentType,   // tam register
-      "Accept-Language": acceptLanguage,
-    },
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Product-Id": String(productId), // tam register
+        "Document-Type": documentType,   // tam register
+        "Accept-Language": acceptLanguage,
+      },
     });
   },
+
+  finalHandover: async (productId, additionalNotes, acceptLanguage = "az") => {
+    const response = await axiosInstance.post(
+      `${BASE_URL}/final-handover`,
+      {}, // body boşdur, çünki parametrlər header və query ilə gedir
+      {
+        headers: {
+          "productId": productId,
+          "Accept-Language": acceptLanguage,
+        },
+        params: {
+          additionalNotes: additionalNotes,
+        },
+      }
+    );
+    return response.data;
+  },
+
 };
 
 export default productService;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PencilLine, Trash, Plus } from "lucide-react";
+import { PencilLine, Trash, Plus, Upload, X } from "lucide-react";
 import Modal from "react-modal";
 import categoryService from "../services/categoryService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
@@ -15,9 +15,9 @@ const Category = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
-
-
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [mainImageIndex, setMainImageIndex] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const fetchCategories = async (page = 0, size = 10, keyword = "") => {
     try {
@@ -40,8 +40,8 @@ const Category = () => {
         totalElements: apiData?.totalElements || 0,
       });
     } catch (error) {
-      console.error("Fetch colors error:", error);
-      setColors([]);
+      console.error("Fetch categories error:", error);
+      setCategories([]);
     }
   };
 
@@ -56,6 +56,8 @@ const Category = () => {
       nameRu: "",
       status: "ACTIVE"
     });
+    setUploadedImages([]);
+    setMainImageIndex(0);
     setAddOpen(true);
   };
 
@@ -74,33 +76,68 @@ const Category = () => {
     setSelectedCategory((prev) => ({ ...prev, [name]: value }));
   };
 
-  const saveAdd = async (e) => {
-    e.preventDefault();
-    try {
-      console.log("Current selectedCategory:", selectedCategory);
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    
+    if (imageFiles.length > 0) {
+      setUploadedImages(prev => [...prev, ...imageFiles]);
+    }
+    
+    // Input'u temizle ki aynı dosya tekrar yüklenebilsin
+    e.target.value = '';
+  };
 
-      const payload = {
-        nameAz: selectedCategory.nameAz,
-        nameEn: selectedCategory.nameEn,
-        nameRu: selectedCategory.nameRu
-      };
-
-      console.log("Final payload:", payload);
-
-      const response = await categoryService.create(payload);
-      console.log("API Response:", response.data);
-
-      fetchCategories();
-      setAddOpen(false);
-    } catch (error) {
-      console.error("Error:", error.response?.data || error.message);
+  const removeImage = (index) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    if (mainImageIndex === index) {
+      setMainImageIndex(0);
+    } else if (mainImageIndex > index) {
+      setMainImageIndex(prev => prev - 1);
     }
   };
+
+const saveAdd = async (e) => {
+  e.preventDefault();
+  try {
+    // 1. Category yarat
+    const payload = {
+      nameAz: selectedCategory.nameAz,
+      nameEn: selectedCategory.nameEn,
+      nameRu: selectedCategory.nameRu,
+      status: selectedCategory.status,
+    };
+
+    const response = await categoryService.create(payload);
+    const createdCategoryId = response?.data?.id;
+
+    if (!createdCategoryId) {
+      throw new Error("Kateqoriya ID-si alına bilmədi");
+    }
+
+    // 2. Əgər şəkil seçilibsə, media upload et
+    if (selectedCategory.images && selectedCategory.images.length > 0) {
+      await categoryService.uploadMedia(
+        createdCategoryId,
+        selectedCategory.mainMedia || selectedCategory.images[0].name, // default olaraq ilk şəkil mainMedia
+        selectedCategory.images
+      );
+    }
+
+    // 3. Refresh et
+    await fetchCategories();
+    setAddOpen(false);
+    setSelectedCategory(null);
+
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
+  }
+};
+
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setSelectedCategory((prev) => ({ ...prev, [name]: value }));
   };
-
 
   const saveEdit = async (e) => {
     e.preventDefault();
@@ -137,10 +174,6 @@ const Category = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchCategories(0, pageInfo.size, searchName);
-  };
-
-  const goToPage = (newPage) => {
-    fetchCategories(newPage, pageInfo.size, searchName);
   };
 
   return (
@@ -228,7 +261,7 @@ const Category = () => {
       {/* Pagination Controls */}
       <div className="flex justify-center items-center mt-6 space-x-4">
         <button
-          onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+          onClick={() => fetchCategories(pageInfo.page - 1, pageInfo.size, searchName)}
           disabled={pageInfo.page === 0}
           className={`p-2 rounded-full ${pageInfo.page === 0
             ? "text-gray-400 cursor-not-allowed"
@@ -252,11 +285,10 @@ const Category = () => {
         </button>
       </div>
 
-
       {/* Add Modal */}
       <Modal
         isOpen={addOpen}
-        onRequestClose={() => setAddOpen(false)}
+        onRequestClose={() => !isUploading && setAddOpen(false)}
         contentLabel="Add Category"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
         className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-lg w-full p-6 outline-none"
@@ -264,7 +296,6 @@ const Category = () => {
         <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Add Category</h3>
         {selectedCategory && (
           <form onSubmit={saveAdd} className="space-y-4">
-            {/* Name (Az) */}
             <div>
               <label htmlFor="nameAz" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Name (Azərbaycanca)
@@ -280,7 +311,6 @@ const Category = () => {
               />
             </div>
 
-            {/* Name (English) */}
             <div>
               <label htmlFor="nameEn" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Name (English)
@@ -296,7 +326,6 @@ const Category = () => {
               />
             </div>
 
-            {/* Name (Russian) */}
             <div>
               <label htmlFor="nameRu" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Name (Русский)
@@ -312,7 +341,6 @@ const Category = () => {
               />
             </div>
 
-            {/* Status (eyni qalır) */}
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Status
@@ -329,27 +357,85 @@ const Category = () => {
               </select>
             </div>
 
+            {/* Şəkil yükləmə hissəsi */}
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                Upload Images ({uploadedImages.length} selected)
+              </label>
+              <div className="flex items-center justify-center w-full">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Select images or drag and drop here</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (Max. 5MB)</p>
+                  </div>
+                  <input 
+                    type="file" 
+                    multiple 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {uploadedImages.length > 0 && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Select main image:
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Preview ${index + 1}`}
+                        className={`h-24 w-full object-cover rounded-lg cursor-pointer ${
+                          mainImageIndex === index ? 'ring-2 ring-blue-500' : ''
+                        }`}
+                        onClick={() => setMainImageIndex(index)}
+                      />
+                      {mainImageIndex === index && (
+                        <div className="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">
+                          Main
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeImage(index)}
+                        disabled={isUploading}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-end gap-4">
               <button
                 type="button"
                 onClick={() => setAddOpen(false)}
                 className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600"
+                disabled={isUploading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled={isUploading}
               >
-                Add
+                {isUploading ? 'Uploading...' : 'Add'}
               </button>
             </div>
           </form>
         )}
       </Modal>
-
-
-
 
       {/* Edit Modal */}
       <Modal
@@ -362,7 +448,6 @@ const Category = () => {
         <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Edit Category</h3>
         {selectedCategory && (
           <form onSubmit={saveEdit} className="space-y-4">
-            {/* Name (Az) */}
             <div>
               <label htmlFor="nameAz" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Name (Azərbaycanca)
@@ -378,7 +463,6 @@ const Category = () => {
               />
             </div>
 
-            {/* Name (English) */}
             <div>
               <label htmlFor="nameEn" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Name (English)
@@ -394,7 +478,6 @@ const Category = () => {
               />
             </div>
 
-            {/* Name (Russian) */}
             <div>
               <label htmlFor="nameRu" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Name (Русский)
@@ -410,7 +493,6 @@ const Category = () => {
               />
             </div>
 
-            {/* Status */}
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Status
@@ -446,7 +528,6 @@ const Category = () => {
         )}
       </Modal>
 
-      {/* Delete Modal */}
       <Modal
         isOpen={deleteOpen}
         onRequestClose={() => setDeleteOpen(false)}

@@ -95,7 +95,6 @@ const Partners = () => {
     }
   };
 
-  // ❌ Delete Partner
   const confirmDelete = async () => {
     try {
       await partnerService.deletePartner(selectedPartner.id);
@@ -111,7 +110,6 @@ const Partners = () => {
     setSelectedPartner((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 💻 Edit Modal
   const renderEditModal = () => (
     <Modal
       isOpen={editOpen}
@@ -168,16 +166,22 @@ const Partners = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSearchSubmit} className="mb-4 flex flex-col lg:flex-row  lg:justify-between lg:items-center  gap-4">
-        {/* Search input + button */}
-        <div className="flex flex-col sm:flex-row gap-2 flex-1 min-h-[66px] ">
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex flex-col lg:flex-row  lg:justify-between lg:items-end  gap-4">
+
+        <div className="flex flex-col sm:flex-row gap-2 flex-1 max-w-[20%]">
+          {/* Empty Label for alignment */}
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
+            &nbsp;
+          </label>
+
           <input
             type="text"
             placeholder="Search..."
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
-            className="flex-1 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            className="flex-1 px-1 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
           />
+
           <button
             type="submit"
             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
@@ -186,35 +190,50 @@ const Partners = () => {
           </button>
         </div>
 
+
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-2 w-full lg:w-auto">
-          <CustomSelect
-            value={partnerType}
-            options={[
-              { value: '', label: 'All' },
-              { value: 'PHYSICAL', label: 'PHYSICAL' },
-              { value: 'CORPORATE', label: 'CORPORATE' }
-            ]}
-            onChange={handlePartnerTypeChange}
-            placeholder="Növ seçin"
-            className="w-full md:w-64 border px-4 py-3 rounded-md"
-            isMulti={false}
-          />
-          <CustomSelect
-            value={status}
-            options={[
-              { value: '', label: 'All' },
+          {/* Partner Type Filter */}
+          <div className="flex flex-col gap-1 w-full md:w-64">
+            <label className="block text-sm font-medium text-gray-700 dark:text-white">
+              Partner Type
+            </label>
+            <CustomSelect
+              value={partnerType}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'PHYSICAL', label: 'PHYSICAL' },
+                { value: 'CORPORATE', label: 'CORPORATE' }
+              ]}
+              onChange={handlePartnerTypeChange}
+              placeholder="Növ seçin"
+              className="w-full bg-white border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              isMulti={false}
+            />
+          </div>
 
-              { value: 'PENDING', label: 'PENDING' },
-              { value: 'VERIFIED', label: 'VERIFIED' },
-              { value: 'REJECTED', label: 'REJECTED' }
-            ]}
-            onChange={handleStatusChange}
-            placeholder="Status"
-            className="w-full md:w-64 border px-4 py-3 rounded-md"
-            isMulti={false}
-          />
+          {/* Status Filter */}
+          <div className="flex flex-col gap-1 w-full md:w-64">
+            <label className="block text-sm font-medium text-gray-700 dark:text-white">
+              Status
+            </label>
+            <CustomSelect
+              value={status}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'PENDING', label: 'PENDING' },
+                { value: 'VERIFIED', label: 'VERIFIED' },
+                { value: 'REJECTED', label: 'REJECTED' }
+              ]}
+              onChange={handleStatusChange}
+              placeholder="Status"
+              className="w-full bg-white border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              isMulti={false}
+            />
+          </div>
         </div>
+
+
       </form>
 
 

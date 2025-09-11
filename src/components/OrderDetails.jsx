@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, Download, X } from "lucide-react";
+import { ArrowLeft, Download, ShoppingCart, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import orderService from "../services/orderService";
 import { toast } from "sonner";
@@ -71,8 +71,13 @@ const OrderDetails = () => {
       toast.success("Ödəniş uğurla tamamlandı");
       setShowPaymentModal(false);
       fetchOrder();
+
+      // Ödəniş tamamlandıqdan sonra avtomatik Take Order
+      await handleTakeOrder();
+
     } catch (error) {
-      toast.error("Ödəniş alınmada xəta baş verdi");
+      console.log(error.response?.data?.message);
+      toast.error(error.response?.data?.message || "Ödəniş zamanı xəta baş verdi");
     } finally {
       setDownloading(false);
     }
@@ -101,6 +106,27 @@ const OrderDetails = () => {
       setDownloading(false);
     }
   };
+
+  const handleFinishOrder = async (orderId, orderCode) => {
+    setFinishingOrderId(orderId); // Loading state üçün
+
+    try {
+      const requestData = {
+        orderId: orderId,
+        orderCode: orderCode
+      };
+
+      await orderService.FinishRentOrder(requestData);
+
+      toast.success("Sifariş uğurla bitirildi");
+    } catch (error) {
+      console.error("Finish order error:", error.response.data.message);
+      toast.error(error.response.data.message);
+    } finally {
+      setFinishingOrderId(null);
+    }
+  };
+
 
   const handleItemStatusChange = (index, newStatus) => {
     const updatedItems = [...returnItems];
@@ -178,106 +204,109 @@ const OrderDetails = () => {
         </button>
       </div>
 
-      <div className="card-body grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* General Info */}
-        <div className="space-y-4  text-gray-800 dark:text-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b pb-2">
             General Information
           </h3>
-
-          <div>
-            <strong>Order ID:</strong>{" "}
-            <span className="font-mono">{order.id}</span>
-          </div>
-          <div>
-            <strong>Order Code:</strong>{" "}
-            <span className="font-mono">{order.orderCode}</span>
-          </div>
-          <div>
-            <strong>Customer Name:</strong>{" "}
-            <span className="font-mono">{order.customerName}</span>
-          </div>
-          <div>
-            <strong>Customer Email:</strong>{" "}
-            <span className="font-mono">{order.customerEmail}</span>
-          </div>
-          <div>
-            <strong>Customer Phone:</strong>{" "}
-            <span className="font-mono">{order.customerPhone}</span>
-          </div>
-          <div>
-            <strong>Customer Code:</strong>{" "}
-            <span className="font-mono">{order.customerCode}</span>
-          </div>
-          <div>
-            <strong>Order Type:</strong>{" "}
-            <span className="font-mono">{order.orderType}</span>
-          </div>
-          <div>
-            <strong>Status:</strong>{" "}
-            <span className="font-mono">{order.status}</span>
-          </div>
-          <div>
-            <strong>Rent Date From:</strong>{" "}
-            <span className="font-mono">{order.rentDateFrom}</span>
-          </div>
-          <div>
-            <strong>Rent Date To:</strong>{" "}
-            <span className="font-mono">{order.rentDateTo}</span>
-          </div>
-          <div>
-            <strong>Created At:</strong>{" "}
-            <span className="font-mono">{order.createdAt}</span>
-          </div>
-          <div>
-            <strong>Updated At:</strong>{" "}
-            <span className="font-mono">{order.updatedAt}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 dark:text-gray-200 gap-3 text-sm">
+            <div>
+              <span className="font-medium dark:text-gray-200">Order ID:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.id}</p>
+            </div>
+            <div>
+              <span className="font-medium">Order Code:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.orderCode}</p>
+            </div>
+            <div>
+              <span className="font-medium">Customer Name:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.customerName}</p>
+            </div>
+            <div>
+              <span className="font-medium">Customer Email:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.customerEmail}</p>
+            </div>
+            <div>
+              <span className="font-medium">Customer Phone:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.customerPhone}</p>
+            </div>
+            <div>
+              <span className="font-medium">Customer Code:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.customerCode}</p>
+            </div>
+            <div>
+              <span className="font-medium">Order Type:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.orderType}</p>
+            </div>
+            <div>
+              <span className="font-medium">Status:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.status}</p>
+            </div>
+            <div>
+              <span className="font-medium">Rent Date From:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.rentDateFrom}</p>
+            </div>
+            <div>
+              <span className="font-medium">Rent Date To:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.rentDateTo}</p>
+            </div>
+            <div>
+              <span className="font-medium">Created At:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.createdAt}</p>
+            </div>
+            <div>
+              <span className="font-medium">Updated At:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{order.updatedAt}</p>
+            </div>
           </div>
         </div>
 
-        {/* Financial Info */}
-        <div className="space-y-4  text-gray-800 dark:text-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+        <div className="bg-white dark:bg-gray-900 dark:text-gray-200 rounded-xl shadow-md p-6 border">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b pb-2">
             Financial Summary
           </h3>
-          <div>
-            <strong>Total Price:</strong>{" "}
-            <span className="font-mono">{formatCurrency(order.totalPrice)}</span>
-          </div>
-          <div>
-            <strong>Rent Price:</strong>{" "}
-            <span className="font-mono">{formatCurrency(order.rentPrice)}</span>
-          </div>
-          <div>
-            <strong>Sale Price:</strong>{" "}
-            <span className="font-mono">{formatCurrency(order.salePrice)}</span>
-          </div>
-          <div>
-            <strong>Paid Amount:</strong>{" "}
-            <span className="font-mono">{formatCurrency(order.paidAmount)}</span>
-          </div>
-          <div>
-            <strong>Deposit Paid:</strong>{" "}
-            <span className="font-mono">{formatCurrency(order.depositPaid)}</span>
-          </div>
-          <div>
-            <strong>Current Debt:</strong>{" "}
-            <span className="font-mono">{formatCurrency(order.currentDebt)}</span>
-          </div>
-          <div>
-            <strong>Penalty Fee:</strong>{" "}
-            <span className="font-mono">{formatCurrency(order.penaltyFee)}</span>
-          </div>
-          <div>
-            <strong>Damage Fee:</strong>{" "}
-            <span className="font-mono">{formatCurrency(order.damageFee)}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <span className="font-medium">Total Price:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.totalPrice)}</p>
+            </div>
+            <div>
+              <span className="font-medium">Rent Price:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.rentPrice)}</p>
+            </div>
+            <div>
+              <span className="font-medium">Sale Price:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.salePrice)}</p>
+            </div>
+            <div>
+              <span className="font-medium">Paid Amount:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.paidAmount)}</p>
+            </div>
+            <div>
+              <span className="font-medium">Deposit Paid:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.depositPaid)}</p>
+            </div>
+            <div>
+              <span className="font-medium">Current Debt:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.currentDebt)}</p>
+            </div>
+            <div>
+              <span className="font-medium">Penalty Fee:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.penaltyFee)}</p>
+            </div>
+            <div>
+              <span className="font-medium">Damage Fee:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.damageFee)}</p>
+            </div>
           </div>
         </div>
       </div>
 
+
       <div className="card-footer mt-6">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
           Order Items
+          <ShoppingCart className="h-5 w-5 text-orange-600 dark:text-orange-400" />
         </h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -399,26 +428,6 @@ const OrderDetails = () => {
           }}
         />
 
-        {/* {order.waitingForUpload && (
-          <>
-            <button
-              onClick={() => document.getElementById("fileInput").click()}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 w-auto"
-              disabled={downloading}
-            >
-              {downloading ? (
-                <span className="animate-spin">⏳</span>
-              ) : (
-                <>
-                  <Download size={16} />
-                  Upload Contract
-                </>
-              )}
-            </button>
-
-
-          </>
-        )} */}
         {order.waitingForUpload && (
           <>
             <button
@@ -447,24 +456,26 @@ const OrderDetails = () => {
           Payment
         </button>
 
-
-        <button
+        {/* <button
           onClick={() => setShowReturnModal(true)}
           className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 w-auto"
           disabled={downloading}
         >
           <Download size={16} />
           Return Settlement
-        </button>
+        </button> */}
 
-        <button
-          onClick={handleTakeOrder}
-          disabled={downloading}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 w-auto"
-        >
-          <SiTaketwointeractivesoftware size={16} />
-          {downloading ? "Processing..." : "Take Order"}
-        </button>
+        {order.orderType === 'RENT' && (
+          <button
+            onClick={() => setShowReturnModal(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 w-auto"
+            disabled={downloading}
+          >
+            <Download size={16} />
+            Return Settlement
+          </button>
+        )}
+
       </div>
 
 
@@ -493,13 +504,6 @@ const OrderDetails = () => {
           </div>
         ))}
       </div>
-
-
-
-
-
-
-
       {showUploadModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
@@ -747,7 +751,6 @@ const OrderDetails = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

@@ -8,8 +8,8 @@ const userTypes = [
 
 const CreateCustomer = ({ onCancel, onCreate }) => {
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
+    surname: "",
     phoneNumber: "",
     email: "",
     type: "",
@@ -21,15 +21,15 @@ const CreateCustomer = ({ onCancel, onCreate }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!form.firstName.trim())
-      newErrors.firstName = "First name is required";
-    else if (form.firstName.length > 50)
-      newErrors.firstName = "Max 50 characters";
+    if (!form.name.trim())
+      newErrors.name = "First name is required";
+    else if (form.name.length > 50)
+      newErrors.name = "Max 50 characters";
 
-    if (!form.lastName.trim())
-      newErrors.lastName = "Last name is required";
-    else if (form.lastName.length > 50)
-      newErrors.lastName = "Max 50 characters";
+    if (!form.surname.trim())
+      newErrors.surname = "Last name is required";
+    else if (form.surname.length > 50)
+      newErrors.surname = "Max 50 characters";
 
     if (!form.phoneNumber.trim())
       newErrors.phoneNumber = "Phone number is required";
@@ -60,8 +60,8 @@ const CreateCustomer = ({ onCancel, onCreate }) => {
     if (!validate()) return;
     onCreate(form);
     setForm({
-      firstName: "",
-      lastName: "",
+      name: "",
+      surname: "",
       phoneNumber: "",
       email: "",
       type: "",
@@ -83,50 +83,50 @@ const CreateCustomer = ({ onCancel, onCreate }) => {
         {/* First Name */}
         <div>
           <label
-            htmlFor="firstName"
+            htmlFor="name"
             className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"
           >
             First Name
           </label>
           <input
             type="text"
-            id="firstName"
-            name="firstName"
+            id="name"
+            name="name"
             maxLength={50}
-            value={form.firstName}
+            value={form.name}
             onChange={handleChange}
             placeholder="First Name"
             className={`block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-              errors.firstName ? "border-red-500" : ""
+              errors.name ? "border-red-500" : ""
             }`}
           />
-          {errors.firstName && (
-            <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+          {errors.name && (
+            <p className="text-red-500 text-xs mt-1">{errors.name}</p>
           )}
         </div>
 
         {/* Last Name */}
         <div>
           <label
-            htmlFor="lastName"
+            htmlFor="surname"
             className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"
           >
             Last Name
           </label>
           <input
             type="text"
-            id="lastName"
-            name="lastName"
+            id="surname"
+            name="surname"
             maxLength={50}
-            value={form.lastName}
+            value={form.surname}
             onChange={handleChange}
             placeholder="Last Name"
             className={`block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-              errors.lastName ? "border-red-500" : ""
+              errors.surname ? "border-red-500" : ""
             }`}
           />
-          {errors.lastName && (
-            <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+          {errors.surname && (
+            <p className="text-red-500 text-xs mt-1">{errors.surname}</p>
           )}
         </div>
 

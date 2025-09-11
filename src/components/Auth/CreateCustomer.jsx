@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 const CreateCustomer = () => {
     const [form, setForm] = useState({
-        firstName: '',
-        lastName: '',
+        name: '',
+        surname: '',
         fin: '',
         email: '',
         phoneNumber: '',
@@ -60,12 +60,12 @@ const CreateCustomer = () => {
 
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded-md dark:bg-gray-900">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Add User</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Add Userlorem</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                    'firstName',
-                    'lastName',
+                    'name',
+                    'surname',
                     'fin',
                     'email',
                     'phoneNumber',

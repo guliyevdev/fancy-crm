@@ -124,7 +124,8 @@ const ProductDetail = () => {
 
         setProduct(p);
       } catch (error) {
-        toast.error("Product details could not be loaded");
+        console.log(error)
+        toast.error(error?.response?.data?.message);
       }
     };
 
@@ -421,13 +422,26 @@ const ProductDetail = () => {
 
 
           <div className='space-y-6'>
-            <div className="bg-white dark:bg-gray-900 rounded-2xl py-2 shadow-sm mt-4 border flex flex-col items-center  justify-center gap-3">
-              <h3 className='font-semibold text-lg mb-4  w-[70%]'>Barcode</h3>
-              <img className='w-full h-auto' src={`data:image/png;base64,${barcode.barcodeBase64}`} alt="barcode" />
+            <div className="bg-white dark:bg-gray-900 rounded-2xl py-2 shadow-sm mt-4 border flex flex-col items-center justify-center gap-3">
+              <h3 className='font-semibold text-lg mb-4 w-[70%]'>Barcode</h3>
+              <img
+                className='w-full h-auto'
+                src={`data:image/png;base64,${barcode.barcodeBase64}`}
+                alt="barcode"
+              />
               <p>{barcode.code}</p>
-            </div>
 
+              {/* Download düyməsi */}
+              <a
+                href={`data:image/png;base64,${barcode.barcodeBase64}`}
+                download={`barcode-${barcode.code}.png`}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
+              >
+                Yüklə
+              </a>
+            </div>
           </div>
+
         </div>
 
 
@@ -1109,6 +1123,7 @@ const ProductDetail = () => {
           </button>
         </div>
       </div>
+
     </div>
   )
 }
