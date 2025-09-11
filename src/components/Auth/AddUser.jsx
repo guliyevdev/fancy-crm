@@ -9,6 +9,7 @@ const AddUser = () => {
         surname: '',
         email: '',
         phoneNumber: '',
+        
         password: '',
         depositAmount: '',
         typeIds: '',

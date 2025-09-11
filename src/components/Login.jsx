@@ -146,7 +146,7 @@ const Login = () => {
                     {/* Əlavə linklər */}
                     <div className="md:col-span-3 w-full flex flex-col sm:flex-row justify-between items-center mt-4 text-sm text-gray-700 dark:text-white transition-colors duration-300">
                         <Link to="/forgot-password" className="hover:underline">
-                            Şifrəni unutmusan?
+                            Şifrəni unutmusan?x
                         </Link>
                         {/* <Link to="/register" className="hover:underline mt-2 sm:mt-0">
                             Hesab yarat
