@@ -30,18 +30,6 @@ export const getMaterialById = async (id) => {
 
 
 
-// export const searchMaterials = async (searchParams, pageable = { page: 0, size: 10 }) => {
-//   const requestBody = {
-//     name: searchParams.keyword || '',
-//     active: true,
-//     page: pageable.page,
-//     size: pageable.size
-//   };
-
-
-//   const response = await axiosInstance.post(`${BASE_URL}/search`, requestBody);
-//   return response;
-// };
 
 
 export const searchMaterials = (params) =>

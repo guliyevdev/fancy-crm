@@ -347,18 +347,12 @@ const Products = () => {
         >
           Search
         </button>
-        <button
-          type="button"
-          onClick={clearFilters}
-          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md"
-        >
-          Clear Filters
-        </button>
+
       </form>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6">
-        <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium dark:text-white">
+      <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
+        <div className="flex flex-col gap-1 w-56 sm:w-full">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Kateqoriya
           </label>
           <CustomSelect
@@ -368,19 +362,22 @@ const Products = () => {
               label: category.name
             }))}
             onChange={handleFilterChange(setSelectedCategory)}
-            placeholder="Rəng seçin"
-            className="w-full border px-4 py-3 rounded-md"
+            placeholder="Kateqoriya seçin"
+            className="bg-white dark:bg-gray-700 border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             isMulti={true}
           />
         </div>
+
+
+        {/* Partner */}
         <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium dark:text-white">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Partner
           </label>
           <CustomSelect
             value={selectedPartner ? selectedPartner.value : ""}
             options={[
-              { value: "", label: "All" }, // boş seçim əlavə edilir
+              { value: "", label: "All" },
               ...partners.map(partner => ({
                 value: partner.id,
                 label: partner.customerCode || `${partner.name || ''} ${partner.surname || ''}`.trim()
@@ -395,20 +392,19 @@ const Products = () => {
                   label: selected.customerCode || `${selected.name || ''} ${selected.surname || ''}`.trim()
                 });
               } else {
-                setSelectedPartner(null); // "All" seçiləndə null təyin olunur
+                setSelectedPartner(null);
               }
             }}
             placeholder="Partner seçin"
-            className="w-full border px-4 py-3 rounded-md"
+            className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             isMulti={false}
             onSearchChange={handlePartnerSearch}
           />
-
         </div>
 
         {/* Rənglər */}
         <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium dark:text-white">Rənglər</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">Rənglər</label>
           <CustomSelect
             value={selectedColors}
             options={colors.map(color => ({
@@ -417,14 +413,14 @@ const Products = () => {
             }))}
             onChange={handleFilterChange(setSelectedColors)}
             placeholder="Rəng seçin"
-            className="w-full border px-4 py-3 rounded-md"
+            className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             isMulti={true}
           />
         </div>
 
         {/* Materiallar */}
         <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium dark:text-white">Materiallar</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">Materiallar</label>
           <CustomSelect
             value={selectedMaterials}
             options={materials.map(material => ({
@@ -433,14 +429,14 @@ const Products = () => {
             }))}
             onChange={handleFilterChange(setSelectedMaterials)}
             placeholder="Material seçin"
-            className="w-full border px-4 py-3 rounded-md"
+            className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             isMulti={true}
           />
         </div>
 
         {/* Occasions */}
         <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium dark:text-white">Occasions</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">Occasions</label>
           <CustomSelect
             value={selectedOccasions}
             options={occasions.map(occasion => ({
@@ -449,11 +445,30 @@ const Products = () => {
             }))}
             onChange={handleFilterChange(setSelectedOccasions)}
             placeholder="Münasibət seçin"
-            className="w-full border px-4 py-3 rounded-md"
+            className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             isMulti={true}
           />
+
+
         </div>
+        <div className="flex flex-col gap-1 w-56 sm:w-full">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
+            &nbsp;
+          </label>
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="bg-blue-500 text-white border  border-gray-300 rounded-md ml-1 px-2 py-2.5 mt-0.5 max-w-[100px] text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            Clear Filters
+          </button>
+        </div>
+
+
+
+
       </div>
+
 
 
 

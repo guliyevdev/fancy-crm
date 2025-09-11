@@ -148,9 +148,9 @@ const Login = () => {
                         <Link to="/forgot-password" className="hover:underline">
                             Şifrəni unutmusan?
                         </Link>
-                        <Link to="/register" className="hover:underline mt-2 sm:mt-0">
+                        {/* <Link to="/register" className="hover:underline mt-2 sm:mt-0">
                             Hesab yarat
-                        </Link>
+                        </Link> */}
                     </div>
                 </div>
             </div>

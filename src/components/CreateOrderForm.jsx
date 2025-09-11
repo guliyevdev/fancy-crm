@@ -26,8 +26,8 @@ const CreateOrderForm = () => {
     name: '',
     surname: '',
     email: '',
-    phone: "",
-    paymentType: '',
+    phone: "994",
+    // paymentType: '',
     customerPassportSeries: 'AA',
     customerPassportNumber: ''
   });
@@ -50,11 +50,11 @@ const CreateOrderForm = () => {
   const [disabledDates, setDisabledDates] = useState([]);
   const [fin, setFin] = useState("");
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]); 
+  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
 
+  useEffect(() => {
     const calculatePrice = async () => {
       if (orderData.productCodes.length > 0 && orderData.fromDate &&
         (orderData.orderType === 'SALE' || orderData.toDate)) {
@@ -73,7 +73,7 @@ const CreateOrderForm = () => {
           });
         } catch (error) {
           console.error('Price calculation error:', error);
-          toast.error('Price calculation failed');
+          toast.error(error.response.data.message);
         } finally {
           setCalculationLoading(false);
         }
@@ -94,7 +94,6 @@ const CreateOrderForm = () => {
   }, [orderData.orderType, orderData.fromDate, orderData.toDate, orderData.productCodes]);
 
 
-
   const handleFindUserByFinSubmit = async (e) => {
     e.preventDefault();
     if (!fin.trim()) {
@@ -107,9 +106,8 @@ const CreateOrderForm = () => {
       const response = await Authservices.getUsersByFin(fin);
       console.log(response)
 
-      // user tapılandan sonra
       if (response.data.data.length > 0) {
-        const user = response.data.data[0]; // birinci user götürürük
+        const user = response.data.data[0];
         setUsers(response.data.data);
 
         setOrderData(prev => ({
@@ -142,19 +140,7 @@ const CreateOrderForm = () => {
     setOrderData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const fileInfo = {
-        name: file.name,
-        size: +(file.size / 1024).toFixed(2),
-        type: file.type,
-        url: null,
-      };
-      setContractFileData(fileInfo);
-      setContractFile(file);
-    }
-  };
+
 
   const checkProductAvailability = async (productCode) => {
     try {
@@ -305,7 +291,7 @@ const CreateOrderForm = () => {
       const payload = {
         ...orderData,
         fromDate: new Date(orderData.fromDate).toISOString(),
-        toDate: new Date(orderData.toDate).toISOString()
+        toDate: orderData.toDate ? new Date(orderData.toDate).toISOString() : null
       };
 
       await orderService.createOrder(payload);
@@ -327,7 +313,7 @@ const CreateOrderForm = () => {
         surname: '',
         email: '',
         phone: '',
-        paymentType: '',
+        // paymentType: '',
       });
 
       setOrderItems([]);
@@ -336,11 +322,11 @@ const CreateOrderForm = () => {
     } catch (error) {
       console.error('Create order failed:', error.response ?? error);
       toast.error(error.response.data.message);
-
     } finally {
       setSubmitLoading(false);
     }
   };
+
 
   const isDateDisabled = (date) => {
     return disabledDates.includes(date);
@@ -558,32 +544,6 @@ const CreateOrderForm = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Payment Type</label>
-              <select
-                name="paymentType"
-                value={orderData.paymentType || ''}
-                onChange={handleFormChange}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              >
-                <option value="">Select Payment Type</option>
-                <option value="CASH">Cash</option>
-                <option value="CARD">Card</option>
-              </select>
-            </div>
-
-            {/* <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Upload Signed Contract</label>
-              <label
-                htmlFor="contractUpload"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 flex items-center gap-2 cursor-pointer text-gray-500 dark:text-gray-400"
-              >
-                <FileUp size={16} />
-                {contractFile ? contractFile.name : 'Choose a file...'}
-              </label>
-              <input id="contractUpload" type="file" className="hidden" onChange={handleFileChange} />
-            </div> */}
           </div>
 
           <div className="space-y-4">
@@ -658,7 +618,7 @@ const CreateOrderForm = () => {
                 placeholder="Başlama tarixi"
                 disabledDates={productInfo?.deactiveDates || []}
               />
-              {/* </div> */}
+
             </div>
 
             <div className="relative">
@@ -756,16 +716,25 @@ const CreateOrderForm = () => {
         </div>
 
         <div className="px-4 pb-4 md:px-6 md:pb-6 mt-6 flex justify-end items-center gap-4">
-          <button
-            type="button"
-            onClick={handleGenerateContract}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium rounded-md"
-          >
-            <FileText size={16} /> Generate Contract
-          </button>
-          <button
+
+          {/* <button
             type="submit"
             disabled={submitLoading || orderItems.length === 0}
+            className="flex items-center justify-center gap-2 px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 disabled:opacity-50"
+          >
+            {submitLoading && (
+              <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+            )}
+            Create Order
+          </button> */}
+          <button
+            type="submit"
+            disabled={
+              submitLoading ||
+              orderItems.length === 0 ||
+              !orderData.fromDate ||
+              (orderData.orderType === 'RENT' && !orderData.toDate)
+            }
             className="flex items-center justify-center gap-2 px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 disabled:opacity-50"
           >
             {submitLoading && (

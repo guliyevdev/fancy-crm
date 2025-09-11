@@ -12,30 +12,17 @@ const InventoryDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const [inventory, setInventory] = useState(null); // Inventory məlumatları
-    const [loading, setLoading] = useState(true); // Yüklənmə statusu
-    const [scanOpen, setScanOpen] = useState(false); // Skan modalının açıq/bağlı statusu
+    const [inventory, setInventory] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [scanOpen, setScanOpen] = useState(false);
     const [scanData, setScanData] = useState({
         inventoryId: "",
         productCodes: [],
         status: "OPEN"
     });
     const [closeModalOpen, setCloseModalOpen] = useState(false);
-    const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
-    const statusOptions = [
-        { value: 'SOLD', label: 'Məhsul satılıb və müştəriyə verilib' },
-        { value: 'IN_THE_OFFICE', label: 'Məhsul aktivdir və hazırda ofisdədir' },
-        { value: 'DRAFT', label: 'Məhsul əlavə olunub, amma hələ contract və ya təsdiq yoxdur' },
-        { value: 'RESERVED', label: 'Məhsul icarə və ya satış üçün rezerv olunub' },
-        { value: 'AT_THE_CLIENT', label: 'Məhsul icarədədir (aktiv olaraq müştəridədir)' },
-        { value: 'DELAYED_RETURN', label: ' Məhsulun geri qaytarılması gecikib' },
-        { value: 'SERVICE', label: 'Məhsul servisdədir (məsələn: təmir, yoxlama)' },
-        { value: 'CANCELLED_BY_PARTNER', label: 'Partner tərəfindən contract ləğv olunub, məhsul geri götürülüb' },
-        { value: 'DEACTIVATED', label: ' Məhsul deaktiv vəziyyətdədir (ümumi deaktiv)' },
 
-        { value: 'EXPIRED_AGREEMENT', label: 'Partnyor-la muqavile vaxti bitibse' }
-    ];
 
 
     const handleCloseInventory = async () => {
@@ -163,68 +150,88 @@ const InventoryDetail = () => {
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
-            <h2 className="text-2xl font-semibold mb-6">Inventory Details</h2>
+            <h2 className="text-2xl dark:text-white font-semibold mb-6">Inventory Details</h2>
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-                <h3 className="text-xl font-semibold mb-4">General Information</h3>
+                <h3 className="text-xl dark:text-white font-semibold mb-4">General Information</h3>
                 <div className="flex justify-between">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                        <div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 shadow-sm">
+                            <h4 className="text-lg dark:text-white font-medium mb-3 border-b pb-1">Əsas Məlumatlar</h4>
                             <p className="text-gray-600 dark:text-gray-300">ID: {inventory.id}</p>
                             <p className="text-gray-600 dark:text-gray-300">User ID: {inventory.userId ?? "-"}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Created By Code: {inventory.createdByCode ?? "-"}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Created By Name: {inventory.createdByName ?? "-"}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Created By Surname: {inventory.createdBySurname ?? "-"}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Created By Email: {inventory.createdByEmail ?? "-"}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Created By Phone: {inventory.createdByPhone ?? "-"}</p>
                             <p className="text-gray-600 dark:text-gray-300">Created At: {inventory.createdAt}</p>
                             <p className="text-gray-600 dark:text-gray-300">Closed At: {inventory.closedAt ?? "-"}</p>
                             <p className="text-gray-600 dark:text-gray-300">Status: {inventory.status}</p>
                             <p className="text-gray-600 dark:text-gray-300">Comment: {inventory.comment}</p>
+                        </div>
+
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 shadow-sm">
+                            <h4 className="text-lg dark:text-white font-medium mb-3 border-b pb-1">Yaradıcı haqqında</h4>
+                            <p className="text-gray-600 dark:text-gray-300">Code: {inventory.createdByCode ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Name: {inventory.createdByName ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Surname: {inventory.createdBySurname ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Email: {inventory.createdByEmail ?? "-"}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Phone: {inventory.createdByPhone ?? "-"}</p>
+                        </div>
+
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 shadow-sm">
+                            <h4 className="text-lg dark:text-white font-medium mb-3 border-b pb-1">Statistika</h4>
                             <p className="text-gray-600 dark:text-gray-300">Total Products: {inventory.totalProductCount}</p>
                             <p className="text-gray-600 dark:text-gray-300">Scanned: {inventory.scannedCount}</p>
                             <p className="text-gray-600 dark:text-gray-300">Not Scanned: {inventory.notScannedCount}</p>
                             <p className="text-gray-600 dark:text-gray-300">Matched: {inventory.matchedCount}</p>
                             <p className="text-gray-600 dark:text-gray-300">Not Matched: {inventory.notMatchedCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Draft Status Count: {inventory.draftStatusCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">In The Office Status Count: {inventory.inTheOfficeStatusCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Reserved Status Count: {inventory.reservedStatusCount}</p>
-
-                            <p className="text-gray-600 dark:text-gray-300">At The Client Status Count: {inventory.atTheClientStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Scanned %: {inventory.scannedRatePercent}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Matched %: {inventory.matchedRatePercent}</p>
                         </div>
 
-                        <div>
-                            <p className="text-gray-600 dark:text-gray-300">Delayed Return Status Count: {inventory.delayedReturnStatusCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Sold Status Count: {inventory.soldStatusCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Service Status Count: {inventory.serviceStatusCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Canceled By Partner Status Count: {inventory.canceledByPartnerStatusCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Expired Agreement Status Count: {inventory.expiredAgreementStatusCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Expected In Office Count: {inventory.expectedInOfficeCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Office Missing Count: {inventory.officeMissingCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Office Surplus Count: {inventory.officeSurplusCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Matched In Office Count: {inventory.matchedInOfficeCount}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Scanned Rate Percent: {inventory.scannedRatePercent}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Matched Rate Percent: {inventory.matchedRatePercent}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Not Scanned Rate Percent: {inventory.notScannedRatePercent}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Not Matched Rate Percent: {inventory.notMatchedRatePercent}</p>
-                            <p className="text-gray-600 dark:text-gray-300">In Office Match Rate Percent: {inventory.inOfficeMatchRatePercent}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Office Missing Rate Percent: {inventory.officeMissingRatePercent}</p>
-                            <p className="text-gray-600 dark:text-gray-300">Office Surplus Rate Percent: {inventory.officeSurplusRatePercent}</p>
+                        {/* Status Qrupları */}
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 shadow-sm">
+                            <h4 className="text-lg dark:text-white font-medium mb-3 border-b pb-1">Status Qrupları</h4>
+                            <p className="text-gray-600 dark:text-gray-300">Draft: {inventory.draftStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">In The Office: {inventory.inTheOfficeStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Reserved: {inventory.reservedStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">At The Client: {inventory.atTheClientStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Delayed Return: {inventory.delayedReturnStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Sold: {inventory.soldStatusCount}</p>
+                        </div>
+
+                        {/* Digər statuslar */}
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 shadow-sm">
+                            <h4 className="text-lg dark:text-white font-medium mb-3 border-b pb-1">Digər Statuslar</h4>
+                            <p className="text-gray-600 dark:text-gray-300">Service: {inventory.serviceStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Canceled By Partner: {inventory.canceledByPartnerStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Expired Agreement: {inventory.expiredAgreementStatusCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Expected In Office: {inventory.expectedInOfficeCount}</p>
+                            <p className="text-gray-600 dark:text-gray-300">Office Missing: {inventory.officeMissingCount} ({inventory.officeMissingRatePercent}%)</p>
+                            <p className="text-gray-600 dark:text-gray-300">Office Surplus: {inventory.officeSurplusCount} ({inventory.officeSurplusRatePercent}%)</p>
+                        </div>
+
+                        {/* Pagination */}
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 shadow-sm">
+                            <h4 className="text-lg dark:text-white font-medium mb-3 border-b pb-1">Səhifələmə</h4>
                             <p className="text-gray-600 dark:text-gray-300">Total Elements: {inventory.totalElements}</p>
                             <p className="text-gray-600 dark:text-gray-300">Total Pages: {inventory.totalPages}</p>
                             <p className="text-gray-600 dark:text-gray-300">Size: {inventory.size}</p>
                         </div>
                     </div>
 
-                    <div className="ml-4">
-                        <button
-                            onClick={openScanModal}
-                            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm whitespace-nowrap"
-                        >
-                            <Plus className="mr-2 h-4 w-4" /> Skan et
-                        </button>
+                    {/* Sağda button */}
+                    {/* Sağda button */}
+                    {inventory.status !== "CLOSE" && (
+                        <div className="ml-4">
+                            <button
+                                onClick={openScanModal}
+                                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm whitespace-nowrap"
+                            >
+                                <Plus className="mr-2 h-4 w-4" /> Skan et
+                            </button>
+                        </div>
+                    )}
 
-                    </div>
                 </div>
             </div>
 

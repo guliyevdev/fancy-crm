@@ -62,6 +62,27 @@ const ProductEdit = () => {
     const [mainMediaIndex, setMainMediaIndex] = useState(0);
     const [barcode, setBarcode] = useState({});
 
+    const [additionalNotes, setAdditionalNotes] = useState("");
+    const [finalHandoverResult, setFinalHandoverResult] = useState(null);
+    const [isSubmittingHandover, setIsSubmittingHandover] = useState(false);
+    const handleFinalHandoverSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmittingHandover(true);
+        setFinalHandoverResult(null);
+
+        try {
+            const response = await productService.finalHandover(id, additionalNotes);
+            setFinalHandoverResult(response);
+            toast.success("Final handover uğurla göndərildi");
+        } catch (error) {
+            console.error(error);
+            toast.error("Final handover göndərilərkən xəta baş verdi");
+        } finally {
+            setIsSubmittingHandover(false);
+        }
+    };
+
+
 
     useEffect(() => {
         const fetchProductDetail = async () => {
@@ -280,11 +301,7 @@ const ProductEdit = () => {
         e.preventDefault();
     };
 
-    // Şəkli silmək
-    const removeThumb = () => {
-        setThumb(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-    };
+
 
     const handleUpload = async (e) => {
         e.preventDefault();
@@ -983,6 +1000,35 @@ const ProductEdit = () => {
                 </form>
 
             </div>
+            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+                <form onSubmit={handleFinalHandoverSubmit} className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 className="font-semibold mb-2">Final Handover</h3>
+
+                    <div className="mb-3">
+                        <label className="block text-sm font-medium">Additional Notes</label>
+                        <textarea
+                            value={additionalNotes}
+                            onChange={(e) => setAdditionalNotes(e.target.value)}
+                            required
+                            className="mt-1 block w-full border rounded-lg px-3 py-2"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isSubmittingHandover}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                        {isSubmittingHandover ? "Göndərilir..." : "Göndər"}
+                    </button>
+
+                    {finalHandoverResult && (
+                        <pre className="mt-3 text-sm bg-white p-2 rounded border">{JSON.stringify(finalHandoverResult, null, 2)}</pre>
+                    )}
+                </form>
+
+            </div>
+
 
             <div className="bg-gray-200 rounded-2xl dark:bg-gray-800 p-6 shadow-sm flex items-center justify-between mt-4">
                 <div className='flex flex-col '>

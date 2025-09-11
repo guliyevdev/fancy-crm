@@ -18,7 +18,22 @@ const categoryService = {
   getByName: () => axiosInstance.get(`${BASE_URL}/category-names`),
 
 
+  uploadMedia: (categoryId, mainMedia, images, acceptLanguage = 'en') => {
+    const formData = new FormData();
 
+    images.forEach((image) => {
+      formData.append('images', image);
+    });
+
+    const headers = {
+      'categoryId': categoryId.toString(),
+      'mainMedia': mainMedia,
+      'Accept-Language': acceptLanguage,
+      'Content-Type': 'multipart/form-data'
+    };
+
+    return axiosInstance.post(`${BASE_URL}/upload-media`, formData, { headers });
+  }
 };
 
 export default categoryService;

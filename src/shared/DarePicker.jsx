@@ -45,46 +45,38 @@ const DatePicker = ({ value, onChange, disabled = false, placeholder = "Tarix se
     );
 };
 
-// Təqvim komponenti
 const CalendarComponent = ({ selectedDate, onSelectDate, onClose, disabledDates = [] }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    // Əlil edilmiş tarixləri formatlayırıq
     const formatDisabledDates = () => {
         const dates = [];
 
-        // Bugünün tarixini alıb 26 gün əvvəlini hesablayırıq
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
-        // 26 gün əvvəlki tarixi hesablayırıq
-        const cutoffDate = new Date(today);
-        cutoffDate.setDate(today.getDate() - 26);
 
-        // Əgər xüsusi disabledDates verilibsə, onları da əlavə et
+        const startDate = new Date(2000, 0, 1);
+        for (let d = new Date(startDate); d < today; d.setDate(d.getDate() + 1)) {
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            dates.push(dateStr);
+        }
+
         disabledDates.forEach(dateRange => {
             const start = new Date(dateRange.startDate);
             start.setHours(0, 0, 0, 0);
             const end = new Date(dateRange.endDate);
             end.setHours(0, 0, 0, 0);
 
-            // Tarix aralığındaki bütün tarixləri əlavə edirik
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                 const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                dates.push(dateStr);
+                if (!dates.includes(dateStr)) {
+                    dates.push(dateStr);
+                }
             }
         });
 
-        // 26 gün əvvəlki tarixdən bugünə qədər olan bütün tarixləri disable et
-        for (let d = new Date(cutoffDate); d <= today; d.setDate(d.getDate() + 1)) {
-            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-            if (!dates.includes(dateStr)) {
-                dates.push(dateStr);
-            }
-        }
-
         return dates;
     };
+
 
     const disabledDateList = formatDisabledDates();
 

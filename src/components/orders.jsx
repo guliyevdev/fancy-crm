@@ -135,7 +135,8 @@ const Orders = () => {
 
   return (
     <div className="card">
-      <div className="flex items-center justify-end mb-4 flex-wrap gap-2">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h2 className="text-2xl font-semibold">Order Management</h2>
         <div className="flex gap-2">
           <button
             onClick={() => navigate("/create/order")}
@@ -151,44 +152,61 @@ const Orders = () => {
         </div>
       </div>
 
-      <div className="mb-4 flex flex-col lg:flex-row  lg:justify-between lg:items-center  gap-4">
-
-        <form
-          onSubmit={handleSearchSubmit}
-          className="flex gap-2"
-        >
-          <input
-            type="text"
-            placeholder="Axtarış ..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-64 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+      <div className="mb-4 flex flex-col lg:flex-row  lg:justify-between lg:items-end  gap-4">
+        <div className="flex flex-col gap-2  ">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
+            Search by customer  and order Code
+          </label>
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex gap-2"
           >
-            Axtar
-          </button>
-        </form>
-        <CustomSelect
-          value={type}
-          options={[
-            { value: '', label: 'All' },
+            <input
+              type="text"
+              placeholder="Axtarış ..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-64 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+            >
+              Axtar
+            </button>
+          </form>
+        </div>
 
-            { value: 'RENT', label: 'Rent' },
-            { value: 'SALE', label: 'Sale' }
-          ]}
-          onChange={(selected) => {
-            const value = selected?.target?.value || '';
-            console.log("Seçilən dəyər:", value);
-            setType(value);
-            fetchOrders(0, pagination.pageSize, searchTerm, value);
-          }}
-          placeholder="Növ seçin"
-          className="w-full border px-4 py-3 rounded-md max-w-[200px]"
-          isMulti={false}
-        />
+
+
+
+
+        <div className="flex flex-col gap-1 w-full md:w-64">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
+            Filter By Type
+          </label>
+
+          <CustomSelect
+            value={type}
+            options={[
+              { value: '', label: 'All' },
+
+              { value: 'RENT', label: 'Rent' },
+              { value: 'SALE', label: 'Sale' }
+            ]}
+            onChange={(selected) => {
+              const value = selected?.target?.value || '';
+              console.log("Seçilən dəyər:", value);
+              setType(value);
+              fetchOrders(0, pagination.pageSize, searchTerm, value);
+            }}
+            placeholder="Növ seçin"
+            className="w-full bg-white border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 max-w-[100%] focus:ring-blue-500 focus:border-blue-500"
+            isMulti={false}
+          />
+
+        </div>
+
       </div>
 
 
@@ -261,7 +279,7 @@ const Orders = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                       {order.currentDebt?.toFixed(2)} AZN
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                       <button
                         className={`flex items-center w-[100%] justify-center ${finishingOrderId === order.id ? "text-gray-400" : "text-green-600 hover:text-green-800"}`}
                         onClick={() => handleFinishOrder(order.id, order.orderCode)}
@@ -273,7 +291,28 @@ const Orders = () => {
                           <CheckCircle size={20} />
                         )}
                       </button>
+                    </td> */}
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      {order.isFinished ? (
+                        <span className="text-gray-500">✅ Bitdi</span>
+                      ) : (
+                        <button
+                          className={`flex items-center w-[100%] justify-center ${finishingOrderId === order.id
+                            ? "text-gray-400"
+                            : "text-green-600 hover:text-green-800"
+                            }`}
+                          onClick={() => handleFinishOrder(order.id, order.orderCode)}
+                          disabled={finishingOrderId === order.id}
+                        >
+                          {finishingOrderId === order.id ? (
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+                          ) : (
+                            <CheckCircle size={20} />
+                          )}
+                        </button>
+                      )}
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
