@@ -79,11 +79,11 @@ const Category = () => {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    
+
     if (imageFiles.length > 0) {
       setUploadedImages(prev => [...prev, ...imageFiles]);
     }
-    
+
     // Input'u temizle ki aynı dosya tekrar yüklenebilsin
     e.target.value = '';
   };
@@ -97,42 +97,61 @@ const Category = () => {
     }
   };
 
-const saveAdd = async (e) => {
-  e.preventDefault();
-  try {
-    // 1. Category yarat
-    const payload = {
-      nameAz: selectedCategory.nameAz,
-      nameEn: selectedCategory.nameEn,
-      nameRu: selectedCategory.nameRu,
-      status: selectedCategory.status,
-    };
+  const saveAdd = async (e) => {
+    e.preventDefault();
+    setIsUploading(true);
 
-    const response = await categoryService.create(payload);
-    const createdCategoryId = response?.data?.id;
+    try {
+      // 1. Kateqoriya yarat
+      const payload = {
+        nameAz: selectedCategory.nameAz,
+        nameEn: selectedCategory.nameEn,
+        nameRu: selectedCategory.nameRu,
+        status: selectedCategory.status,
+      };
 
-    if (!createdCategoryId) {
-      throw new Error("Kateqoriya ID-si alına bilmədi");
+      console.log("Kateqoriya yaradılır...", payload);
+      const response = await categoryService.create(payload);
+      console.log("Kateqoriya yaradıldı:", response.data);
+      const createdCategoryId = response?.data?.data;
+
+      if (!createdCategoryId) {
+        throw new Error("Kateqoriya ID-si alına bilmədi");
+      }
+
+      // 2. Əgər şəkil seçilibsə, media upload et
+      if (uploadedImages.length > 0) {
+        console.log("Şəkillər yüklənir...", uploadedImages);
+
+        try {
+          console.log("UploadMedia funksiyası çağırılır...");
+          const uploadResponse = await categoryService.uploadMedia(
+            createdCategoryId,
+            uploadedImages[mainImageIndex].name, // mainMedia olaraq əsas şəklin adı
+            uploadedImages // bütün şəkillər
+          );
+          console.log("Şəkillər uğurla yükləndi", uploadResponse.data);
+        } catch (uploadError) {
+          console.error("Şəkil yükləmə xətası:", uploadError);
+          console.error("Xəta detalları:", uploadError.response?.data);
+          throw new Error("Şəkil yüklənərkən xəta baş verdi: " + (uploadError.response?.data?.message || uploadError.message));
+        }
+      }
+
+      // 3. Refresh et
+      await fetchCategories();
+      setAddOpen(false);
+      setSelectedCategory(null);
+      setUploadedImages([]);
+      setMainImageIndex(0);
+
+    } catch (error) {
+      console.error("Xəta:", error);
+      alert("Xəta baş verdi: " + (error.message || "Naməlum xəta"));
+    } finally {
+      setIsUploading(false);
     }
-
-    // 2. Əgər şəkil seçilibsə, media upload et
-    if (selectedCategory.images && selectedCategory.images.length > 0) {
-      await categoryService.uploadMedia(
-        createdCategoryId,
-        selectedCategory.mainMedia || selectedCategory.images[0].name, // default olaraq ilk şəkil mainMedia
-        selectedCategory.images
-      );
-    }
-
-    // 3. Refresh et
-    await fetchCategories();
-    setAddOpen(false);
-    setSelectedCategory(null);
-
-  } catch (error) {
-    console.error("Error:", error.response?.data || error.message);
-  }
-};
+  };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -175,6 +194,11 @@ const saveAdd = async (e) => {
     e.preventDefault();
     fetchCategories(0, pageInfo.size, searchName);
   };
+  const isFormValid = selectedCategory &&
+    selectedCategory.nameAz &&
+    selectedCategory.nameEn &&
+    selectedCategory.nameRu &&
+    uploadedImages.length > 0;
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -210,6 +234,7 @@ const saveAdd = async (e) => {
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Image</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
@@ -219,7 +244,17 @@ const saveAdd = async (e) => {
           {categories?.map((category, index) => (
             <tr key={category.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
               <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{pageInfo.page * pageInfo.size + index + 1}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{category.name}</td>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                {category.image ? (
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                ) : (
+                  <span className="text-gray-400">Not found</span>
+                )}
+              </td>              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{category.name}</td>
               <td className="px-6 py-4 text-sm whitespace-nowrap">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${category.status === "ACTIVE"
@@ -369,11 +404,11 @@ const saveAdd = async (e) => {
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Select images or drag and drop here</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (Max. 5MB)</p>
                   </div>
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept="image/*" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
                     onChange={handleImageUpload}
                     disabled={isUploading}
                   />
@@ -392,9 +427,8 @@ const saveAdd = async (e) => {
                       <img
                         src={URL.createObjectURL(image)}
                         alt={`Preview ${index + 1}`}
-                        className={`h-24 w-full object-cover rounded-lg cursor-pointer ${
-                          mainImageIndex === index ? 'ring-2 ring-blue-500' : ''
-                        }`}
+                        className={`h-24 w-full object-cover rounded-lg cursor-pointer ${mainImageIndex === index ? 'ring-2 ring-blue-500' : ''
+                          }`}
                         onClick={() => setMainImageIndex(index)}
                       />
                       {mainImageIndex === index && (
@@ -428,7 +462,7 @@ const saveAdd = async (e) => {
               <button
                 type="submit"
                 className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                disabled={isUploading}
+                disabled={isUploading || !isFormValid}
               >
                 {isUploading ? 'Uploading...' : 'Add'}
               </button>

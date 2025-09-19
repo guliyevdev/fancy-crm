@@ -55,6 +55,7 @@ const ProductAdd = () => {
         validFrom: "",
         validTo: "",
         message: "",
+        liquidPrice: 0
     });
 
     useEffect(() => {
@@ -77,6 +78,7 @@ const ProductAdd = () => {
             lossCompanyCompensation: isRent ? 0 : isSale ? null : prev.rentCompanyPercent,
             partnerTakeBackFeePercent: 0,
             customerLatePenaltyPercent: 0,
+            liquidPrice: 0
         }));
     }, [newProduct.productFor]);
 
@@ -568,6 +570,25 @@ const ProductAdd = () => {
 
                                     />
                                     {renderError('rentPricePerDay')}
+                                </div>
+
+
+
+
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="block text-sm font-medium">Liquit qiyməti</label>
+                                    <input
+                                        type="number"
+                                        value={newProduct.liquidPrice}
+                                        onChange={(e) => handleAddChange({ target: { name: 'liquidPrice', value: e.target.value } })}
+                                        // className="w-full border px-4 py-3 dark:bg-gray-700 dark:text-white rounded-md"
+
+                                        className="w-full border dark:bg-gray-700 dark:text-white px-4 py-3 rounded-md"
+
+
+                                    />
+                                    {renderError('liquidPrice')}
                                 </div>
                             </div>
                         </div>

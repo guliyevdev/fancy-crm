@@ -152,11 +152,14 @@ const ForgetPassword = () => {
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white flex items-center justify-center p-6">
-            <div className="w-full max-w-md bg-transparent">
-                <h1 className="text-5xl font-bold text-black dark:text-white mb-8">Forgot Password</h1>
-                <form className="space-y-5" onSubmit={handleSubmit}>
+            <div className="w-full max-w-2xl bg-gray-50 dark:bg-gray-900 rounded-3xl shadow-2xl p-12 mx-auto">
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-10">
+                    Forgot Password
+                </h1>
+
+                <form className="space-y-6" onSubmit={handleSubmit}>
                     <div>
-                        <label className="block text-lg font-semibold text-black dark:text-white mb-3">
+                        <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Email
                         </label>
                         <input
@@ -164,27 +167,27 @@ const ForgetPassword = () => {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full rounded-xl px-3 py-2 bg-white dark:bg-gray-800 border border-[#26323a] text-[#e6eef6] placeholder:text-[#2b3940] focus:outline-none focus:ring-2 focus:ring-[#243040] transition"
                             placeholder="Enter your email"
                             required
+                            className="w-full px-5 py-4 rounded-3xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
                         />
                         {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
-                        <div className="flex items-end justify-end">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className={`w-[50%] mt-6 rounded-xl py-2 text-xl font-semibold 
-                                    bg-gradient-to-b from-gray-100 to-blue-200 
-                                    dark:from-[#243447] dark:to-[#254e79] 
-                                    text-gray-900 dark:text-white shadow-inner transition-colors duration-300
-                                    ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-                            >
-                                {loading ? "Sending..." : "Send"}
-                            </button>
-                        </div>
+                    </div>
+
+                    <div className="flex justify-end">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`w-1/2 py-4 rounded-3xl font-semibold text-gray-900 dark:text-gray-100 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 shadow-lg transition ${loading ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
+                        >
+                            {loading ? "Sending..." : "Send"}
+                        </button>
                     </div>
                 </form>
             </div>
+
+
 
             {/* OTP Verification Modal */}
             {showOtpModal && (

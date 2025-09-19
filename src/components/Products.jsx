@@ -482,6 +482,7 @@ const Products = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">For</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Popularity</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
             </tr>
           </thead>
@@ -516,6 +517,32 @@ const Products = () => {
                     {product.forList?.join(", ")}
                   </span>
                 </td>
+                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                  <label className="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="peer hidden"
+                      checked={product.popular}
+                      onChange={async () => {
+                        try {
+                          await productService.updateProductPopularity(product.id);
+                          // optimistik update: dərhal UI-də dəyişsin
+                          product.popular = !product.popular;
+                          setProducts([...products]); // əgər products state-də saxlayırsansa
+                        } catch (err) {
+                          console.error("Toggle popularity error:", err);
+                        }
+                      }}
+                    />
+                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-400 rounded-full peer dark:bg-gray-700 
+      peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full 
+      peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] 
+      after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 
+      after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                    </div>
+                  </label>
+                </td>
+
 
                 <td className="px-6 py-4 text-right text-sm font-medium  gap-4 flex items-center justify-center  ">
                   <button onClick={() => openEditModal(product)} className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400" aria-label="Edit Product">
