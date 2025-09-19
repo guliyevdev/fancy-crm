@@ -138,13 +138,13 @@ const PartnerUser = () => {
                     All Users
                 </h2>
                 <div className="flex gap-4">
-                    <button
+                    {/* <button
                         onClick={handleAddUser}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
                     >
                         <Plus className="mr-2 h-4 w-4" />
                         Add User
-                    </button>
+                    </button> */}
                     <button
                         className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm"
                     >

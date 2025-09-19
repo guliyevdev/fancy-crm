@@ -7,6 +7,7 @@ import RoomImage3 from "@/assets/124.jpeg";
 import RoomImage4 from "@/assets/125.jpg";
 import RoomImage5 from "@/assets/126.jpg";
 import { SiTraefikproxy } from "react-icons/si";
+import { FaBlog } from "react-icons/fa";
 
 
 
@@ -144,12 +145,22 @@ export const navbarLinks = [
     {
         title: "Website Management",
         links: [
+            // {
+            //     label: "Site Category",
+            //     icon: SiTraefikproxy,
+            //     path: "/site-category",
+            // },
             {
-                label: "Site Category",
+                label: "Site Content",
                 icon: SiTraefikproxy,
-                path: "/site-category",
+                path: "/site-content",
             },
-         
+            {
+                label: "Site Blog",
+                icon: FaBlog,
+                path: "/site-blog",
+            },
+
         ],
     },
     {

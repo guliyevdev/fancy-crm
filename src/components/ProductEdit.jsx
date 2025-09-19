@@ -73,10 +73,10 @@ const ProductEdit = () => {
         try {
             const response = await productService.finalHandover(id, additionalNotes);
             setFinalHandoverResult(response);
-            toast.success("Final handover uğurla göndərildi");
+            toast.success(response.data.message);
         } catch (error) {
-            console.error(error);
-            toast.error("Final handover göndərilərkən xəta baş verdi");
+            console.error("Final handover error:", error);
+            toast.error(error.response.data.message);
         } finally {
             setIsSubmittingHandover(false);
         }

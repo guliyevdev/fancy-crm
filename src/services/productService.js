@@ -58,17 +58,30 @@ const productService = {
     });
   },
 
-  finalHandover: async (productId, additionalNotes, acceptLanguage = "az") => {
+finalHandover: async (productId, additionalNotes, acceptLanguage = "az") => {
+  const response = await axiosInstance.get(
+    `${BASE_URL}/final-handover`,
+    {
+      headers: {
+        "productId": productId,
+        "Accept-Language": acceptLanguage,
+        "additionalNotes": additionalNotes // bunu da headerə atmaq istəyirsənsə
+      },
+      // əgər additionalNotes query-də qalmalıdırsa, onda burda saxlayırsan:
+      // params: { additionalNotes }
+    }
+  );
+  return response.data;
+},
+
+  updateProductPopularity: async (productId, acceptLanguage = "az") => {
     const response = await axiosInstance.post(
-      `${BASE_URL}/final-handover`,
-      {}, // body boşdur, çünki parametrlər header və query ilə gedir
+      `${BASE_URL}/update-product-popularity`,
+      {},
       {
         headers: {
           "productId": productId,
           "Accept-Language": acceptLanguage,
-        },
-        params: {
-          additionalNotes: additionalNotes,
         },
       }
     );

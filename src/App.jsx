@@ -48,7 +48,11 @@ import ProductEdit from "./components/ProductEdit";
 import PartnerEdit from "./components/PartnerEdit";
 import UserEdit from "./components/Auth/UserEdit";
 import SiteCategory from "./components/Web-Site/Category";
-
+import SiteContent from "./components/Web-Site/SiteContent";
+import SiteBlog from "./components/Web-Site/SiteBlog";
+import BlogDetail from "./components/Web-Site/BlogDetail";
+import SiteContentDetail from "./components/Web-Site/SiteContentDetail"
+import BlogAdd from "./components/Web-Site/BlogAdd";
 function App() {
     const router = createBrowserRouter([
         {
@@ -210,6 +214,26 @@ function App() {
                 {
                     path: "/site-category",
                     element: <SiteCategory />
+                },
+                {
+                    path: "/site-content",
+                    element: <SiteContent />
+                },
+                {
+                    path: "/site-blog",
+                    element: <SiteBlog />
+                },
+                {
+                    path: "/site-blog/:id",
+                    element: <BlogDetail />
+                },
+                {
+                    path: "/site-content/:id",
+                    element: <SiteContentDetail />
+                },
+                {
+                    path: "/site-blog/add",
+                    element: <BlogAdd />
                 }
             ],
         },
