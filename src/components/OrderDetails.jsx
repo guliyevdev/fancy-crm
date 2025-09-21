@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, Download, ShoppingCart, X } from "lucide-react";
+import { ArrowLeft, CheckCircle, Download, ShoppingCart, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import orderService from "../services/orderService";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { SiContactlesspayment, SiTaketwointeractivesoftware } from "react-icons/
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const [finishingOrderId, setFinishingOrderId] = useState(null);
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -21,7 +21,8 @@ const OrderDetails = () => {
     orderId: "",
     amount: 0,
     paymentType: "CASH",
-    purpose: "DEPOSIT"
+    purpose: "DEPOSIT",
+
   });
 
   const [returnItems, setReturnItems] = useState([]);
@@ -182,6 +183,8 @@ const OrderDetails = () => {
     }
   };
 
+
+
   if (loading) {
     return <div className="text-center py-10">Yüklənir...</div>;
   }
@@ -283,7 +286,7 @@ const OrderDetails = () => {
               <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.paidAmount)}</p>
             </div>
             <div>
-              <span className="font-medium">Deposit Paid:</span>
+              <span className="font-medium">Reserved Paid:</span>
               <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.depositPaid)}</p>
             </div>
             <div>
@@ -297,6 +300,10 @@ const OrderDetails = () => {
             <div>
               <span className="font-medium">Damage Fee:</span>
               <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.damageFee)}</p>
+            </div>
+            <div>
+              <span className="font-medium">Security Deposite:</span>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.securityDeposit)}</p>
             </div>
           </div>
         </div>
@@ -456,15 +463,6 @@ const OrderDetails = () => {
           Payment
         </button>
 
-        {/* <button
-          onClick={() => setShowReturnModal(true)}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 w-auto"
-          disabled={downloading}
-        >
-          <Download size={16} />
-          Return Settlement
-        </button> */}
-
         {order.orderType === 'RENT' && (
           <button
             onClick={() => setShowReturnModal(true)}
@@ -475,6 +473,26 @@ const OrderDetails = () => {
             Return Settlement
           </button>
         )}
+
+
+        <button
+          onClick={() => handleFinishOrder(order.id, order.orderCode)}
+          disabled={finishingOrderId !== null}
+          className={`flex items-center px-4 py-2 rounded-lg ${finishingOrderId !== null
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-green-600 text-white hover:bg-green-700"
+            }`}
+        >
+          {finishingOrderId !== null ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          ) : (
+            <>
+              <CheckCircle size={18} className="mr-2" />
+              Sifarişi Bitir
+            </>
+          )}
+        </button>
+
 
       </div>
 
@@ -608,7 +626,7 @@ const OrderDetails = () => {
                 <input
                   type="number"
                   value={paymentData.amount}
-                  onChange={(e) => setPaymentData({ ...paymentData, amount: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) => setPaymentData({ ...paymentData, amount: parseFloat(e.target.value) || null })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   step="0.01"
                   min="0"
@@ -631,6 +649,20 @@ const OrderDetails = () => {
 
                 </select>
               </div>
+              {paymentData.purpose === "DEBT" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Extra Deposite (For Information)
+                  </label>
+                  <input
+                    type="text"
+                    value={paymentData.liquidPrice || ""}
+                    onChange={(e) => setPaymentData({ ...paymentData, extraNote: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    placeholder="Əlavə qeyd daxil edin..."
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -642,8 +674,9 @@ const OrderDetails = () => {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   required
                 >
-                  <option value="DEPOSIT">Deposit</option>
-                  <option value="DEBT">Borc Odensi</option>
+                  <option value="DEPOSIT">Reserved Paid</option>
+                  <option value="DEBT"> Full payment
+                  </option>
 
                 </select>
               </div>
@@ -718,11 +751,12 @@ const OrderDetails = () => {
                         </label>
                         <input
                           type="number"
-                          value={returnItems[index]?.damageFee || 0}
+                          value={returnItems[index]?.damageFee || null}
                           onChange={(e) => handleDamageFeeChange(index, e.target.value)}
                           disabled={returnItems[index]?.status === "GOOD"}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
                           step="0.01"
+                          placeholder="Damage pay"
                           min="0"
                         />
                       </div>

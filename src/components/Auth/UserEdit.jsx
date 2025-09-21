@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Authservices from '../../services/authServices';
+import { useUser } from '../../contexts/UserContext';
 
 const UserEdit = () => {
     const { id } = useParams();
@@ -25,7 +26,11 @@ const UserEdit = () => {
     const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedRoleIds, setSelectedRoleIds] = useState([]);
     const [roleLoading, setRoleLoading] = useState(false);
-
+    const { user, fetchUserInfo } = useUser();
+    useEffect(() => {
+        fetchUserInfo(); // yalnız bu səhifədə çağırılır
+    }, []);
+    console.log("object,", user?.data?.data)
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -224,12 +229,16 @@ const UserEdit = () => {
                     <h2 className="text-2xl font-bold dark:text-gray-200">Current Roles</h2>
                     <button
                         onClick={openRoleModal}
-                        disabled={loading}
-                        className={`px-6 py-2 rounded-md text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                        disabled={loading || (user?.userTypes?.some(t => t.name === "customer"))}
+                        className={`px-6 py-2 rounded-md text-white ${loading || (user?.userTypes?.some(t => t.name === "customer"))
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-indigo-600 hover:bg-indigo-700"
+                            }`}
                     >
                         Change Roles
                     </button>
                 </div>
+
 
                 <div className="flex flex-wrap gap-2">
                     {form.userTypes && form.userTypes.length > 0 ? (
@@ -264,6 +273,7 @@ const UserEdit = () => {
                                                     checked={selectedRoleIds.includes(role.id)}
                                                     onChange={() => handleRoleSelection(role.id)}
                                                     className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                                    disabled={user?.userTypes?.some(t => t.name === "partner") && role.name !== "customer"}
                                                 />
                                                 <label htmlFor={`role-${role.id}`} className="text-gray-700 dark:text-gray-300">
                                                     {role.name}
@@ -273,6 +283,7 @@ const UserEdit = () => {
                                     ) : (
                                         <p className="text-gray-500 dark:text-gray-400">No roles available</p>
                                     )}
+
                                 </div>
 
                                 <div className="flex justify-end gap-3">

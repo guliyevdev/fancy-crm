@@ -1033,7 +1033,7 @@ const ProductEdit = () => {
             <div className="bg-gray-200 rounded-2xl dark:bg-gray-800 p-6 shadow-sm flex items-center justify-between mt-4">
                 <div className='flex flex-col '>
                     <p className='dark:text-white'>Partnership Agrement</p>
-                    <span className='dark:text-white'>{contractFiles[0]?.uploadedAt}</span>
+                    <span className='dark:text-white'>{contractFiles?.[0]?.uploadedAt}</span>
                 </div>
                 <button
                     type="button"
