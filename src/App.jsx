@@ -53,6 +53,7 @@ import SiteBlog from "./components/Web-Site/SiteBlog";
 import BlogDetail from "./components/Web-Site/BlogDetail";
 import SiteContentDetail from "./components/Web-Site/SiteContentDetail"
 import BlogAdd from "./components/Web-Site/BlogAdd";
+import { UserProvider } from "./contexts/UserContext";
 function App() {
     const router = createBrowserRouter([
         {
@@ -252,10 +253,13 @@ function App() {
     ]);
 
     return (
-        <ThemeProvider storageKey="theme">
-            <Toaster position="top-right" richColors />
-            <RouterProvider router={router} />
-        </ThemeProvider>
+        <UserProvider>
+            <ThemeProvider storageKey="theme">
+                <Toaster position="top-right" richColors />
+                <RouterProvider router={router} />
+            </ThemeProvider>
+        </UserProvider>
+
     );
 }
 export default App;

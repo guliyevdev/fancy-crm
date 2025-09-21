@@ -87,7 +87,7 @@ const Products = () => {
   const fetchProducts = async (page = 0, size = 10, searchTerm = "") => {
     try {
       const params = {
-        searchTerm: searchTerm,
+        searchTerm,
         page,
         size,
         categoryIds: selectedCategory || [],
@@ -97,26 +97,26 @@ const Products = () => {
         occasionIds: selectedOccasions || [],
       };
 
-
-      console.log("Göndərilən parametrlər:", params);
       const response = await productService.search(params);
-      console.log("Alınan cavab:", response.data);
 
-      const apiData = response.data?.data || {};
-      const productsData = apiData?.content || [];
+      const apiData = response.data?.data;
+
+      // Burada yoxlayırıq: array-dirsə birbaşa götür, yoxsa content
+      const productsData = Array.isArray(apiData) ? apiData : (apiData?.content || []);
+
 
       setProducts(productsData);
       setPageInfo({
         page: apiData?.number || 0,
         size: apiData?.size || size,
-        totalElements: apiData?.totalElements || 0,
-        totalPages: apiData?.totalPages || 1
+        totalElements: apiData?.totalElements || productsData.length,
+        totalPages: apiData?.totalPages || 1,
       });
     } catch (error) {
-      console.error("Fetch products error:", error);
       toast.error("Məhsullar gətirilərkən xəta baş verdi");
     }
   };
+
 
   useEffect(() => {
     fetchProducts(pageInfo.page, pageInfo.size, searchName);
@@ -148,7 +148,6 @@ const Products = () => {
       const res = await partnerService.getByName(val);
       setPartners(res.data.data);
     } catch (error) {
-      console.error("Partner search error:", error);
     }
   };
   useEffect(() => {
@@ -172,7 +171,6 @@ const Products = () => {
   };
 
   const handleSingleFilterChange = (setter) => (event) => {
-    console.log("Partner seçimi event:", event);
     const value = event.target.value;
 
     if (value) {
@@ -232,7 +230,6 @@ const Products = () => {
       setDeleteOpen(false);
       fetchProducts(pageInfo.page, pageInfo.size, searchName);
     } catch (error) {
-      console.error("Failed to delete product:", error);
       toast.error("Failed to delete product")
     }
   };
@@ -267,7 +264,6 @@ const Products = () => {
     if (!isNaN(date.getTime())) {
       setNewProduct(prev => ({ ...prev, [name]: date.toISOString() }));
     } else {
-      console.error("Invalid date value:", value);
       setNewProduct(prev => ({ ...prev, [name]: "" }));
     }
   };
@@ -284,7 +280,6 @@ const Products = () => {
       fetchProducts();
     }
     catch (error) {
-      console.log("errr", error.response.data.data);
       if (error.response && Array.isArray(error.response.data.data)) {
         const validationErrors = {};
         error.response.data.data.forEach(err => {
@@ -292,7 +287,6 @@ const Products = () => {
         });
         setErrors(validationErrors);
       } else {
-        console.error("Failed to create product:", error.response?.data?.message);
         toast.error(error.response?.data?.message || "Failed to create product");
       }
     }
@@ -357,7 +351,7 @@ const Products = () => {
           </label>
           <CustomSelect
             value={selectedCategory}
-            options={categories.map(category => ({
+            options={categories?.map(category => ({
               value: category.id,
               label: category.name
             }))}
@@ -369,7 +363,6 @@ const Products = () => {
         </div>
 
 
-        {/* Partner */}
         <div className="flex flex-col gap-1 w-full">
           <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Partner
@@ -378,7 +371,7 @@ const Products = () => {
             value={selectedPartner ? selectedPartner.value : ""}
             options={[
               { value: "", label: "All" },
-              ...partners.map(partner => ({
+              ...partners?.map(partner => ({
                 value: partner.id,
                 label: partner.customerCode || `${partner.name || ''} ${partner.surname || ''}`.trim()
               }))
@@ -402,12 +395,11 @@ const Products = () => {
           />
         </div>
 
-        {/* Rənglər */}
         <div className="flex flex-col gap-1 w-full">
           <label className="block text-sm font-medium text-gray-700 dark:text-white">Rənglər</label>
           <CustomSelect
             value={selectedColors}
-            options={colors.map(color => ({
+            options={colors?.map(color => ({
               value: color.id,
               label: color.name
             }))}
@@ -418,12 +410,11 @@ const Products = () => {
           />
         </div>
 
-        {/* Materiallar */}
         <div className="flex flex-col gap-1 w-full">
           <label className="block text-sm font-medium text-gray-700 dark:text-white">Materiallar</label>
           <CustomSelect
             value={selectedMaterials}
-            options={materials.map(material => ({
+            options={materials?.map(material => ({
               value: material.id,
               label: material.name
             }))}
@@ -434,12 +425,11 @@ const Products = () => {
           />
         </div>
 
-        {/* Occasions */}
         <div className="flex flex-col gap-1 w-full">
           <label className="block text-sm font-medium text-gray-700 dark:text-white">Occasions</label>
           <CustomSelect
             value={selectedOccasions}
-            options={occasions.map(occasion => ({
+            options={occasions?.map(occasion => ({
               value: occasion.id,
               label: occasion.name
             }))}
@@ -487,7 +477,7 @@ const Products = () => {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {products.map((product, index) => (
+            {products?.map((product, index) => (
               <tr key={product.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                   <img
@@ -498,7 +488,7 @@ const Products = () => {
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{product.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.code}</td>
-                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">${product.salePrice?.toFixed(2) ?? "-"}</td>
+                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.salePrice?.toFixed(2) ?? "-"}AZN</td>
                 <td className="px-6 py-4 text-sm">
                   <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.status === "SALED"
                     ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
@@ -530,7 +520,6 @@ const Products = () => {
                           product.popular = !product.popular;
                           setProducts([...products]); // əgər products state-də saxlayırsansa
                         } catch (err) {
-                          console.error("Toggle popularity error:", err);
                         }
                       }}
                     />
@@ -708,7 +697,7 @@ const Products = () => {
 
               <CustomSelect
                 name="categoryId"
-                options={categories.map(category => ({
+                options={categories?.map(category => ({
                   value: category.id,
                   label: category.name,
                   name: 'categoryId' // Bu name handleAddChange funksiyası üçün vacibdir
@@ -728,7 +717,7 @@ const Products = () => {
 
               <CustomSelect
                 name="partnerId"
-                options={partners.map(partner => ({
+                options={partners?.map(partner => ({
                   value: partner.id,
                   label: partner.name, // partner.name varsa, yoxsa partner.companyName və s.
                   name: 'partnerId'

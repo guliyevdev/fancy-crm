@@ -50,11 +50,11 @@ const Partners = () => {
     e.preventDefault();
     fetchPartners(0, pageInfo.size, searchName, partnerType, status);
   };
-  // 📄 CustomSelect partnerType filter
+
   const handlePartnerTypeChange = (event) => {
     const value = event.target.value || '';
     setPartnerType(value);
-    fetchPartners(0, pageInfo.size, searchName, value);
+    fetchPartners(0, pageInfo.size, searchName, value, status);
   };
 
   const handleStatusChange = (event) => {
@@ -68,10 +68,11 @@ const Partners = () => {
     const data = partners.map((p) => ({
       ID: p.id,
       Name: p.name,
+      Surname: p.surname,
       Email: p.email,
-      Phone: p.phone,
-      Address: p.address,
-      Company: p.companyName,
+      Phone: p.phoneNumber,
+      "Customer Code": p.customerCode,
+      "Partner Type": p.partnerType,
       Status: p.status,
     }));
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -88,7 +89,7 @@ const Partners = () => {
     e.preventDefault();
     try {
       await partnerService.updatePartner(selectedPartner.id, selectedPartner);
-      fetchPartners(pageInfo.page, pageInfo.size, searchName, partnerType);
+      fetchPartners(pageInfo.page, pageInfo.size, searchName, partnerType, status);
       setEditOpen(false);
     } catch (error) {
       console.error("Failed to update partner:", error);
@@ -98,7 +99,7 @@ const Partners = () => {
   const confirmDelete = async () => {
     try {
       await partnerService.deletePartner(selectedPartner.id);
-      fetchPartners(pageInfo.page, pageInfo.size, searchName, partnerType);
+      fetchPartners(pageInfo.page, pageInfo.size, searchName, partnerType, status);
       setDeleteOpen(false);
     } catch (error) {
       console.error("Failed to delete partner:", error);
@@ -121,10 +122,10 @@ const Partners = () => {
       <h3 className="text-xl font-semibold mb-4">Edit Partner</h3>
       {selectedPartner && (
         <form onSubmit={saveEdit} className="space-y-4">
-          {["name", "email", "phone", "address"].map((field) => (
+          {["name", "email", "phoneNumber", "customerCode"].map((field) => (
             <div key={field}>
               <label htmlFor={field} className="block text-sm font-medium mb-1 capitalize">
-                {field}
+                {field === "phoneNumber" ? "Phone" : field === "customerCode" ? "Customer Code" : field}
               </label>
               <input
                 id={field}
@@ -132,7 +133,7 @@ const Partners = () => {
                 value={selectedPartner[field] || ""}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                required
+                required={field !== "email"}
               />
             </div>
           ))}
@@ -166,10 +167,8 @@ const Partners = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSearchSubmit} className="mb-4 flex flex-col lg:flex-row  lg:justify-between lg:items-end  gap-4">
-
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex flex-col lg:flex-row lg:justify-between lg:items-end gap-4">
         <div className="flex flex-col sm:flex-row gap-2 flex-1 max-w-[20%]">
-          {/* Empty Label for alignment */}
           <label className="block text-sm font-medium text-gray-700 dark:text-white">
             &nbsp;
           </label>
@@ -189,7 +188,6 @@ const Partners = () => {
             Search
           </button>
         </div>
-
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-2 w-full lg:w-auto">
@@ -232,19 +230,15 @@ const Partners = () => {
             />
           </div>
         </div>
-
-
       </form>
-
-
-
 
       {/* Partners Table */}
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">customerCode</th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Surname</th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Customer Code</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Phone</th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Partner Type</th>
@@ -256,15 +250,18 @@ const Partners = () => {
           {partners.map((partner) => (
             <tr key={partner.id}>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.name}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.surname}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.customerCode}</td>
-              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
-              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email || "-"}</td>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phoneNumber || "-"}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.partnerType}</td>
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
-                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "ACTIVE"
-                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                  className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "VERIFIED"
+                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                      : partner.status === "PENDING"
+                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                        : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200"
                     }`}
                 >
                   {partner.status}
@@ -275,7 +272,10 @@ const Partners = () => {
                 <button onClick={() => navigate(`/partners/${partner.id}`)} className="text-blue-600">
                   <Eye size={18} />
                 </button>
-                <button onClick={() => navigate(`/partner-upload/${partner.id}`)} className="text-blue-600">
+                <button
+                 onClick={() => navigate(`/partner-upload/${partner.id}`)}
+                  className="text-green-600"
+                >
                   <PencilLine size={18} />
                 </button>
               </td>
@@ -284,9 +284,10 @@ const Partners = () => {
         </tbody>
       </table>
 
+      {/* Pagination - DÜZƏLDİLMİŞ HISSƏ */}
       <div className="flex justify-center items-center mt-6 space-x-4">
         <button
-          onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+          onClick={() => fetchPartners(pageInfo.page - 1, pageInfo.size, searchName, partnerType, status)}
           disabled={pageInfo.page === 0}
           className={`p-2 rounded-full ${pageInfo.page === 0 ? "text-gray-400" : "text-gray-700 dark:text-white"}`}
         >
@@ -296,7 +297,7 @@ const Partners = () => {
           Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
         </span>
         <button
-          onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
+          onClick={() => fetchPartners(pageInfo.page + 1, pageInfo.size, searchName, partnerType, status)}
           disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
           className={`p-2 rounded-full ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
             ? "text-gray-400"

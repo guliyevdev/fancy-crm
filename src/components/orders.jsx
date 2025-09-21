@@ -132,6 +132,7 @@ const Orders = () => {
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
     saveAs(blob, `Sifarişler_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
+  console.log("object", orders)
 
   return (
     <div className="card">
@@ -211,163 +212,227 @@ const Orders = () => {
 
 
 
-      <div className="card-header">
+      {/* <div className="card-header">
         <p className="card-title">Bütün Sifarişlər</p>
-      </div>
+      </div> */}
 
       <div className="card-body p-0">
         {loading ? (
           <div className="text-center py-10">Yüklənir...</div>
         ) : (
-          <div className="relative h-[500px] w-full overflow-auto rounded-none">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Müştəri Adı
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Müştəri Kodu
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Sifariş Kodu
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Növ
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Ümumi Qiymət
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Ödənilmiş Məbləğ
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Qalıq Borc
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Sifarisi Bitirmək
-                  </th>
-                  <th className="relative px-6 py-3">
-                    {/* <span className="sr-only">Əməliyyatlar</span> */}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                {orders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {order.customerName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {order.customerCode}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      {order.orderCode}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                      {order.orderType}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      {order.totalPrice?.toFixed(2)} AZN
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      {order.paidAmount?.toFixed(2)} AZN
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      {order.currentDebt?.toFixed(2)} AZN
-                    </td>
-                    {/* <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+          <div className="relative h-[500px] w-full overflow-auto rounded-none space-y-10">
+            {(() => {
+              const rentOrders = orders.filter((o) => o.orderType === "RENT");
+              const saleOrders = orders.filter((o) => o.orderType === "SALE");
+
+              return (
+                <>
+                  {/* Rent Table */}
+                  <div>
+                    <h2 className="text-lg font-semibold text-green-500 dark:text-gray-200 mb-4">
+                      Rent Sifarişləri
+                    </h2>
+                    {rentOrders.length > 0 ? (
+                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-800">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Müştəri Adı
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Müştəri Kodu
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Sifariş Kodu
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Növ
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Ümumi Qiymət
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Ödənilmiş Məbləğ
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Qalıq Borc
+                            </th>
+
+                            <th className="relative px-6 py-3"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                          {rentOrders.map((order) => (
+                            <tr
+                              key={order.id}
+                              className="hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {order.customerName}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {order.customerCode}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {order.orderCode}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                {order.orderType}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                {order.status}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {order.totalPrice?.toFixed(2)} AZN
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {order.paidAmount?.toFixed(2)} AZN
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {order.currentDebt?.toFixed(2)} AZN
+                              </td>
+
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button
+                                  className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
+                                  onClick={() => navigate(`/order/${order.id}`)}
+                                >
+                                  <Eye size={20} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className="text-start py-5 text-gray-500 dark:text-gray-300">
+                        Rent üçün ödəniş yoxdur hələki
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Sale Table */}
+                  <div>
+                    <h2 className="text-lg font-semibold text-green-500 dark:text-gray-200 mb-4">
+                      Sale Sifarişləri
+                    </h2>
+                    {saleOrders.length > 0 ? (
+                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-800">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Müştəri Adı
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Müştəri Kodu
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Sifariş Kodu
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Növ
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Ümumi Qiymət
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Ödənilmiş Məbləğ
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                              Qalıq Borc
+                            </th>
+
+                            <th className="relative px-6 py-3"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                          {saleOrders.map((order) => (
+                            <tr
+                              key={order.id}
+                              className="hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {order.customerName}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {order.customerCode}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {order.orderCode}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                {order.orderType}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {order.totalPrice?.toFixed(2)} AZN
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {order.paidAmount?.toFixed(2)} AZN
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {order.currentDebt?.toFixed(2)} AZN
+                              </td>
+
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button
+                                  className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
+                                  onClick={() => navigate(`/order/${order.id}`)}
+                                >
+                                  <Eye size={20} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className="text-start py-5 text-red-500 dark:text-gray-300">
+                        Sale üçün ödəniş yoxdur hələki
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pagination ümumi olacaq */}
+                  {orders.length > 0 && (
+                    <div className="flex justify-center items-center mt-6 space-x-4 p-4">
                       <button
-                        className={`flex items-center w-[100%] justify-center ${finishingOrderId === order.id ? "text-gray-400" : "text-green-600 hover:text-green-800"}`}
-                        onClick={() => handleFinishOrder(order.id, order.orderCode)}
-                        disabled={finishingOrderId === order.id}
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage === 0}
+                        className={`p-2 rounded-full ${pagination.currentPage === 0
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+                          }`}
                       >
-                        {finishingOrderId === order.id ? (
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
-                        ) : (
-                          <CheckCircle size={20} />
-                        )}
+                        <FaChevronLeft size={20} />
                       </button>
-                    </td> */}
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                      {order.isFinished ? (
-                        <span className="text-gray-500">✅ Bitdi</span>
-                      ) : (
-                        <button
-                          className={`flex items-center w-[100%] justify-center ${finishingOrderId === order.id
-                            ? "text-gray-400"
-                            : "text-green-600 hover:text-green-800"
-                            }`}
-                          onClick={() => handleFinishOrder(order.id, order.orderCode)}
-                          disabled={finishingOrderId === order.id}
-                        >
-                          {finishingOrderId === order.id ? (
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
-                          ) : (
-                            <CheckCircle size={20} />
-                          )}
-                        </button>
-                      )}
-                    </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <span className="text-gray-800 dark:text-gray-200 text-sm">
+                        Səhifə {pagination.currentPage + 1} / {pagination.totalPages}
+                      </span>
+
                       <button
-                        className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
-                        onClick={() => navigate(`/order/${order.id}`)}
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage + 1 >= pagination.totalPages}
+                        className={`p-2 rounded-full ${pagination.currentPage + 1 >= pagination.totalPages
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+                          }`}
                       >
-                        <Eye size={20} />
+                        <FaChevronRight size={20} />
                       </button>
-                    </td>
-                  </tr>
-                ))}
-                {orders.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan="8"
-                      className="text-center py-5 text-gray-500 dark:text-gray-300"
-                    >
-                      Sifariş tapılmadı
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-
-            {orders.length > 0 && (
-              <div className="flex justify-center items-center mt-6 space-x-4 p-4">
-                <button
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                  disabled={pagination.currentPage === 0}
-                  className={`p-2 rounded-full ${pagination.currentPage === 0
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
-                >
-                  <FaChevronLeft size={20} />
-                </button>
-
-                <span className="text-gray-800 dark:text-gray-200 text-sm">
-                  Səhifə {pagination.currentPage + 1} / {pagination.totalPages}
-                </span>
-
-                <button
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                  disabled={pagination.currentPage + 1 >= pagination.totalPages}
-                  className={`p-2 rounded-full ${pagination.currentPage + 1 >= pagination.totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
-                >
-                  <FaChevronRight size={20} />
-                </button>
-              </div>
-            )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         )}
       </div>
+
+
     </div>
   );
 };
