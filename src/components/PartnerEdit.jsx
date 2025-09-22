@@ -47,21 +47,41 @@ const PartnerEdit = () => {
         const fetchPartner = async () => {
             try {
                 const response = await partnerService.getPartnerById(id);
-                // Handle the new response structure
-                if (response.data) {
-                    setPartner(response.data);
-                } else {
-                    setPartner(response);
-                }
+                let data = response.data || response;
+
+                // Physical və Corporate details üçün boş obyekt
+                data.physicalDetails = data.physicalDetails || {
+                    fin: '',
+                    passportSeries: '',
+                    passportNumber: '',
+                    address: '',
+                    note: '',
+                };
+                data.corporateDetails = data.corporateDetails || {
+                    companyName: '',
+                    tin: '',
+                    address: '',
+                    bankName: '',
+                    bankAccount: '',
+                    bankCurrency: '',
+                    bankAccountNumber: '',
+                    bankTin: '',
+                    bankSwift: '',
+                    branchCode: '',
+                    note: '',
+                };
+
+                setPartner(data);
             } catch (error) {
-                toast.error('Failed to fetch partner details.');
-                console.error('Error fetching partner:', error);
+                toast.error('Partner məlumatları alınmadı.');
+                console.error('Xəta:', error);
             } finally {
                 setLoading(false);
             }
         };
         fetchPartner();
     }, [id]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
