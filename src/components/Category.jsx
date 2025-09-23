@@ -158,23 +158,56 @@ const Category = () => {
     setSelectedCategory((prev) => ({ ...prev, [name]: value }));
   };
 
-  const saveEdit = async (e) => {
+const saveEdit = async (e) => {
     e.preventDefault();
-    try {
-      const payload = {
-        nameAz: selectedCategory.nameAz,
-        nameEn: selectedCategory.nameEn,
-        nameRu: selectedCategory.nameRu,
-        status: selectedCategory.status
-      };
+    setIsUploading(true);
 
-      await categoryService.update(selectedCategory.id, payload);
-      fetchCategories(pageInfo.page, pageInfo.size, searchName);
-      setEditOpen(false);
+    try {
+        // 1. Kateqoriya məlumatlarını yenilə
+        const payload = {
+            nameAz: selectedCategory.nameAz,
+            nameEn: selectedCategory.nameEn,
+            nameRu: selectedCategory.nameRu,
+            status: selectedCategory.status
+        };
+
+        console.log("Kateqoriya yenilənir...", payload);
+        await categoryService.update(selectedCategory.id, payload);
+        console.log("Kateqoriya uğurla yeniləndi");
+
+        // 2. Əgər YENİ şəkil yüklənibsə, media upload et
+        if (uploadedImages.length > 0) {
+            console.log("Yeni şəkillər yüklənir...", uploadedImages);
+
+            try {
+                console.log("UploadMedia funksiyası çağırılır...");
+                const uploadResponse = await categoryService.uploadMedia(
+                    selectedCategory.id, // Edit edilən kateqoriyanın ID-si
+                    uploadedImages[mainImageIndex].name, // mainMedia olaraq əsas şəklin adı
+                    uploadedImages // bütün yeni şəkillər
+                );
+                console.log("Yeni şəkillər uğurla yükləndi", uploadResponse.data);
+            } catch (uploadError) {
+                console.error("Şəkil yükləmə xətası:", uploadError);
+                console.error("Xəta detalları:", uploadError.response?.data);
+                throw new Error("Şəkil yüklənərkən xəta baş verdi: " + (uploadError.response?.data?.message || uploadError.message));
+            }
+        }
+
+        // 3. Refresh et
+        await fetchCategories();
+        setEditOpen(false);
+        setSelectedCategory(null);
+        setUploadedImages([]);
+        setMainImageIndex(0);
+
     } catch (error) {
-      console.error("Failed to update category:", error);
+        console.error("Xəta:", error);
+        alert("Xəta baş verdi: " + (error.message || "Naməlum xəta"));
+    } finally {
+        setIsUploading(false);
     }
-  };
+};
 
   const confirmDelete = async () => {
     try {
@@ -245,9 +278,9 @@ const Category = () => {
             <tr key={category.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
               <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{pageInfo.page * pageInfo.size + index + 1}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
-                {category.image ? (
+                {category.mainMediaUrl ? (
                   <img
-                    src={category.image}
+                    src={category.mainMediaUrl}
                     alt={category.name}
                     className="w-16 h-16 object-cover rounded"
                   />
@@ -542,6 +575,63 @@ const Category = () => {
                 <option value="INACTIVE">Inactive</option>
               </select>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                Upload Images ({uploadedImages.length} selected)
+              </label>
+              <div className="flex items-center justify-center w-full">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Select images or drag and drop here</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (Max. 5MB)</p>
+                  </div>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {uploadedImages.length > 0 && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Select main image:
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Preview ${index + 1}`}
+                        className={`h-24 w-full object-cover rounded-lg cursor-pointer ${mainImageIndex === index ? 'ring-2 ring-blue-500' : ''
+                          }`}
+                        onClick={() => setMainImageIndex(index)}
+                      />
+                      {mainImageIndex === index && (
+                        <div className="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">
+                          Main
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeImage(index)}
+                        disabled={isUploading}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-end gap-4">
               <button

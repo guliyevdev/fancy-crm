@@ -116,15 +116,17 @@ const PartnerEdit = () => {
     const saveChanges = async () => {
         setSaving(true);
         try {
-            await partnerService.updatePartner(id, partner);
+            await partnerService.updatePartner(partner); // artıq id ayrıca ötürmürük
             toast.success('Partner updated successfully!');
             navigate('/partners');
         } catch (error) {
             toast.error('Failed to save changes.');
+            console.error("Update error:", error);
         } finally {
             setSaving(false);
         }
     };
+
 
     if (loading) return <div className="text-center p-6">Loading partner details...</div>;
     if (!partner) return <div className="text-center p-6 text-red-500">Partner not found.</div>;
@@ -208,6 +210,29 @@ const PartnerEdit = () => {
                         </div>
                     </div>
                 )}
+
+
+                {/* Upload File Button */}
+                <div className="border-t pt-6 flex justify-end">
+                    <button
+                        onClick={async () => {
+                            try {
+                                // Əgər partner id artıq var (useParams ilə gələn id)
+                                const response = { data: { partnerId: id } };
+
+                                toast.success("Redirecting to upload page...");
+                                setTimeout(() => navigate(`/partners/add-document/${response.data.partnerId}`), 1500);
+                            } catch (error) {
+                                toast.error("Failed to navigate to document upload.");
+                                console.error(error);
+                            }
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow"
+                    >
+                        Upload Partner Contract File
+                    </button>
+                </div>
+
 
                 {/* Documents Section */}
                 {partner.documents && partner.documents.length > 0 && (
