@@ -54,6 +54,7 @@ const ProductEdit = () => {
         validFrom: "",
         validTo: "",
         message: "",
+        active: product?.active || true,
     });
     const [isUploading, setIsUploading] = useState(false);
     const [files, setFiles] = useState([]);
@@ -140,6 +141,7 @@ const ProductEdit = () => {
                     validFrom: formatDateForInput(p.contractDetail?.validFrom),
                     validTo: formatDateForInput(p.contractDetail?.validTo),
                     message: p.message || "salam",
+                    active: p.active || true,
                 });
 
                 setProduct(p);
@@ -223,7 +225,8 @@ const ProductEdit = () => {
             customerLatePenaltyPercent: editProduct.customerLatePenaltyPercent,
             validFrom: editProduct.validFrom ? new Date(editProduct.validFrom).toISOString() : null,
             validTo: editProduct.validTo ? new Date(editProduct.validTo).toISOString() : null,
-            message: editProduct.message
+            message: editProduct.message,
+            active: editProduct.active
         };
 
         try {
@@ -985,6 +988,27 @@ const ProductEdit = () => {
                             </div>
                             {renderError('message')}
                         </div>
+                        {/* Active Status */}
+                        {/* Active Status */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4">
+                            <h3 className="font-semibold text-lg dark:text-white">Status</h3>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="activeStatus"
+                                    checked={editProduct.active || false}
+                                    onChange={(e) => handleEditChange({
+                                        target: { name: 'active', value: e.target.checked }
+                                    })}
+                                    className="h-4 w-4"
+                                />
+                                <label htmlFor="activeStatus" className="dark:text-white">
+                                    {editProduct.active ? 'Aktiv' : 'Deaktiv'}
+                                </label>
+                            </div>
+                            {renderError('active')}
+                        </div>
 
 
                         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm flex justify-end">
@@ -998,6 +1022,17 @@ const ProductEdit = () => {
                     </div>
 
                 </form>
+
+            </div>
+
+
+            <div className="bg-gray-200 rounded-2xl dark:bg-gray-800 p-6 shadow-sm flex items-center justify-between mt-4">
+                <div className='flex flex-col '>
+                    <p className='dark:text-white'>Mehsulu deactive et</p>
+                    {/* {product.name} */}
+                </div>
+                <button>Deactive et</button>
+
 
             </div>
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">

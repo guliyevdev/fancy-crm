@@ -38,10 +38,15 @@ const partnerService = {
   },
 
 
-  updatePartner: async (partnerId, updatedData) => {
-    const response = await axiosInstance.put(`${BASE_URL}/${partnerId}`, updatedData);
+  updatePartner: async (updatedData) => {
+    const response = await axiosInstance.put(`${BASE_URL}/update`, updatedData, {
+      headers: {
+        "Accept-Language": "az"
+      }
+    });
     return response.data;
   },
+
 
   searchPartners: async (criteria = {}, page = 0, size = 10) => {
     const params = {
@@ -60,7 +65,7 @@ const partnerService = {
     }),
 
   findAll: async () => {
-    const response = await axiosInstance.post(`${BASE_URL}/search`,{
+    const response = await axiosInstance.post(`${BASE_URL}/search`, {
       page: 1,
       size: 10
     });
@@ -69,7 +74,7 @@ const partnerService = {
   uploadDocument: async (file, partnerId, documentType) => {
     const formData = new FormData();
     formData.append("file", file);
-    
+
     for (let [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
