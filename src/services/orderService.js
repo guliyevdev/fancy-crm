@@ -96,7 +96,7 @@ const PostPayment = async (PaymentData) => {
 
 const ReturnSattlement = async (data) => {
   try {
-    const response = await axiosInstance.post(`${ORDER_API}/return-settlement`, data);
+    const response = await axiosInstance.post(`${ORDER_API}return-settlement`, data);
     return response.data;
   } catch (error) {
     throw error;

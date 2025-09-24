@@ -43,6 +43,7 @@ const ProductEdit = () => {
         salePrice: 0,
         rentPricePerDay: 0,
         saleCompanyPercent: 0,
+        liquidPrice: 0,
         salePartnerPercent: 0,
         damageCompanyCompensation: 0,
         lossCompanyCompensation: 0,
@@ -129,6 +130,7 @@ const ProductEdit = () => {
                     productFor: p.productFor || ["FOR_SALE"],
                     salePrice: p.salePrice || 0,
                     rentPricePerDay: p.rentPricePerDay || 0,
+                    liquidPrice: p.liquidPrice || 0,
                     saleCompanyPercent: p.contractDetail?.saleCompanyPercent || 0,
                     salePartnerPercent: p.contractDetail?.salePartnerPercent || 0,
                     damageCompanyCompensation: p.contractDetail?.damageCompanyCompensation || 0,
@@ -141,7 +143,7 @@ const ProductEdit = () => {
                     validFrom: formatDateForInput(p.contractDetail?.validFrom),
                     validTo: formatDateForInput(p.contractDetail?.validTo),
                     message: p.message || "salam",
-                    active: p.active || true,
+                    active: p.active === true || p.active === "true",
                 });
 
                 setProduct(p);
@@ -182,11 +184,15 @@ const ProductEdit = () => {
 
 
 
-
     const handleEditChange = (e) => {
         const { name, value } = e.target;
-        setEditProduct(prev => ({ ...prev, [name]: value }));
+        setEditProduct((prev) => ({
+            ...prev,
+            [name]: name === "active" ? !!value : value, // value-nu boolean kimi qəbul et
+        }));
     };
+
+
 
 
 
@@ -213,6 +219,7 @@ const ProductEdit = () => {
             size: editProduct.size,
             productFor: editProduct.productFor,
             salePrice: editProduct.salePrice,
+            liquidPrice: editProduct.liquidPrice,
             rentPricePerDay: editProduct.rentPricePerDay,
             saleCompanyPercent: editProduct.saleCompanyPercent,
             salePartnerPercent: editProduct.salePartnerPercent,
@@ -826,6 +833,16 @@ const ProductEdit = () => {
                                     />
                                     {renderError('rentPricePerDay')}
                                 </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="block text-sm font-medium dark:text-white">Liquit qiyməti</label>
+                                    <input
+                                        type="number"
+                                        value={editProduct.liquidPrice}
+                                        onChange={(e) => handleEditChange({ target: { name: 'liquidPrice', value: e.target.value } })}
+                                        className="w-full border px-4 py-3 rounded-md dark:bg-gray-800 dark:text-white"
+                                    />
+                                    {renderError('liquidPrice')}
+                                </div>
                             </div>
                         </div>
 
@@ -988,27 +1005,36 @@ const ProductEdit = () => {
                             </div>
                             {renderError('message')}
                         </div>
-                        {/* Active Status */}
-                        {/* Active Status */}
+
                         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4">
                             <h3 className="font-semibold text-lg dark:text-white">Status</h3>
 
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="activeStatus"
-                                    checked={editProduct.active || false}
-                                    onChange={(e) => handleEditChange({
-                                        target: { name: 'active', value: e.target.checked }
-                                    })}
-                                    className="h-4 w-4"
-                                />
-                                <label htmlFor="activeStatus" className="dark:text-white">
-                                    {editProduct.active ? 'Aktiv' : 'Deaktiv'}
-                                </label>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setEditProduct((prev) => ({
+                                            ...prev,
+                                            active: !prev.active, // həmişə boolean
+                                        }))
+                                    }
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${editProduct.active ? "bg-green-500" : "bg-gray-300"
+                                        }`}
+                                >
+                                    <span
+                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editProduct.active ? "translate-x-6" : "translate-x-1"
+                                            }`}
+                                    />
+                                </button>
+                                <span className="dark:text-white">
+                                    {editProduct.active ? "Aktiv" : "Deaktiv"}
+                                </span>
+
                             </div>
-                            {renderError('active')}
+
+                            {renderError("active")}
                         </div>
+
 
 
                         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm flex justify-end">
@@ -1026,15 +1052,7 @@ const ProductEdit = () => {
             </div>
 
 
-            <div className="bg-gray-200 rounded-2xl dark:bg-gray-800 p-6 shadow-sm flex items-center justify-between mt-4">
-                <div className='flex flex-col '>
-                    <p className='dark:text-white'>Mehsulu deactive et</p>
-                    {/* {product.name} */}
-                </div>
-                <button>Deactive et</button>
 
-
-            </div>
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
                 <form onSubmit={handleFinalHandoverSubmit} className="mt-6 p-4 bg-gray-50 rounded-lg">
                     <h3 className="font-semibold mb-2">Final Handover</h3>
