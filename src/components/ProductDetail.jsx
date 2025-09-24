@@ -44,6 +44,7 @@ const ProductDetail = () => {
     rentPricePerDay: 0,
     saleCompanyPercent: 0,
     salePartnerPercent: 0,
+    liquidPrice: 0,
     damageCompanyCompensation: 0,
     lossCompanyCompensation: 0,
     partnerTakeBackFeePercent: 0,
@@ -120,6 +121,7 @@ const ProductDetail = () => {
           validFrom: formatDateForInput(p.contractDetail?.validFrom),
           validTo: formatDateForInput(p.contractDetail?.validTo),
           message: p.message || "salam",
+          liquidPrice: p.liquidPrice
         });
 
         setProduct(p);
@@ -204,7 +206,8 @@ const ProductDetail = () => {
       customerLatePenaltyPercent: editProduct.customerLatePenaltyPercent,
       validFrom: editProduct.validFrom ? new Date(editProduct.validFrom).toISOString() : null,
       validTo: editProduct.validTo ? new Date(editProduct.validTo).toISOString() : null,
-      message: editProduct.message
+      message: editProduct.message,
+      liquidPrice: editProduct.liquidPrice
     };
 
     try {
@@ -839,6 +842,22 @@ const ProductDetail = () => {
                     disabled />
                   {renderError('rentPricePerDay')}
                 </div>
+                <div className="flex flex-col gap-1">
+                  <label className="block text-sm font-medium dark:text-white">Liquit qiyməti</label>
+                  <input
+                    type="number"
+                    value={editProduct.liquidPrice}
+                    onChange={(e) => handleEditChange({ target: { name: 'liquidPrice', value: e.target.value } })}
+                    className={`
+    w-full border px-4 py-3 rounded-md
+    dark:bg-gray-800 dark:text-white
+    ${errors.nameAz ? "border-red-500" : "border-gray-300"}
+    disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+    dark:disabled:bg-gray-700 dark:disabled:text-gray-500
+  `}
+                    disabled />
+                  {renderError('liquidPrice')}
+                </div>
               </div>
             </div>
 
@@ -1084,7 +1103,7 @@ const ProductDetail = () => {
 
       </div>
 
-     
+
 
       <div className="bg-gray-200 rounded-2xl dark:bg-gray-800 p-6 shadow-sm flex items-center justify-between mt-4">
         <div className='flex flex-col '>

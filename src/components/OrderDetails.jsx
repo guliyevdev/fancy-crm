@@ -21,7 +21,8 @@ const OrderDetails = () => {
     orderId: "",
     amount: 0,
     paymentType: "CASH",
-    purpose: "DEPOSIT",
+    purpose: "RESERVATION",
+    securityDeposit: ""
 
   });
 
@@ -649,18 +650,21 @@ const OrderDetails = () => {
 
                 </select>
               </div>
-              {paymentData.purpose === "DEBT" && (
+              {paymentData.purpose === "FULL_PAYMENT" && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Extra Deposite (For Information)
                   </label>
                   <input
-                    type="text"
-                    value={paymentData.liquidPrice || ""}
-                    onChange={(e) => setPaymentData({ ...paymentData, extraNote: e.target.value })}
+                    type="number"
+                    value={paymentData.securityDeposit || ""}
+                    onChange={(e) =>
+                      setPaymentData({ ...paymentData, securityDeposit: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="Əlavə qeyd daxil edin..."
+                    placeholder="Security deposit daxil edin..."
                   />
+
                 </div>
               )}
 
@@ -674,8 +678,8 @@ const OrderDetails = () => {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   required
                 >
-                  <option value="DEPOSIT">Reserved Paid</option>
-                  <option value="DEBT"> Full payment
+                  <option value="RESERVATION">Reserved Paid</option>
+                  <option value="FULL_PAYMENT"> Full payment
                   </option>
 
                 </select>
