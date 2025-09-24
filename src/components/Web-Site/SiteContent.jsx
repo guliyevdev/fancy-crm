@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 
 const tabs = [
     "HOME", "HOW_WE_WORK", "ABOUT_US", "PRIVACY_POLICY", "TERM_OF_SERVICE",
-    "CONTACT", "FAQ", "BECOME_A_PARTNER", "HEADER_MENU", "HEADER_BUTTON",
+    "CONTACT", "FAQ", "BECOME_A_PARTNER", "RENT_SALE", "HEADER_MENU", "HEADER_BUTTON",
     "FOOTER_MENU", "FOOTER_BUTTON", "HEADER_DECORATION", "FOOTER_DECORATION",
-    "RENT_SALE", "PRODUCT_DETAIL", "INPUTS", "BUTTONS", "OTHERS"
+    "PRODUCT_DETAIL", "INPUTS", "BUTTONS", "OTHERS"
 ];
 
 const languages = [
@@ -16,6 +16,13 @@ const languages = [
     { code: "EN", name: "English" },
     { code: "RU", name: "Русский" }
 ];
+
+const tabDisplayNames = {
+    RENT_SALE: "Ferdi Sifarisler",
+    HOW_WE_WORK: "How We Work",
+    ABOUT_US: "About Us",
+    // başqa xüsusi dəyişmək istədiklərini də buraya yaza bilərsən
+};
 
 const SiteContent = () => {
     const [activeTab, setActiveTab] = useState("HOME");
@@ -210,7 +217,7 @@ const SiteContent = () => {
                     Content Tabs
                 </h2>
                 <nav className="flex flex-col p-2 space-y-1 overflow-y-auto max-h-screen">
-                    {tabs.map((tab) => (
+                    {/* {tabs.map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -221,7 +228,20 @@ const SiteContent = () => {
                         >
                             {tab.replaceAll("_", " ")}
                         </button>
+                    ))} */}
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`text-left px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${activeTab === tab
+                                ? "bg-blue-600 text-white shadow-lg"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-700 hover:text-blue-700 dark:hover:text-white"
+                                }`}
+                        >
+                            {tabDisplayNames[tab] || tab.replaceAll("_", " ")}
+                        </button>
                     ))}
+
                 </nav>
             </aside>
 
