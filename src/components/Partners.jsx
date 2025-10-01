@@ -153,7 +153,7 @@ const Partners = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Partners Management</h2>
+        <h2 className="text-2xl font-semibold dark:text-white">Partners Management</h2>
         <div className="flex gap-2">
           <button
             onClick={() => navigate("/partners/add")}
@@ -192,8 +192,8 @@ const Partners = () => {
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-2 w-full lg:w-auto">
           {/* Partner Type Filter */}
-          <div className="flex flex-col gap-1 w-full md:w-64">
-            <label className="block text-sm font-medium text-gray-700 dark:text-white">
+          <div className="flex flex-col gap-1 w-full md:w-64 ">
+            <label className="block text-sm font-medium  text-gray-700 dark:text-white">
               Partner Type
             </label>
             <CustomSelect
@@ -258,10 +258,10 @@ const Partners = () => {
               <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${partner.status === "VERIFIED"
-                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
-                      : partner.status === "PENDING"
-                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
-                        : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : partner.status === "PENDING"
+                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                      : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200"
                     }`}
                 >
                   {partner.status}
@@ -273,7 +273,7 @@ const Partners = () => {
                   <Eye size={18} />
                 </button>
                 <button
-                 onClick={() => navigate(`/partner-upload/${partner.id}`)}
+                  onClick={() => navigate(`/partner-upload/${partner.id}`)}
                   className="text-green-600"
                 >
                   <PencilLine size={18} />

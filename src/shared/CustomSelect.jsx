@@ -88,7 +88,7 @@ const CustomSelect = ({
     return (
         <div
             ref={dropdownRef}
-            className={`relative ${className}`}
+            className={`relative ${className} dark:bg-gray-700`}
         >
 
             <div
