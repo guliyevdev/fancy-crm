@@ -21,6 +21,8 @@ const Products = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchName, setSearchName] = useState("");
+  const [searchCode, setSearchCode] = useState("");
+
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0, totalPages: 0 });
   const [errors, setErrors] = React.useState({});
   const [editOpen, setEditOpen] = useState(false);
@@ -79,9 +81,28 @@ const Products = () => {
     setSearchName(e.target.value);
   };
 
-  const handleSearchSubmit = (e) => {
+  const handleNameChange = (e) => {
+    setSearchName(e.target.value);
+  };
+
+  const handleCodeChange = (e) => {
+    setSearchCode(e.target.value);
+  };
+
+
+  const handleSearchSubmit = (e, type) => {
     e.preventDefault();
-    fetchProducts(0, pageInfo.size, searchName);
+
+    let searchTerm = "";
+
+    if (type === "name") {
+      searchTerm = searchName;
+    }
+    if (type === "code") {
+      searchTerm = searchCode;
+    }
+
+    fetchProducts(0, pageInfo.size, searchTerm);
   };
 
   const fetchProducts = async (page = 0, size = 10, searchTerm = "") => {
@@ -239,10 +260,6 @@ const Products = () => {
       setPageInfo(prev => ({ ...prev, page: newPage }));
     }
   }
-
-
-
-
   const handleAddChange = (e) => {
     const { name, value } = e.target;
     setNewProduct(prev => ({ ...prev, [name]: value }));
@@ -327,22 +344,43 @@ const Products = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchName}
-          onChange={handleSearchChange}
-          className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
-        >
-          Search
-        </button>
+      <div className="flex items-center gap-4 mb-4">
+        {/* Search by name */}
+        <form onSubmit={(e) => handleSearchSubmit(e, "name")} className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchName}
+            onChange={handleNameChange}
+            className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+          >
+            Search
+          </button>
+        </form>
 
-      </form>
+        {/* Search by code */}
+        <form onSubmit={(e) => handleSearchSubmit(e, "code")} className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Search by code..."
+            value={searchCode}
+            onChange={handleCodeChange}
+            className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+          >
+            Search
+          </button>
+        </form>
+      </div>
+
+
 
       <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
         <div className="flex flex-col gap-1 w-56 sm:w-full">
