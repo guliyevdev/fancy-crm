@@ -75,7 +75,9 @@ const OrderDetails = () => {
       fetchOrder();
 
       // Ödəniş tamamlandıqdan sonra avtomatik Take Order
-      await handleTakeOrder();
+      if (paymentData.purpose === "FULL_PAYMENT") {
+        await handleTakeOrder();
+      }
 
     } catch (error) {
       console.log(error.response?.data?.message);
@@ -436,25 +438,25 @@ const OrderDetails = () => {
           }}
         />
 
-        {order.waitingForUpload && (
-          <>
-            <button
-              onClick={() => setShowUploadModal(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 w-auto"
-              disabled={downloading}
-            >
-              {downloading ? (
-                <span className="animate-spin">⏳</span>
-              ) : (
-                <>
-                  <Download size={16} />
-                  Upload Contract
-                </>
-              )}
-            </button>
-          </>
-        )}
-        
+        {/* {order.waitingForUpload && ( */}
+        <>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 w-auto"
+            disabled={downloading}
+          >
+            {downloading ? (
+              <span className="animate-spin">⏳</span>
+            ) : (
+              <>
+                <Download size={16} />
+                Upload Contract
+              </>
+            )}
+          </button>
+        </>
+        {/* )} */}
+
         <button
           onClick={() => setShowPaymentModal(true)}
           className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 w-auto"
