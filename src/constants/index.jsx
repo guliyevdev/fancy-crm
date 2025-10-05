@@ -123,6 +123,16 @@ export const navbarLinks = [
         ],
     },
     {
+        title: "InstallMent Management",
+        links: [
+            {
+                label: "Installments",
+                icon: Users,
+                path: "/installment",
+            }
+        ],
+    },
+    {
         title: "Orders",
         links: [
             {
