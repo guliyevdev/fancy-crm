@@ -157,7 +157,7 @@ const InstallmentDetail = () => {
 
                     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow">
                         <p className="text-gray-500 dark:text-gray-300 font-semibold">Monthly Amount</p>
-                        <p className="text-gray-900 dark:text-white">${installment.monthlyAmount}</p>
+                        <p className="text-gray-900 dark:text-white">AZN{installment.monthlyAmount}</p>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow">
                         <p className="text-gray-500 dark:text-gray-300 font-semibold">Created At</p>
@@ -194,7 +194,7 @@ const InstallmentDetail = () => {
                                                 className="w-28 px-2 py-1 border rounded-md text-gray-900 dark:text-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                             />
                                         ) : (
-                                            <span className="min-w-[50px]">${item.amount}</span>
+                                            <span className="min-w-[50px]">AZN{item.amount}</span>
                                         )}
                                         <button
                                             className="text-red-600 hover:text-red-800 transition-colors"
@@ -271,7 +271,7 @@ const InstallmentDetail = () => {
 
                                     <td className="px-4 py-2 text-gray-800 dark:text-gray-200">
                                         <button
-                                            onClick={() => window.open(`https://api.fancy.az/fancy-website/api/v1/crm/installment-applications/files/${item.id}`, "_blank")}
+                                            onClick={() => window.open(`https://api.fancy.az/fancy-website/api/v1/crm/installment-applications/files/${item.fileId}`, "_blank")}
                                             className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
                                         >
                                             View File
