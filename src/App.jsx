@@ -54,6 +54,8 @@ import BlogDetail from "./components/Web-Site/BlogDetail";
 import SiteContentDetail from "./components/Web-Site/SiteContentDetail"
 import BlogAdd from "./components/Web-Site/BlogAdd";
 import { UserProvider } from "./contexts/UserContext";
+import InstallMent from "./components/InstallMent";
+import InstallmentDetail from "./components/InstallmentDetail";
 function App() {
     const router = createBrowserRouter([
         {
@@ -235,6 +237,14 @@ function App() {
                 {
                     path: "/site-blog/add",
                     element: <BlogAdd />
+                },
+                {
+                    path: "/installment",
+                    element: <InstallMent />
+                },
+                {
+                    path: "/installment/:id",
+                    element: <InstallmentDetail />
                 }
             ],
         },
