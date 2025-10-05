@@ -132,6 +132,7 @@ const InstallMent = () => {
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">UUID</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User FIN</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created At</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Updated At</th>
@@ -145,6 +146,7 @@ const InstallMent = () => {
               <tr key={item.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-100">
                 <td className="px-6 py-4 text-sm">{index + 1}</td>
                 <td className="px-6 py-4 text-sm font-mono">{item.uuid ? item.uuid.slice(0, 8) : "-"}</td>
+                <td className="px-6 py-4 text-sm font-mono">{item.userPin ? item.userPin : "-"}</td>
                 <td className="px-6 py-4 text-sm">
                   <span
                     className={`inline-flex px-2 text-xs font-semibold rounded-full ${item.status === "APPROVED"
