@@ -56,6 +56,7 @@ import BlogAdd from "./components/Web-Site/BlogAdd";
 import { UserProvider } from "./contexts/UserContext";
 import InstallMent from "./components/InstallMent";
 import InstallmentDetail from "./components/InstallmentDetail";
+import Reports from "./components/Reports";
 function App() {
     const router = createBrowserRouter([
         {
@@ -113,6 +114,10 @@ function App() {
                 {
                     path: "carats",
                     element: <Carats />,
+                },
+                {
+                    path: "reports",
+                    element: <Reports />,
                 },
                 {
                     path: "settings",
