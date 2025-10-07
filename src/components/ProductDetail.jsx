@@ -251,7 +251,6 @@ const ProductDetail = () => {
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
 
-    // Fayl tipi və ölçüsü yoxlanışı
     const validFiles = newFiles.filter(file =>
       ['image/jpeg', 'image/png'].includes(file.type) &&
       file.size <= 5 * 1024 * 1024
@@ -263,8 +262,6 @@ const ProductDetail = () => {
 
     if (validFiles.length > 0) {
       setFiles(prev => [...prev, ...validFiles]);
-
-      // Preview yaratmaq
       validFiles.forEach(file => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -285,7 +282,6 @@ const ProductDetail = () => {
     e.preventDefault();
   };
 
-  // Şəkli silmək
   const removeThumb = () => {
     setThumb(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -372,20 +368,12 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <Link className="flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300    " to="/products"><ArrowLeft size={16} className="mr-2" /> Back </Link>
-
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
-
         <div className='flex flex-col'>
-
-
-
-
-
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
             <h3 className="font-semibold text-lg mb-4">Şəkillər</h3>
 
             <div className="flex flex-col gap-6">
-              {/* Əsas şəkil */}
               <div className="relative group">
                 {img.filter(item => item.main).map((item, index) => (
                   <div key={index} className="relative">
@@ -394,7 +382,6 @@ const ProductDetail = () => {
                       alt="Main"
                       className="w-64 h-64 object-cover rounded-xl shadow-md border mx-auto"
                     />
-                    {/* Hover yazısı */}
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition">
                       <span className="text-white font-semibold">Əsas şəkil</span>
                     </div>
@@ -402,7 +389,6 @@ const ProductDetail = () => {
                 ))}
               </div>
 
-              {/* Əlavə şəkillər */}
               <div className="grid grid-cols-2 gap-4">
                 {img.filter(item => !item.main).map((item, index) => (
                   <div key={index} className="relative group">
@@ -411,7 +397,6 @@ const ProductDetail = () => {
                       alt={`Extra ${index}`}
                       className="w-full h-28 object-cover rounded-lg shadow-sm border"
                     />
-                    {/* Hover yazısı */}
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 transition">
                       <span className="text-white text-sm">Əlavə şəkil</span>
                     </div>
@@ -434,7 +419,6 @@ const ProductDetail = () => {
               />
               <p>{barcode.code}</p>
 
-              {/* Download düyməsi */}
               <a
                 href={`data:image/png;base64,${barcode.barcodeBase64}`}
                 download={`barcode-${barcode.code}.png`}
@@ -446,11 +430,7 @@ const ProductDetail = () => {
           </div>
 
         </div>
-
-
-
         <form action="" onSubmit={saveEdit} className="lg:col-span-2 space-y-6">
-
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4">
               <h3 className="font-semibold text-lg dark:bg-gray-800 dark:text-white">Ümumi məlumatlar</h3>
@@ -473,11 +453,6 @@ const ProductDetail = () => {
                   />
                   {renderError('nameAz')}
                 </div>
-
-
-
-
-
                 <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium dark:text-white">Məhsul adı (İngiliscə) <span className="text-red-500">*</span></label>
                   <input
@@ -496,11 +471,6 @@ const ProductDetail = () => {
                   />
                   {renderError('nameEn')}
                 </div>
-
-
-
-
-                {/* Russian */}
                 <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium dark:text-white" >Məhsul adı (Rusca)</label>
                   <input
@@ -535,7 +505,6 @@ const ProductDetail = () => {
                   {renderError('descAz')}
                 </div>
 
-                {/* English Description */}
                 <div>
                   <label className="block text-sm font-medium dark:text-white">Təsvir (İngiliscə)</label>
                   <input
@@ -553,7 +522,6 @@ const ProductDetail = () => {
                   {renderError('descEn')}
                 </div>
 
-                {/* Russian Description */}
                 <div>
                   <label className="block text-sm font-medium dark:text-white">Təsvir (Rusca)</label>
                   <input
