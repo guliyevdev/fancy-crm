@@ -36,7 +36,6 @@ const Reports = () => {
       setShowModal(false);
     } catch (err) {
         toast.error(err?.response?.data?.message)
-      console.error("Report məlumatı alınarkən xəta:", err);
     } finally {
       setLoading(false);
     }
