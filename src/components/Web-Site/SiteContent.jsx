@@ -213,22 +213,10 @@ const SiteContent = () => {
         <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
             {/* Sidebar */}
             <aside className="w-64 bg-white dark:bg-gray-800 shadow-lg">
-                <h2 className="text-xl font-bold p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-bold p-4 border-b dark:text-white border-gray-200 dark:border-gray-700">
                     Content Tabs
                 </h2>
                 <nav className="flex flex-col p-2 space-y-1 overflow-y-auto max-h-screen">
-                    {/* {tabs.map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`text-left px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${activeTab === tab
-                                ? "bg-blue-600 text-white shadow-lg"
-                                : "text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-700 hover:text-blue-700 dark:hover:text-white"
-                                }`}
-                        >
-                            {tab.replaceAll("_", " ")}
-                        </button>
-                    ))} */}
                     {tabs.map((tab) => (
                         <button
                             key={tab}
@@ -248,7 +236,7 @@ const SiteContent = () => {
             {/* Main content */}
             <main className="flex-1 p-6">
                 <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">{activeTab.replaceAll("_", " ")}</h1>
+                    <h1 className="text-2xl dark:text-white font-bold">{activeTab.replaceAll("_", " ")}</h1>
 
                     <div className="flex items-center space-x-4">
                         <div className="relative">

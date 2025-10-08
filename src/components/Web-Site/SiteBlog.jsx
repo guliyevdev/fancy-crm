@@ -121,11 +121,11 @@ const SiteBlog = () => {
                             <th className="px-6 py-3">Status</th>
                             <th className="px-6 py-3 text-right">Actions</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                    </thead >
+                    <tbody className='dark:text-white'  >
                         {blogs.map((blog, index) => {
                             return (
-                                <tr key={index}>
+                                <tr key={index} className='dark:text-white'>
                                     <td className="px-6 py-4 break-words max-w-[200px]">{index + 1 + pageInfo.page * pageInfo.size}</td>
                                     <td className="px-6 py-4 break-words max-w-[200px]">
                                         {blog.blogI18n?.[0]?.title || "No title"}
