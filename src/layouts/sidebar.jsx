@@ -9,7 +9,7 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
     // Başlanğıcda bütün qrupları açıq edirik
     const [openGroups, setOpenGroups] = useState(() =>
         navbarLinks.reduce((acc, link) => {
-            acc[link.title] = true;
+            acc[link.title] = false;
             return acc;
         }, {})
     );

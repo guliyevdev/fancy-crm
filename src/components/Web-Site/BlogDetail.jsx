@@ -30,7 +30,7 @@ const BlogDetail = () => {
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6 font-sans">
             {/* Header: Title + Active Toggle */}
-            <div className="flex justify-between items-center">
+            <div className=" dark:text-white flex justify-between items-center">
                 <h1 className="text-3xl font-bold">{blog.blogI18n?.[0]?.title}</h1>
                 <label className="inline-flex items-center cursor-pointer">
                     <span className="mr-2 font-medium text-gray-700">
@@ -56,7 +56,7 @@ const BlogDetail = () => {
             )}
 
             {/* Core Info */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gray-50 dark:bg-gray-800 dark:text-white  p-4 rounded-lg shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <p><strong>ID:</strong> {blog.id}</p>
                     <p><strong>Author:</strong> {blog.authorName} {blog.authorSurname} ({blog.authorCode || "N/A"})</p>
@@ -72,7 +72,7 @@ const BlogDetail = () => {
             </div>
 
             {/* Translations / I18n */}
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md space-y-4">
+            <div className="bg-white dark:text-white dark:bg-gray-900 p-6 rounded-lg shadow-md space-y-4">
                 {blog.blogI18n?.map((i18n, idx) => (
                     <div key={i18n.id} className="border-b pb-4 mb-4 last:border-b-0 last:mb-0">
                         <h2 className="text-xl font-semibold">{i18n.lang}</h2>
