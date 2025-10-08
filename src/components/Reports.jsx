@@ -29,17 +29,27 @@ const Reports = () => {
     if (!selectedType || !fromDate || !toDate)
       return toast.error("Zəhmət olmasa bütün sahələri doldurun!");
 
+    // ✅ Tarixləri dd-mm-yyyy formatına çevir
+    const formatDate = (dateStr) => {
+      const [year, month, day] = dateStr.split("-");
+      return `${day}-${month}-${year}`;
+    };
+
+    const formattedFrom = formatDate(fromDate);
+    const formattedTo = formatDate(toDate);
+
     setLoading(true);
     try {
-      const res = await Reportservices.getReportByType(selectedType, fromDate, toDate);
+      const res = await Reportservices.getReportByType(selectedType, formattedFrom, formattedTo);
       setReportData(res.data?.data || []);
       setShowModal(false);
     } catch (err) {
-      toast.error(err?.response?.data?.message)
+      toast.error(err?.response?.data?.message);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="p-8 min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-white">
