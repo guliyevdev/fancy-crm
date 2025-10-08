@@ -19,7 +19,6 @@ const Reports = () => {
         const res = await Reportservices.getReports();
         setReportTypes(res.data?.data || []);
       } catch (err) {
-        console.error("Report types alınarkən xəta:", err);
       }
     };
     fetchTypes();
@@ -37,6 +36,7 @@ const Reports = () => {
 
     const formattedFrom = formatDate(fromDate);
     const formattedTo = formatDate(toDate);
+
 
     setLoading(true);
     try {
