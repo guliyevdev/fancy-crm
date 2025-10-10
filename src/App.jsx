@@ -57,6 +57,7 @@ import { UserProvider } from "./contexts/UserContext";
 import InstallMent from "./components/InstallMent";
 import InstallmentDetail from "./components/InstallmentDetail";
 import Reports from "./components/Reports";
+import SaleOrder from "./components/SaleOrder";
 function App() {
     const router = createBrowserRouter([
         {
@@ -250,6 +251,10 @@ function App() {
                 {
                     path: "/installment/:id",
                     element: <InstallmentDetail />
+                },
+                {
+                    path: "/sale-orders",
+                    element: <SaleOrder />
                 }
             ],
         },

@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import CustomSelect from "../shared/CustomSelect";
 
-const Orders = () => {
+const SaleOrder = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -38,10 +38,9 @@ const Orders = () => {
         active: true,
         page,
         size,
-        type: orderType || "RENT",
+        type: "SALE",
       };
 
-      console.log("🔎 Backend-ə gedən params:", params);
 
       const response = await orderService.searchOrders(params);
 
@@ -66,7 +65,7 @@ const Orders = () => {
 
 
   const handleFinishOrder = async (orderId, orderCode) => {
-    setFinishingOrderId(orderId); 
+    setFinishingOrderId(orderId); // Loading state üçün
 
     try {
       const requestData = {
@@ -77,7 +76,7 @@ const Orders = () => {
       await orderService.FinishRentOrder(requestData);
 
       toast.success("Sifariş uğurla bitirildi");
-      fetchOrders(pagination.currentPage, pagination.pageSize, searchTerm);   
+      fetchOrders(pagination.currentPage, pagination.pageSize, searchTerm); // Siyahını yenilə
     } catch (error) {
       console.error("Finish order error:", error.response.data.message);
       toast.error(error.response.data.message);
@@ -181,7 +180,7 @@ const Orders = () => {
 
 
 
-        <div className="flex flex-col gap-1 w-full md:w-64">
+        {/* <div className="flex flex-col gap-1 w-full md:w-64">
           <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Filter By Type
           </label>
@@ -205,7 +204,7 @@ const Orders = () => {
             isMulti={false}
           />
 
-        </div>
+        </div> */}
 
       </div>
 
@@ -337,4 +336,4 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+export default SaleOrder;
