@@ -369,67 +369,61 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <Link className="flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300    " to="/products"><ArrowLeft size={16} className="mr-2" /> Back </Link>
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
-        <div className='flex flex-col'>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
-            <h3 className="font-semibold text-lg mb-4">Şəkillər</h3>
+   <div className="flex flex-col items-center space-y-6 w-full">
+      {/* Şəkillər bölməsi */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm w-full max-w-md flex flex-col gap-6">
+        <h3 className="font-semibold text-lg mb-4 text-center dark:text-white">Şəkillər</h3>
 
-            <div className="flex flex-col gap-6">
-              <div className="relative group">
-                {img.filter(item => item.main).map((item, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={item.mediaUrl}
-                      alt="Main"
-                      className="w-64 h-64 object-cover rounded-xl shadow-md border mx-auto"
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition">
-                      <span className="text-white font-semibold">Əsas şəkil</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {img.filter(item => !item.main).map((item, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={item.mediaUrl}
-                      alt={`Extra ${index}`}
-                      className="w-full h-28 object-cover rounded-lg shadow-sm border"
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 transition">
-                      <span className="text-white text-sm">Əlavə şəkil</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-            </div>
-          </div>
-
-
-
-          <div className='space-y-6'>
-            <div className="bg-white dark:bg-gray-900 rounded-2xl py-2 shadow-sm mt-4 border flex flex-col items-center justify-center gap-3">
-              <h3 className='font-semibold text-lg mb-4 w-[70%]'>Barcode</h3>
+        <div className="flex flex-col gap-6 items-center">
+          {/* Əsas şəkil */}
+          {img.filter(item => item.main).map((item, index) => (
+            <div key={index} className="relative group w-full">
               <img
-                className='w-full h-auto'
-                src={`data:image/png;base64,${barcode.barcodeBase64}`}
-                alt="barcode"
+                src={item.mediaUrl}
+                alt="Main"
+                className="w-full max-w-[300px] h-auto object-cover rounded-xl shadow-md border mx-auto"
               />
-              <p>{barcode.code}</p>
-
-              <a
-                href={`data:image/png;base64,${barcode.barcodeBase64}`}
-                download={`barcode-${barcode.code}.png`}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
-              >
-                Yüklə
-              </a>
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition">
+                <span className="text-white font-semibold dark:text-white">Əsas şəkil</span>
+              </div>
             </div>
-          </div>
+          ))}
 
+          {/* Əlavə şəkillər */}
+          <div className="grid grid-cols-2 gap-4 w-full">
+            {img.filter(item => !item.main).map((item, index) => (
+              <div key={index} className="relative group w-full">
+                <img
+                  src={item.mediaUrl}
+                  alt={`Extra ${index}`}
+                  className="w-full h-28 object-cover rounded-lg shadow-sm border"
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 transition">
+                  <span className="text-white text-sm dark:text-white">Əlavə şəkil</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
+
+      {/* Barcode bölməsi */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl py-4 px-6 shadow-sm w-full max-w-md flex flex-col items-center gap-3 border">
+        <h3 className="font-semibold text-lg mb-4 text-center w-full dark:text-white">Barcode</h3>
+        <img
+          className="w-full max-w-[300px] h-auto object-contain rounded-xl shadow-md border"
+          src={`data:image/png;base64,${barcode.barcodeBase64}`}
+          alt="barcode"
+        />
+        <a
+          href={`data:image/png;base64,${barcode.barcodeBase64}`}
+          download={`barcode-${barcode.code}.png`}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
+        >
+          Yüklə
+        </a>
+      </div>
+    </div>
         <form action="" onSubmit={saveEdit} className="lg:col-span-2 space-y-6">
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm space-y-4">
