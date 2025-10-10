@@ -137,29 +137,50 @@ const DashboardPage = () => {
           </div>
           <div className="card-body p-0">
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={monthlyRevenue || []}
-                margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="month"
-                  stroke={theme === "light" ? "#475569" : "#94a3b8"}
-                  tickMargin={6}
-                />
-                <YAxis
-                  stroke={theme === "light" ? "#475569" : "#94a3b8"}
-                  tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
-                  tickMargin={6}
-                />
-                <Tooltip formatter={(value) => `${(value * 100).toFixed(0)}%`} />
-                <Bar
-                  dataKey="companyShareSale"
-                  fill="#2563eb"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+  <BarChart
+    data={monthlyRevenue || []}
+    margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+  >
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis
+      dataKey="month"
+      stroke={theme === "light" ? "#475569" : "#94a3b8"}
+      tickMargin={6}
+      tickFormatter={(value) => {
+        if (!value) return "";
+        const [year, month] = value.split("-");
+        const months = [
+          "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun",
+          "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"
+        ];
+        return `${year} ${months[parseInt(month) - 1]}`;
+      }}
+    />
+    <YAxis
+      stroke={theme === "light" ? "#475569" : "#94a3b8"}
+      tickMargin={6}
+    />
+    <Tooltip
+      labelFormatter={(value) => {
+        if (!value) return "";
+        const [year, month] = value.split("-");
+        const months = [
+          "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun",
+          "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"
+        ];
+        return `${year} ${months[parseInt(month) - 1]}`;
+      }}
+      formatter={(value) => value}
+    />
+    <Bar
+      dataKey="companyShareSale"
+      fill="#2563eb"
+      radius={[4, 4, 0, 0]}
+    />
+  </BarChart>
+</ResponsiveContainer>
+
+
           </div>
         </div>
 
@@ -178,9 +199,9 @@ const DashboardPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                {Array(10).fill(topCustomers).flat().map((c, index) => (
+                {topCustomers?.map((c) => (
                   <tr
-                    key={`${c.email}-${index}`}
+                    key={c.email}
                     className="hover:bg-gray-100 dark:hover:bg-gray-800 transition"
                   >
                     <td className="px-4 py-2">{c.fullName}</td>
@@ -189,6 +210,7 @@ const DashboardPage = () => {
                     <td className="px-4 py-2">{c.finishedSaleOrders}</td>
                   </tr>
                 ))}
+
               </tbody>
 
             </table>
