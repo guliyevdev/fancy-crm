@@ -4,39 +4,62 @@ import Authservices from "../services/authServices";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-
+import { useUser } from "../contexts/UserContext";
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  const { setUserAfterLogin } = useUser();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    try {
-      const response = await Authservices.PostLogin(formData, {
-        headers: {
-          deviceId: "some-device-id",
-          "Accept-Language": "en",
-        },
-      });
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   try {
+  //     const response = await Authservices.PostLogin(formData, {
+  //       headers: {
+  //         deviceId: "some-device-id",
+  //         "Accept-Language": "en",
+  //       },
+  //     });
 
-      const { accessToken } = response.data.data;
-      Cookies.set("accessToken", accessToken, { expires: 0.3 });
-      toast.success("Daxil oldunuz!");
-      navigate("/user-account");
-    } catch (err) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      }
+  //     const { accessToken } = response.data.data;
+  //     Cookies.set("accessToken", accessToken, { expires: 0.3 });
+  //     toast.success("Daxil oldunuz!");
+  //     navigate("/user-account");
+  //   } catch (err) {
+  //     if (err.response?.data?.message) {
+  //       setError(err.response.data.message);
+  //     }
+  //   }
+  // };
+
+
+  
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  try {
+    const response = await Authservices.PostLogin(formData, {
+      headers: { deviceId: "some-device-id", "Accept-Language": "en" },
+    });
+
+    const { accessToken, refreshToken, userInfo } = response.data.data;
+    setUserAfterLogin(userInfo, accessToken, refreshToken); // <-- context vasitəsilə
+
+    toast.success("Daxil oldunuz!");
+    navigate("/user-account");
+  } catch (err) {
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
     }
-  };
-
+  }
+}
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
       <div className="max-w-3xl w-full bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">

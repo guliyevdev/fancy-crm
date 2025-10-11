@@ -6,7 +6,7 @@ import { cn } from "@/utils/cn";
 import PropTypes from "prop-types";
 
 export const Sidebar = forwardRef(({ collapsed }, ref) => {
-    // Başlanğıcda bütün qrupları açıq edirik
+    // Başlanğıcda bütün qrupları açıq 
     const [openGroups, setOpenGroups] = useState(() =>
         navbarLinks.reduce((acc, link) => {
             acc[link.title] = false;
