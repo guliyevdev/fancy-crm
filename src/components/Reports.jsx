@@ -67,7 +67,6 @@ const Reports = () => {
         </button>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {showModal && (
           <motion.div
@@ -163,26 +162,26 @@ const Reports = () => {
           {reportData.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-200 rounded-lg dark:text-white">
-                <thead className="bg-gray-100 text-gray-700 text-sm uppercase dark:text-gray-600">
-                  <tr>
+                <thead className="bg-gray-100 text-gray-700 items-start text-sm uppercase dark:text-gray-600 ">
+                  <tr className="text-start">
                     {Object.values(reportData[0]).map((key) => (
-                      <th key={key} className="py-2 px-3 border-b">
+                      <th key={key} className="py-2 px-3 border-b  text-start">
                         {key}
                       </th>
                     ))}
                   </tr>
                 </thead>
-              <tbody className="text-gray-600 dark:text-white">
-  {reportData.slice(1).map((row, i) => (
-    <tr key={i} className="hover:cursor-pointer hover:text-gray-650 transition dark:text-white">
-      {Object.values(row).map((val, j) => (
-        <td key={j} className="py-2 px-3 border-b">
-          {String(val)}
-        </td>
-      ))}
-    </tr>
-  ))}
-</tbody>
+                <tbody className="text-gray-600 dark:text-white">
+                  {reportData.slice(1).map((row, i) => (
+                    <tr key={i} className="hover:cursor-pointer hover:text-gray-650 transition dark:text-white">
+                      {Object.values(row).map((val, j) => (
+                        <td key={j} className="py-2 px-3 border-b">
+                          {String(val)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
 
               </table>
             </div>

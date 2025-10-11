@@ -65,6 +65,36 @@ const DashboardPage = () => {
       </div>
     );
   }
+  const CustomYAxisTick = ({ x, y, payload }) => {
+    const fontSize = 12;
+    const padding = 4;
+
+    return (
+      <g transform={`translate(${x}, ${y})`}>
+        <rect
+          x={-padding - 30}
+          y={-fontSize / 2 - padding / 2}
+          width={30 + padding * 2} 
+          height={fontSize + padding}
+          fill="white"
+          strokeWidth={1}
+          rx={4}
+        />
+        <text
+          x={0}
+          y={0}
+          textAnchor="end"
+          alignmentBaseline="middle"
+          fill="#64748b"
+          fontSize={fontSize}
+        >
+          {payload.value} ₼
+        </text>
+      </g>
+    );
+  };
+
+
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -122,9 +152,7 @@ const DashboardPage = () => {
           </div>
           <div className="card-body bg-slate-100 dark:bg-slate-950">
             <p className="text-3xl font-bold">
-              {summary?.companyShareSale
-                ? `${(summary.companyShareSale * 100).toFixed(1)}%`
-                : "0%"}
+              {summary?.companyShareSale ?? 0}
             </p>
           </div>
         </div>
@@ -137,48 +165,49 @@ const DashboardPage = () => {
           </div>
           <div className="card-body p-0">
             <ResponsiveContainer width="100%" height={300}>
-  <BarChart
-    data={monthlyRevenue || []}
-    margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-  >
-    <CartesianGrid strokeDasharray="3 3" />
-    <XAxis
-      dataKey="month"
-      stroke={theme === "light" ? "#475569" : "#94a3b8"}
-      tickMargin={6}
-      tickFormatter={(value) => {
-        if (!value) return "";
-        const [year, month] = value.split("-");
-        const months = [
-          "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun",
-          "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"
-        ];
-        return `${year} ${months[parseInt(month) - 1]}`;
-      }}
-    />
-    <YAxis
-      stroke={theme === "light" ? "#475569" : "#94a3b8"}
-      tickMargin={6}
-    />
-    <Tooltip
-      labelFormatter={(value) => {
-        if (!value) return "";
-        const [year, month] = value.split("-");
-        const months = [
-          "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun",
-          "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"
-        ];
-        return `${year} ${months[parseInt(month) - 1]}`;
-      }}
-      formatter={(value) => value}
-    />
-    <Bar
-      dataKey="companyShareSale"
-      fill="#2563eb"
-      radius={[4, 4, 0, 0]}
-    />
-  </BarChart>
-</ResponsiveContainer>
+              <BarChart
+                data={monthlyRevenue || []}
+                margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="month"
+                  stroke={theme === "light" ? "#475569" : "#94a3b8"}
+                  tickMargin={6}
+                  tickFormatter={(value) => {
+                    if (!value) return "";
+                    const [year, month] = value.split("-");
+                    const months = [
+                      "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun",
+                      "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"
+                    ];
+                    return `${year} ${months[parseInt(month) - 1]}`;
+                  }}
+                />
+                <YAxis
+                  stroke={theme === "light" ? "#475569" : "#94a3b8"}
+                  tickMargin={6}
+                  tick={<CustomYAxisTick />}
+                />
+                <Tooltip
+                  labelFormatter={(value) => {
+                    if (!value) return "";
+                    const [year, month] = value.split("-");
+                    const months = [
+                      "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun",
+                      "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"
+                    ];
+                    return `${year} ${months[parseInt(month) - 1]}`;
+                  }}
+                  formatter={(value) => [`${value} AZN`]}
+                />
+                <Bar
+                  dataKey="companyShareSale"
+                  fill="#2563eb"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
 
 
           </div>
