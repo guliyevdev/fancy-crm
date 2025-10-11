@@ -59,12 +59,20 @@ const Reports = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">📊 Reports</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 dark:text-white text-white px-4 py-2 rounded-lg font-medium shadow-sm transition"
-        >
-          🔍 Filter Reports
-        </button>
+        <div className="flex gap-1">
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 dark:text-white text-white px-4 py-2 rounded-lg font-medium shadow-sm transition"
+          >
+            🔍 Filter Reports
+          </button>
+          <button
+            onClick={() => { }}
+            className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm"
+          >
+            Export Excel
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -151,12 +159,12 @@ const Reports = () => {
             <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
               Nəticələr: {selectedType.replaceAll("_", " ")}
             </h3>
-            <button
+            {/* <button
               onClick={() => setShowModal(true)}
               className="text-sm text-blue-600 hover:underline dark:text-white"
             >
               🔁 Filtri dəyiş
-            </button>
+            </button> */}
           </div>
 
           {reportData.length > 0 ? (
