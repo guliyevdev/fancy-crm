@@ -3,6 +3,7 @@ import { Eye, PencilLine, Plus, X } from "lucide-react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Authservices from "../../services/authServices";
 import { useNavigate } from "react-router-dom";
+import { usePermission } from "../../hooks/usePermission";
 
 const CompanyUser = () => {
     const [users, setUsers] = useState([]);
@@ -22,6 +23,7 @@ const CompanyUser = () => {
     const [searchName, setSearchName] = useState("");
     const [searchStatus, setSearchStatus] = useState("all");
     const navigate = useNavigate();
+    const { hasPermission } = usePermission();
 
     const handleAddUser = () => {
         navigate('/user/add-user');
@@ -135,7 +137,7 @@ const CompanyUser = () => {
         <div className="p-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                    All Users
+                    Company Users
                 </h2>
                 <div className="flex gap-4">
                     {/* <button
@@ -152,7 +154,6 @@ const CompanyUser = () => {
                     </button>
                 </div>
             </div>
-
             <div className="flex justify-between items-center mb-4">
                 {/* Ada görə axtarış (sağ tərəf) */}
                 <form className="flex gap-2" onSubmit={handleSearchSubmit}>
@@ -170,16 +171,7 @@ const CompanyUser = () => {
                         Search
                     </button>
                 </form>
-
-
-
-
-
-
-
             </div>
-
-
             <div className="overflow-x-auto max-w-[1300px]">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-800 dark:text-white">
@@ -214,7 +206,7 @@ const CompanyUser = () => {
                                 <td className="px-6 py-4">
                                     {user.roles && user.roles.length > 0 ? (
                                         <select
-                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
+                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white min-w-[150px]"
                                             value={user.roles}
                                             onChange={(e) => {
                                                 const selectedRoles = Array.from(e.target.selectedOptions, option => option.value);
@@ -236,6 +228,7 @@ const CompanyUser = () => {
                                 <td className="px-6 py-4">{user.deposit}</td>
                                 <td className="px-6 py-4">{new Date(user.createdDate).toLocaleString()}</td>
                                 <td className="px-6 py-4 text-right flex gap-4 justify-end">
+
                                     <button
                                         className="text-blue-600 hover:text-blue-900"
                                         onClick={() => navigate(`/alluser/${user.id}`)}
@@ -244,14 +237,16 @@ const CompanyUser = () => {
                                     >
                                         <Eye size={20} />
                                     </button>
-                                    <button
-                                        className="text-blue-600 hover:text-blue-900"
-                                        onClick={() => navigate(`/user-upload/${user.id}`)}
+                                    {hasPermission("CAN_UPDATE_USER") && (
+                                        <button
+                                            className="text-blue-600 hover:text-blue-900"
+                                            onClick={() => navigate(`/user-upload/${user.id}`)}
 
 
-                                    >
-                                        <PencilLine size={20} />
-                                    </button>
+                                        >
+                                            <PencilLine size={20} />
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}

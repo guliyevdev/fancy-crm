@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import occasionService from "../services/occasionService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { usePermission } from "../hooks/usePermission";
 
 Modal.setAppElement("#root");
 
@@ -16,6 +17,7 @@ const Occasions = () => {
   const [selectedOccasion, setSelectedOccasion] = useState(null);
   const [searchName, setSearchName] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
+  const { hasPermission } = usePermission();
 
 
 
@@ -159,12 +161,15 @@ const Occasions = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Occasions Management</h2>
         <div className="flex gap-4">
-          <button
+          {hasPermission("ADD_OCCASION") && (
+             <button
             onClick={openAddModal}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md"
           >
             <Plus className="mr-2 h-4 w-4" /> Add Occasion
           </button>
+          )}
+         
           <button
             onClick={exportToExcel}
             className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md"
@@ -212,14 +217,34 @@ const Occasions = () => {
                   {occasion.status}
                 </span>
               </td>
-              <td className="px-6 py-4 text-right space-x-2">
-                <button onClick={() => openEditModal(occasion)} className="text-blue-600 hover:text-blue-900">
-                  <PencilLine size={18} />
-                </button>
-                <button onClick={() => openDeleteModal(occasion)} className="text-red-600 hover:text-red-900">
-                  <Trash size={18} />
-                </button>
-              </td>
+             <td className="px-6 py-4 text-right space-x-2">
+  {hasPermission("FIND_OCCASION_BY_ID") || hasPermission("UPDATE_OCCASION") ? (
+    <>
+      {hasPermission("UPDATE_OCCASION") && (
+        <button
+          onClick={() => openEditModal(occasion)}
+          className="text-blue-600 hover:text-blue-900"
+          aria-label={`Edit occasion ${occasion.name}`}
+        >
+          <PencilLine size={18} />
+        </button>
+      )}
+
+      {hasPermission("FIND_OCCASION_BY_ID") && (
+        <button
+          onClick={() => openDeleteModal(occasion)}
+          className="text-red-600 hover:text-red-900"
+          aria-label={`Delete occasion ${occasion.name}`}
+        >
+          <Trash size={18} />
+        </button>
+      )}
+    </>
+  ) : (
+    <span className="text-red-500 text-sm font-semibold">Access Denied</span>
+  )}
+</td>
+
             </tr>
           ))}
         </tbody>

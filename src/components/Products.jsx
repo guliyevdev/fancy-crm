@@ -13,10 +13,13 @@ import occasionService from "../services/occasionService";
 import { getAllMaterials } from "../services/materialService";
 import CustomSelect from "../shared/CustomSelect";
 import partnerService from "../services/partnerService";
+import { usePermission } from "../hooks/usePermission";
 
 Modal.setAppElement("#root");
 
 const Products = () => {
+  const { hasPermission } = usePermission();
+
   const [products, setProducts] = useState([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -34,7 +37,7 @@ const Products = () => {
   const [occasions, setOccasions] = useState([]);
   const [partners, setPartners] = useState([]);
   const navigate = useNavigate();
-  const [partnerSearch, setPartnerSearch] = useState("");
+
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState([]);
@@ -329,12 +332,14 @@ const Products = () => {
           Products Management
         </h2>
         <div className="flex gap-4">
-          <button
-            onClick={() => navigate("/products/addproduct")}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Add Product
-          </button>
+          {hasPermission("ADD_PRODUCT") && (
+            <button
+              onClick={() => navigate("/products/addproduct")}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add Product
+            </button>
+          )}
           <button
             onClick={exportToExcel}
             className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm"
@@ -346,38 +351,43 @@ const Products = () => {
 
       <div className="flex items-center gap-4 mb-4">
         {/* Search by name */}
-        <form onSubmit={(e) => handleSearchSubmit(e, "name")} className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search by name..."
-            value={searchName}
-            onChange={handleNameChange}
-            className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
-          >
-            Search
-          </button>
-        </form>
+        {hasPermission("SEARCH_PRODUCT") && (
+          <form onSubmit={(e) => handleSearchSubmit(e, "name")} className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Search by name..."
+              value={searchName}
+              onChange={handleNameChange}
+              className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+            >
+              Search
+            </button>
+          </form>
+        )}
+        {hasPermission("SEARCH_PRODUCT") && (
+          <form onSubmit={(e) => handleSearchSubmit(e, "code")} className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Search by code..."
+              value={searchCode}
+              onChange={handleCodeChange}
+              className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+            >
+              Search
+            </button>
+          </form>
+        )}
 
-        {/* Search by code */}
-        <form onSubmit={(e) => handleSearchSubmit(e, "code")} className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search by code..."
-            value={searchCode}
-            onChange={handleCodeChange}
-            className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
-          >
-            Search
-          </button>
-        </form>
+
+
       </div>
 
 
@@ -512,6 +522,7 @@ const Products = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">For</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Popularity</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -545,52 +556,62 @@ const Products = () => {
                     {product.forList?.join(", ")}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  <label className="inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="peer hidden"
-                      checked={product.popular}
-                      onChange={async () => {
-                        try {
-                          await productService.updateProductPopularity(product.id);
-                          // optimistik update: dərhal UI-də dəyişsin
-                          product.popular = !product.popular;
-                          setProducts([...products]); // əgər products state-də saxlayırsansa
-                        } catch (err) {
-                        }
-                      }}
-                    />
-                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-400 rounded-full peer dark:bg-gray-700 
-      peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full 
-      peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] 
-      after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 
-      after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
-                    </div>
-                  </label>
-                </td>
+              <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+  {hasPermission("UPDATE_PRODUCT") ? (
+    <label className="inline-flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        className="peer hidden"
+        checked={product.popular}
+        onChange={async () => {
+          try {
+            await productService.updateProductPopularity(product.id);
+            // optimistik update: dərhal UI-də dəyişsin
+            product.popular = !product.popular;
+            setProducts([...products]); // əgər products state-də saxlayırsansa
+          } catch (err) {
+            console.error(err);
+          }
+        }}
+      />
+      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-400 rounded-full peer dark:bg-gray-700 
+        peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full 
+        peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] 
+        after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 
+        after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+      </div>
+    </label>
+  ) : (
+    <span className="text-red-500 text-sm font-semibold">Access Denied</span>
+  )}
+</td>
 
 
-                <td className="px-6 py-4 text-right text-sm font-medium  gap-4 flex items-center justify-center  ">
-                  <button onClick={() => openEditModal(product)} className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400" aria-label="Edit Product">
-                    {/* <PencilLine size={20} /> */}
-                  </button>
 
-                  <button
-                    onClick={() => navigate(`/products/${product.id}`)}
-                    className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400  p-2"
-                    title="View Details"
-                  >
-                    <Eye size={20} />
-                  </button>
-                  <button
-                    onClick={() => navigate(`/upload-product/${product.id}`)}
-                    className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400  p-2"
-                    title="View Details"
-                  >
-                    <Pencil size={20} />
-                  </button>
-                </td>
+                <td className="px-6 py-4 text-right text-sm font-medium gap-4 flex items-center justify-center">
+  {hasPermission("FIND_PRODUCT_BY_ID") ? (
+    <>
+      <button
+        onClick={() => navigate(`/products/${product.id}`)}
+        className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 p-2"
+        title="View Details"
+      >
+        <Eye size={20} />
+      </button>
+
+      <button
+        onClick={() => navigate(`/upload-product/${product.id}`)}
+        className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 p-2"
+        title="Edit Product"
+      >
+        <Pencil size={20} />
+      </button>
+    </>
+  ) : (
+    <span className="text-red-500 text-sm font-semibold">Access Denied</span>
+  )}
+</td>
+
               </tr>
             ))}
           </tbody>

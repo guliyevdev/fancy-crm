@@ -1,4 +1,3 @@
-// ...imports and top-level setup are unchanged
 import React, { useEffect, useState } from "react";
 import { PencilLine, Trash, Plus } from "lucide-react";
 import Modal from "react-modal";
@@ -6,6 +5,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import colorService from "../services/colorService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { usePermission } from "../hooks/usePermission";
 
 Modal.setAppElement("#root");
 
@@ -17,6 +17,7 @@ const Colors = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [searchName, setSearchName] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
+  const { hasPermission } = usePermission();
 
 
 
@@ -180,13 +181,16 @@ const Colors = () => {
           Colors Management
         </h2>
         <div className="flex gap-4">
-          <button
+           {hasPermission("ADD_COLOR") && (
+<button
             onClick={openAddModal}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Color
           </button>
+           )}
+          
           <button
             onClick={exportToExcel}
             className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm"
@@ -244,12 +248,15 @@ const Colors = () => {
                 </span>
               </td>
               <td className="px-6 py-4 text-right text-sm font-medium flex gap-4 justify-end">
-                <button
+               
+                    {hasPermission("UPDATE_COLOR") && ( <button
                   onClick={() => openEditModal(color)}
                   className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
                 >
                   <PencilLine size={20} />
-                </button>
+                </button>)}
+
+
                 <button
                   onClick={() => openDeleteModal(color)}
                   className="text-red-600 hover:text-red-900 dark:hover:text-red-400"

@@ -26,12 +26,9 @@ const UserEdit = () => {
     const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedRoleIds, setSelectedRoleIds] = useState([]);
     const [roleLoading, setRoleLoading] = useState(false);
-    const { user, fetchUserInfo } = useUser();
-    useEffect(() => {
-        fetchUserInfo(); // yalnız bu səhifədə çağırılır
-    }, []);
-    console.log("object,", user?.data?.data)
-    useEffect(() => {
+    const { user } = useUser();
+    
+        useEffect(() => {
         const fetchUser = async () => {
             try {
                 setLoading(true);
@@ -55,7 +52,6 @@ const UserEdit = () => {
                 // Set initial selected roles
                 setSelectedRoleIds(userData.userTypes.map(role => role.id));
             } catch (error) {
-                console.error(error);
                 toast.error("Failed to fetch user data");
             } finally {
                 setLoading(false);
@@ -85,9 +81,7 @@ const UserEdit = () => {
             toast.success("User updated successfully!");
             navigate('/all-users');
         } catch (error) {
-            console.error(error.response?.data?.data);
 
-            // Array-i object-ə çeviririk: { name: "Length must be...", surname: "...", ... }
             if (Array.isArray(error.response?.data?.data)) {
                 const fieldErrors = {};
                 error.response.data.data.forEach(item => {
@@ -110,7 +104,6 @@ const UserEdit = () => {
             setForm(prev => ({ ...prev, active: !prev.active })); // UI-də toggle
             toast.success(`User status changed to ${!form.active ? 'Active' : 'Inactive'}`);
         } catch (error) {
-            console.error(error);
             toast.error("Failed to change user status");
         } finally {
             setLoading(false);
@@ -124,7 +117,6 @@ const UserEdit = () => {
             setAvailableRoles(response.data.data);
             setShowRoleModal(true);
         } catch (error) {
-            console.error(error);
             toast.error("Failed to fetch roles");
         } finally {
             setRoleLoading(false);
@@ -146,17 +138,13 @@ const UserEdit = () => {
                 userTypeIds: selectedRoleIds
             };
 
-            // Add userId to headers as required by your API
             await Authservices.updateUserPermissionsById(id, payload);
 
             toast.success("User roles updated successfully!");
             setShowRoleModal(false);
-
-            // Update the form with new roles
             const updatedRoles = availableRoles.filter(role => selectedRoleIds.includes(role.id));
             setForm(prev => ({ ...prev, userTypes: updatedRoles }));
         } catch (error) {
-            console.error(error);
             toast.error("Failed to update user roles");
         } finally {
             setRoleLoading(false);
