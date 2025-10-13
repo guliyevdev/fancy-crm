@@ -135,7 +135,7 @@ const CustomerUser = () => {
         <div className="p-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                    All Users
+                    Customer Users
                 </h2>
                 <div className="flex gap-4">
                     <button
@@ -216,7 +216,7 @@ const CustomerUser = () => {
                                 <td className="px-6 py-4">
                                     {user.roles && user.roles.length > 0 ? (
                                         <select
-                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
+                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white min-w-[150px]"
                                             value={user.roles}
                                             onChange={(e) => {
                                                 const selectedRoles = Array.from(e.target.selectedOptions, option => option.value);

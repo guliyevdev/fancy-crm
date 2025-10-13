@@ -6,6 +6,7 @@ import { saveAs } from "file-saver";
 import axiosInstance from "../utils/axiosInstance";
 import { createMaterial, deleteMaterial, searchMaterials, updateMaterial, getAllMaterials, getMaterialById } from "../services/materialService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { usePermission } from "../hooks/usePermission";
 
 Modal.setAppElement("#root");
 
@@ -18,6 +19,7 @@ const Materials = () => {
   const [searchName, setSearchName] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
 
+  const { hasPermission } = usePermission();
 
 
   const fetchMaterials = async (page = 0, size = 10, name = "") => {
@@ -149,10 +151,10 @@ const Materials = () => {
   const fetchAllMaterials = async () => {
     try {
       const params = {
-        name: "", 
+        name: "",
         active: true,
         page: 0,
-        size: 1000, 
+        size: 1000,
       };
       const response = await searchMaterials(params);
       const apiData = response.data?.data || response.data;
@@ -182,14 +184,18 @@ const Materials = () => {
           Materials Management
         </h2>
         <div className="flex gap-4">
-          <button
+          {hasPermission("ADD_MATERIAL") && (
+            <button
             onClick={openAddModal}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             title="Add Material"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Material
-          </button>
+          </button> 
+                    )}
+          
+
           <button
             onClick={exportToExcel}
             className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
@@ -247,20 +253,25 @@ const Materials = () => {
                 </span>
               </td>
               <td className="px-6 py-4 text-right text-sm font-medium flex gap-4 justify-end">
-                <button
+                {hasPermission("UPDATE_MATERIAL") && (
+                    <button
                   onClick={() => openEditModal(material)}
                   className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
                   aria-label={`Edit ${material.name}`}
                 >
                   <PencilLine size={20} />
-                </button>
-                <button
+                </button> 
+                )}
+                {hasPermission("FIND_MATERIAL_BY_ID") && (
+                   <button
                   onClick={() => openDeleteModal(material)}
                   className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
                   aria-label={`Delete ${material.name}`}
                 >
                   <Trash size={20} />
                 </button>
+                )}
+               
               </td>
             </tr>
           ))}

@@ -20,6 +20,7 @@ export const navbarLinks = [
                 label: "Dashboard",
                 icon: Home,
                 path: "/",
+
             },
             {
                 label: "Calendar",
@@ -30,6 +31,7 @@ export const navbarLinks = [
                 label: "Reports",
                 icon: NotepadText,
                 path: "/reports",
+                permission: "REPORTS",
             },
         ],
     },
@@ -40,21 +42,25 @@ export const navbarLinks = [
                 label: "Users",
                 icon: Users2,
                 path: "/all-users",
+                permission: "CAN_SEE_USER",
             },
             {
                 label: "Company-Workers",
                 icon: PenTool,
                 path: "/company-workers",
+                permission: "CAN_SEE_USER",
             },
             {
                 label: "Partner-Users",
                 icon: BarChart,
                 path: "/partner-users",
+                permission: "CAN_SEE_USER",
             },
             {
                 label: "Customer-Users",
                 icon: Tag,
                 path: "/customers",
+                permission: "CAN_SEE_USER",
             },
 
 
@@ -67,6 +73,7 @@ export const navbarLinks = [
                 label: "Materials",
                 icon: Gem,
                 path: "/materials",
+                permission: "SEARCH_MATERIAL",
             },
             // {
             //     label: "Designers",
@@ -77,6 +84,7 @@ export const navbarLinks = [
                 label: "Colors",
                 icon: Palette,
                 path: "/colors",
+                permission: "SEARCH_COLOR",
             },
             // {
             //     label: "Daily Sales",
@@ -87,11 +95,13 @@ export const navbarLinks = [
                 label: "Category",
                 icon: Layers,
                 path: "/categorys",
+                permission: "SEARCH_CATEGORY",
             },
             {
                 label: "Occasions",
                 icon: PartyPopper,
                 path: "/occasions",
+                permission: "SEARCH_OCCASION",
             }
             ,
             // {
@@ -103,11 +113,13 @@ export const navbarLinks = [
                 label: "Products",
                 icon: ShoppingCart,
                 path: "/products",
+                permission: "SEARCH_PRODUCT",
             },
             {
                 label: "Inventory",
                 icon: BarChart,
                 path: "/inventory",
+                permission: "SEARCH_INVENTORY",
             },
 
         ],
@@ -119,6 +131,7 @@ export const navbarLinks = [
                 label: "Partners",
                 icon: Users,
                 path: "/partners",
+                permission: "SEARCH_PARTNER",
             }
         ],
     },
@@ -129,6 +142,8 @@ export const navbarLinks = [
                 label: "Installments",
                 icon: Users,
                 path: "/installment",
+                permission: "INSTALLMENT",
+                
             }
         ],
     },
@@ -136,15 +151,17 @@ export const navbarLinks = [
         title: "Orders",
         links: [
             {
-            label: "Rent Orders",
-            icon: Package,
-            path: "/orders",
-        },
-        {
-            label: "Sale Orders",
-            icon: ShoppingCart, 
-            path: "/sale-orders",
-        },
+                label: "Rent Orders",
+                icon: Package,
+                path: "/orders",
+                permission: "SEARCH_ORDER",
+            },
+            {
+                label: "Sale Orders",
+                icon: ShoppingCart,
+                path: "/sale-orders",
+                permission: "SEARCH_ORDER",
+            },
 
             // {
             //     label: "Telegram Orders",
@@ -179,23 +196,23 @@ export const navbarLinks = [
 
         ],
     },
-    {
-        title: "Discounts",
-        links: [
-            {
-                label: "Discounts",
-                icon: Ticket,
-                path: "/discounts",
-            }
-        ],
-    },
+    // {
+    //     title: "Discounts",
+    //     links: [
+    //         {
+    //             label: "Discounts",
+    //             icon: Ticket,
+    //             path: "/discounts",
+    //         }
+    //     ],
+    // },
     {
         title: "Settings",
         links: [
             {
                 label: "Settings",
                 icon: Settings,
-                path: "/settings",
+                path: "/user-account",
             },
         ],
     },

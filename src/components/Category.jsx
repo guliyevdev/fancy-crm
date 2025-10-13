@@ -3,6 +3,7 @@ import { PencilLine, Trash, Plus, Upload, X } from "lucide-react";
 import Modal from "react-modal";
 import categoryService from "../services/categoryService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { usePermission } from "../hooks/usePermission";
 
 Modal.setAppElement("#root");
 
@@ -18,6 +19,8 @@ const Category = () => {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+    const { hasPermission } = usePermission();
+  
 
   const fetchCategories = async (page = 0, size = 10, keyword = "") => {
     try {
@@ -237,14 +240,15 @@ const saveEdit = async (e) => {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Category Management</h2>
-        <button
+        {hasPermission("ADD_CATEGORY") && (  <button
           onClick={openAddModal}
           className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           title="Add Category"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Category
-        </button>
+        </button>)}
+        
       </div>
 
       <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
@@ -298,22 +302,34 @@ const saveEdit = async (e) => {
                   {category.status === "ACTIVE" ? "Active" : "Inactive"}
                 </span>
               </td>
-              <td className="px-6 py-4 text-right text-sm font-medium flex gap-4 justify-end">
-                <button
-                  onClick={() => openEditModal(category)}
-                  className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
-                  aria-label={`Edit category ${category.name}`}
-                >
-                  <PencilLine size={20} />
-                </button>
-                <button
-                  onClick={() => openDeleteModal(category)}
-                  className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
-                  aria-label={`Delete category ${category.name}`}
-                >
-                  <Trash size={20} />
-                </button>
-              </td>
+        <td className="px-6 py-4 text-right text-sm font-medium flex gap-4 justify-end">
+  {hasPermission("UPDATE_CATEGORY") || hasPermission("DELETE_CATEGORY") ? (
+    <>
+      {hasPermission("UPDATE_CATEGORY") && (
+        <button
+          onClick={() => openEditModal(category)}
+          className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
+          aria-label={`Edit category ${category.name}`}
+        >
+          <PencilLine size={20} />
+        </button>
+      )}
+
+      {hasPermission("DELETE_CATEGORY") && (
+        <button
+          onClick={() => openDeleteModal(category)}
+          className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
+          aria-label={`Delete category ${category.name}`}
+        >
+          <Trash size={20} />
+        </button>
+      )}
+    </>
+  ) : (
+    <span className="text-red-500 text-sm font-semibold">Access Denied</span>
+  )}
+</td>
+
             </tr>
           ))}
           {categories.length === 0 && (

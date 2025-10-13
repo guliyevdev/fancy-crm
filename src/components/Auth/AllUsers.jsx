@@ -4,24 +4,16 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Authservices from "../../services/authServices";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { usePermission } from "../../hooks/usePermission";
 
 const AllUsers = () => {
     const [users, setUsers] = useState([]);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState(null);
     const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
-    const [currentPage, setCurrentPage] = useState(0);
-
-    const [formData, setFormData] = useState({
-        fullName: "",
-        email: "",
-        phone: "",
-        active: true,
-        roles: [],
-        deposit: 0
-    });
+    const [, setCurrentPage] = useState(0);
+    const {hasPermission} = usePermission();
+    
     const [searchName, setSearchName] = useState("");
-    const [searchStatus, setSearchStatus] = useState("all");
+    const [searchStatus, ] = useState("all");
     const navigate = useNavigate();
 
     const handleAddUser = () => {
@@ -30,7 +22,7 @@ const AllUsers = () => {
 
     const fetchUsers = async (page = 0, size = 10, keyword = "") => {
         const token = Cookies.get("accessToken");
-        if (!token) return; // Token yoxdursa heç fetch etmə
+        if (!token) return; 
 
         try {
             const params = {
@@ -54,8 +46,6 @@ const AllUsers = () => {
                 totalPages: apiData?.totalPages || 1,
             });
         } catch (error) {
-            console.error("Fetch users error:", error);
-            // 401 status gələrsə login səhifəsinə yönləndir
             if (error.response?.status === 401) {
                 navigate("/login");
             } else {
@@ -71,72 +61,6 @@ const AllUsers = () => {
         e.preventDefault();
         fetchUsers(0, 10, searchName);
     };
-
-    const handleStatusChange = (e) => {
-        setSearchStatus(e.target.value);
-        // fetchUsers(0);
-        fetchUsers(0, 10, searchName);
-    };
-
-    const handleEditClick = (user) => {
-        setEditingUser(user);
-        setFormData({
-            fullName: user.fullName,
-            email: user.email,
-            phone: user.phone,
-            active: user.active,
-            roles: Array.isArray(user.roles) ? user.roles : [user.roles],
-            deposit: user.deposit
-        });
-        setIsEditModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsEditModalOpen(false);
-        setEditingUser(null);
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
-
-    const handleRoleChange = (e) => {
-        const options = e.target.options;
-        const selectedRoles = [];
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) {
-                selectedRoles.push(options[i].value);
-            }
-        }
-        setFormData(prev => ({
-            ...prev,
-            roles: selectedRoles
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!editingUser) return;
-
-        Authservices.updateUserById(editingUser.id, formData)
-            .then(() => {
-                const updatedUsers = users.map(user =>
-                    user.id === editingUser.id
-                        ? { ...user, ...formData }
-                        : user
-                );
-                setUsers(updatedUsers);
-                handleCloseModal();
-            })
-            .catch(err => {
-                console.error("Failed to update user", err);
-            });
-    };
-
     return (
         <div className="p-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
@@ -144,6 +68,8 @@ const AllUsers = () => {
                     All Users
                 </h2>
                 <div className="flex gap-4">
+                    {hasPermission("CAN_CREATE_USER") && (
+
                     <button
                         onClick={handleAddUser}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
@@ -151,6 +77,7 @@ const AllUsers = () => {
                         <Plus className="mr-2 h-4 w-4" />
                         Add User
                     </button>
+                    )}
                     <button
                         className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm"
                     >
@@ -160,7 +87,6 @@ const AllUsers = () => {
             </div>
 
             <div className="flex justify-between items-center mb-4">
-                {/* Ada görə axtarış (sağ tərəf) */}
                 <form className="flex gap-2" onSubmit={handleSearchSubmit}>
                     <input
                         type="text"
@@ -217,10 +143,10 @@ const AllUsers = () => {
                                         {user.active ? "Active" : "Inactive"}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4  ">
                                     {user.roles && user.roles.length > 0 ? (
                                         <select
-                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
+                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white min-w-[150px]"
                                             value={user.roles}
                                             onChange={(e) => {
                                                 const selectedRoles = Array.from(e.target.selectedOptions, option => option.value);
@@ -250,7 +176,9 @@ const AllUsers = () => {
                                     >
                                         <Eye size={20} />
                                     </button>
-                                    <button
+
+                                      {hasPermission("CAN_UPDATE_USER") && (
+                                         <button
                                         className="text-blue-600 hover:text-blue-900"
                                         onClick={() => navigate(`/user-upload/${user.id}`)}
 
@@ -258,6 +186,8 @@ const AllUsers = () => {
                                     >
                                         <PencilLine size={20} />
                                     </button>
+                                  )} 
+                                  
 
                                 </td>
                             </tr>

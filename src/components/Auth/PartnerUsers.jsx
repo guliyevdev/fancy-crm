@@ -3,6 +3,7 @@ import { Eye, PencilLine, Plus, X } from "lucide-react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Authservices from "../../services/authServices";
 import { useNavigate } from "react-router-dom";
+import { usePermission } from "../../hooks/usePermission";
 
 const PartnerUser = () => {
     const [users, setUsers] = useState([]);
@@ -10,6 +11,7 @@ const PartnerUser = () => {
     const [editingUser, setEditingUser] = useState(null);
     const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
     const [currentPage, setCurrentPage] = useState(0);
+    const {hasPermission} = usePermission();
 
     const [formData, setFormData] = useState({
         fullName: "",
@@ -135,7 +137,7 @@ const PartnerUser = () => {
         <div className="p-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                    All Users
+                    Partner Users
                 </h2>
                 <div className="flex gap-4">
                     {/* <button
@@ -154,7 +156,6 @@ const PartnerUser = () => {
             </div>
 
             <div className="flex justify-between items-center mb-4">
-                {/* Ada görə axtarış (sağ tərəf) */}
                 <form className="flex gap-2" onSubmit={handleSearchSubmit}>
                     <input
                         type="text"
@@ -170,14 +171,6 @@ const PartnerUser = () => {
                         Search
                     </button>
                 </form>
-
-
-
-                {/* yeri activ statusun falan */}
-
-
-
-
             </div>
 
 
@@ -216,7 +209,7 @@ const PartnerUser = () => {
                                 <td className="px-6 py-4">
                                     {user.roles && user.roles.length > 0 ? (
                                         <select
-                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
+                                            className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white min-w-[150px]"
                                             value={user.roles}
                                             onChange={(e) => {
                                                 const selectedRoles = Array.from(e.target.selectedOptions, option => option.value);
@@ -246,14 +239,18 @@ const PartnerUser = () => {
                                     >
                                         <Eye size={20} />
                                     </button>
-                                    <button
-                                        className="text-blue-600 hover:text-blue-900"
-                                        onClick={() => navigate(`/user-upload/${user.id}`)}
 
 
-                                    >
-                                        <PencilLine size={20} />
-                                    </button>
+                                   {hasPermission("CAN_UPDATE_USER") && (
+                                                                            <button
+                                                                           className="text-blue-600 hover:text-blue-900"
+                                                                           onClick={() => navigate(`/user-upload/${user.id}`)}
+                                   
+                                   
+                                                                       >
+                                                                           <PencilLine size={20} />
+                                                                       </button>
+                                                                     )} 
                                 </td>
                             </tr>
                         ))}

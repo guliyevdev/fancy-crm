@@ -4,9 +4,11 @@ import { FaChevronDown } from "react-icons/fa";
 import { navbarLinks } from "@/constants";
 import { cn } from "@/utils/cn";
 import PropTypes from "prop-types";
+import { useUser } from "../contexts/UserContext";
 
 export const Sidebar = forwardRef(({ collapsed }, ref) => {
-    // Başlanğıcda bütün qrupları açıq 
+    const { user } = useUser(); // ✅ user məlumatlarını alırıq
+
     const [openGroups, setOpenGroups] = useState(() =>
         navbarLinks.reduce((acc, link) => {
             acc[link.title] = false;
@@ -21,6 +23,22 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
         }));
     };
 
+    // ✅ Permission-lara görə navbarLinks-i filterləyirik
+    const filteredNavbarLinks = navbarLinks
+        .map((group) => ({
+            ...group,
+            links: group.links.filter((link) => {
+                // Əgər permission təyin edilməyibsə hamıya açıqdır
+                if (!link.permission) return true;
+
+                // Əgər user yoxdursa və ya icazə yoxdursa — göstərmə
+                if (!user || !user.permissions) return false;
+
+                return user.permissions.includes(link.permission);
+            }),
+        }))
+        .filter((group) => group.links.length > 0); // boş qrupları çıxart
+
     return (
         <aside
             ref={ref}
@@ -31,14 +49,13 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
             )}
         >
             <div className="flex w-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden p-3 [scrollbar-width:_thin]">
-                {navbarLinks.map((navbarLink) => {
+                {filteredNavbarLinks.map((navbarLink) => {
                     const isOpen = openGroups[navbarLink.title];
                     return (
                         <nav
                             key={navbarLink.title}
                             className={cn("sidebar-group", collapsed && "md:items-center")}
                         >
-                            {/* Başlıq + toggle icon */}
                             <div
                                 className="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                                 onClick={() => toggleGroup(navbarLink.title)}
@@ -53,14 +70,9 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
                                             size={16}
                                         />
                                     </div>
-
-
-
-
                                 )}
                             </div>
 
-                            {/* İç linklər */}
                             {isOpen && !collapsed && (
                                 <div className="mt-1 ml-4 flex flex-col gap-1">
                                     {navbarLink.links.map((link) => (
