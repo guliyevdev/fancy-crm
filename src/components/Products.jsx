@@ -374,7 +374,7 @@ const Products = () => {
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
             >
               Search
             </button>
@@ -387,142 +387,142 @@ const Products = () => {
 
 
 
-  {hasPermission("SEARCH_CATEGORY") ||
- hasPermission("SEARCH_COLOR") ||
- hasPermission("SEARCH_MATERIAL") ||
- hasPermission("SEARCH_OCCASION") ||
- hasPermission("SEARCH_PARTNER") ? (
-  <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
-    {/* Category */}
-    {hasPermission("SEARCH_CATEGORY") && (
-      <div className="flex flex-col gap-1 w-56 sm:w-full">
-        <label className="block text-sm font-medium text-gray-700 dark:text-white">
-          Kateqoriya
-        </label>
-        <CustomSelect
-          value={selectedCategory}
-          options={categories?.map(category => ({
-            value: category.id,
-            label: category.name
-          }))}
-          onChange={handleFilterChange(setSelectedCategory)}
-          placeholder="Kateqoriya seçin"
-          className="bg-white dark:bg-gray-700 border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          isMulti={true}
-        />
-      </div>
-    )}
+      {hasPermission("SEARCH_CATEGORY") ||
+        hasPermission("SEARCH_COLOR") ||
+        hasPermission("SEARCH_MATERIAL") ||
+        hasPermission("SEARCH_OCCASION") ||
+        hasPermission("SEARCH_PARTNER") ? (
+        <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
+          {/* Category */}
+          {hasPermission("SEARCH_CATEGORY") && (
+            <div className="flex flex-col gap-1 w-56 sm:w-full">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white">
+                Kateqoriya
+              </label>
+              <CustomSelect
+                value={selectedCategory}
+                options={categories?.map(category => ({
+                  value: category.id,
+                  label: category.name
+                }))}
+                onChange={handleFilterChange(setSelectedCategory)}
+                placeholder="Kateqoriya seçin"
+                className="bg-white dark:bg-gray-700 border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                isMulti={true}
+              />
+            </div>
+          )}
 
-    {/* Partner */}
-    {hasPermission("SEARCH_PARTNER") && (
-      <div className="flex flex-col gap-1 w-full">
-        <label className="block text-sm font-medium text-gray-700 dark:text-white">
-          Partner
-        </label>
-        <CustomSelect
-          value={selectedPartner ? selectedPartner.value : ""}
-          options={[
-            { value: "", label: "All" },
-            ...partners?.map(partner => ({
-              value: partner.id,
-              label: partner.customerCode || `${partner.name || ''} ${partner.surname || ''}`.trim()
-            }))
-          ]}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (value) {
-              const selected = partners.find(partner => partner.id === parseInt(value));
-              setSelectedPartner({
-                value: selected.id,
-                label: selected.customerCode || `${selected.name || ''} ${selected.surname || ''}`.trim()
-              });
-            } else {
-              setSelectedPartner(null);
-            }
-          }}
-          placeholder="Partner seçin"
-          className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          isMulti={false}
-          onSearchChange={handlePartnerSearch}
-        />
-      </div>
-    )}
+          {/* Partner */}
+          {hasPermission("SEARCH_PARTNER") && (
+            <div className="flex flex-col gap-1 w-full">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white">
+                Partner
+              </label>
+              <CustomSelect
+                value={selectedPartner ? selectedPartner.value : ""}
+                options={[
+                  { value: "", label: "All" },
+                  ...partners?.map(partner => ({
+                    value: partner.id,
+                    label: partner.customerCode || `${partner.name || ''} ${partner.surname || ''}`.trim()
+                  }))
+                ]}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value) {
+                    const selected = partners.find(partner => partner.id === parseInt(value));
+                    setSelectedPartner({
+                      value: selected.id,
+                      label: selected.customerCode || `${selected.name || ''} ${selected.surname || ''}`.trim()
+                    });
+                  } else {
+                    setSelectedPartner(null);
+                  }
+                }}
+                placeholder="Partner seçin"
+                className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                isMulti={false}
+                onSearchChange={handlePartnerSearch}
+              />
+            </div>
+          )}
 
-    {/* Colors */}
-    {hasPermission("SEARCH_COLOR") && (
-      <div className="flex flex-col gap-1 w-full">
-        <label className="block text-sm font-medium text-gray-700 dark:text-white">Rənglər</label>
-        <CustomSelect
-          value={selectedColors}
-          options={colors?.map(color => ({
-            value: color.id,
-            label: color.name
-          }))}
-          onChange={handleFilterChange(setSelectedColors)}
-          placeholder="Rəng seçin"
-          className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          isMulti={true}
-        />
-      </div>
-    )}
+          {/* Colors */}
+          {hasPermission("SEARCH_COLOR") && (
+            <div className="flex flex-col gap-1 w-full">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white">Rənglər</label>
+              <CustomSelect
+                value={selectedColors}
+                options={colors?.map(color => ({
+                  value: color.id,
+                  label: color.name
+                }))}
+                onChange={handleFilterChange(setSelectedColors)}
+                placeholder="Rəng seçin"
+                className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                isMulti={true}
+              />
+            </div>
+          )}
 
-    {/* Materials */}
-    {hasPermission("SEARCH_MATERIAL") && (
-      <div className="flex flex-col gap-1 w-full">
-        <label className="block text-sm font-medium text-gray-700 dark:text-white">Materiallar</label>
-        <CustomSelect
-          value={selectedMaterials}
-          options={materials?.map(material => ({
-            value: material.id,
-            label: material.name
-          }))}
-          onChange={handleFilterChange(setSelectedMaterials)}
-          placeholder="Material seçin"
-          className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          isMulti={true}
-        />
-      </div>
-    )}
+          {/* Materials */}
+          {hasPermission("SEARCH_MATERIAL") && (
+            <div className="flex flex-col gap-1 w-full">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white">Materiallar</label>
+              <CustomSelect
+                value={selectedMaterials}
+                options={materials?.map(material => ({
+                  value: material.id,
+                  label: material.name
+                }))}
+                onChange={handleFilterChange(setSelectedMaterials)}
+                placeholder="Material seçin"
+                className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                isMulti={true}
+              />
+            </div>
+          )}
 
-    {/* Occasions */}
-    {hasPermission("SEARCH_OCCASION") && (
-      <div className="flex flex-col gap-1 w-full">
-        <label className="block text-sm font-medium text-gray-700 dark:text-white">Occasions</label>
-        <CustomSelect
-          value={selectedOccasions}
-          options={occasions?.map(occasion => ({
-            value: occasion.id,
-            label: occasion.name
-          }))}
-          onChange={handleFilterChange(setSelectedOccasions)}
-          placeholder="Münasibət seçin"
-          className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          isMulti={true}
-        />
-      </div>
-    )}
+          {/* Occasions */}
+          {hasPermission("SEARCH_OCCASION") && (
+            <div className="flex flex-col gap-1 w-full">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white">Occasions</label>
+              <CustomSelect
+                value={selectedOccasions}
+                options={occasions?.map(occasion => ({
+                  value: occasion.id,
+                  label: occasion.name
+                }))}
+                onChange={handleFilterChange(setSelectedOccasions)}
+                placeholder="Münasibət seçin"
+                className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                isMulti={true}
+              />
+            </div>
+          )}
 
-    {/* Clear button */}
-    {(hasPermission("SEARCH_CATEGORY") ||
-      hasPermission("SEARCH_COLOR") ||
-      hasPermission("SEARCH_MATERIAL") ||
-      hasPermission("SEARCH_OCCASION") ||
-      hasPermission("SEARCH_PARTNER")) && (
-      <div className="flex flex-col gap-1 w-56 sm:w-full">
-        <label className="block text-sm font-medium text-gray-700 dark:text-white">
-          &nbsp;
-        </label>
-        <button
-          type="button"
-          onClick={clearFilters}
-          className="bg-blue-500 text-white border  border-gray-300 rounded-md ml-1 px-2 py-2.5 mt-0.5 max-w-[100px] text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          Clear Filters
-        </button>
-      </div>
-    )}
-  </div>
-) : null}
+          {/* Clear button */}
+          {(hasPermission("SEARCH_CATEGORY") ||
+            hasPermission("SEARCH_COLOR") ||
+            hasPermission("SEARCH_MATERIAL") ||
+            hasPermission("SEARCH_OCCASION") ||
+            hasPermission("SEARCH_PARTNER")) && (
+              <div className="flex flex-col gap-1 w-56 sm:w-full">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white">
+                  &nbsp;
+                </label>
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="bg-blue-500 text-white border  border-gray-300 rounded-md ml-1 px-2 py-2.5 mt-0.5 max-w-[100px] text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+        </div>
+      ) : null}
 
 
 
@@ -534,7 +534,8 @@ const Products = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Image</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Code</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sale Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Rent Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">For</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Popularity</th>
@@ -555,6 +556,7 @@ const Products = () => {
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{product.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.code}</td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.salePrice?.toFixed(2) ?? "-"}AZN</td>
+                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.rentPricePerDay?.toFixed(2) ?? "-"}AZN</td>
                 <td className="px-6 py-4 text-sm">
                   <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${product.status === "SALED"
                     ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"

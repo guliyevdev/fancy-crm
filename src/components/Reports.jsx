@@ -56,7 +56,6 @@ const Reports = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-white">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">📊 Reports</h1>
         <div className="flex gap-1">
@@ -159,12 +158,7 @@ const Reports = () => {
             <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
               Nəticələr: {selectedType.replaceAll("_", " ")}
             </h3>
-            {/* <button
-              onClick={() => setShowModal(true)}
-              className="text-sm text-blue-600 hover:underline dark:text-white"
-            >
-              🔁 Filtri dəyiş
-            </button> */}
+           
           </div>
 
           {reportData.length > 0 ? (
