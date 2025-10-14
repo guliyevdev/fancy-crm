@@ -13,7 +13,6 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [finishingOrderId, setFinishingOrderId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({
     currentPage: 0,
@@ -41,8 +40,6 @@ const Orders = () => {
         types: ["RENT"],
       };
 
-      console.log("🔎 Backend-ə gedən params:", params);
-
       const response = await orderService.searchOrders(params);
 
       const apiData = response.data?.data || response.data;
@@ -61,28 +58,6 @@ const Orders = () => {
       setOrders([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-
-  const handleFinishOrder = async (orderId, orderCode) => {
-    setFinishingOrderId(orderId);
-
-    try {
-      const requestData = {
-        orderId: orderId,
-        orderCode: orderCode
-      };
-
-      await orderService.FinishRentOrder(requestData);
-
-      toast.success("Sifariş uğurla bitirildi");
-      fetchOrders(pagination.currentPage, pagination.pageSize, searchTerm);
-    } catch (error) {
-      console.error("Finish order error:", error.response.data.message);
-      toast.error(error.response.data.message);
-    } finally {
-      setFinishingOrderId(null);
     }
   };
 
@@ -105,7 +80,6 @@ const Orders = () => {
     }
   };
 
-  const viewOrderDetails = (order) => setSelectedOrder(order);
   const closeDetails = () => setSelectedOrder(null);
 
   if (selectedOrder) {
@@ -177,43 +151,8 @@ const Orders = () => {
           </form>
         </div>
 
-
-
-
-
-        {/* <div className="flex flex-col gap-1 w-full md:w-64">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            Filter By Type
-          </label>
-
-          <CustomSelect
-            value={type}
-            options={[
-              { value: '', label: 'All' },
-
-              { value: 'RENT', label: 'Rent' },
-              { value: 'SALE', label: 'Sale' }
-            ]}
-            onChange={(selected) => {
-              const value = selected?.target?.value || '';
-              console.log("Seçilən dəyər:", value);
-              setType(value);
-              fetchOrders(0, pagination.pageSize, searchTerm, value);
-            }}
-            placeholder="Növ seçin"
-            className="w-full bg-white border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 max-w-[100%] focus:ring-blue-500 focus:border-blue-500"
-            isMulti={false}
-          />
-
-        </div> */}
-
       </div>
-
-
-
-      {/* <div className="card-header">
-        <p className="card-title">Bütün Sifarişlər</p>
-      </div> */}
+     
       <div className="card-body p-0">
         {loading ? (
           <div className="text-center py-10">Yüklənir...</div>
@@ -280,7 +219,7 @@ const Orders = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
-                          onClick={() => navigate(`/order/${order.id}`)}
+               onClick={() => navigate(`/order/${order.id}`)}
                         >
                           <Eye size={20} />
                         </button>

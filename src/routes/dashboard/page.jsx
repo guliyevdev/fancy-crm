@@ -74,7 +74,7 @@ const DashboardPage = () => {
         <rect
           x={-padding - 30}
           y={-fontSize / 2 - padding / 2}
-          width={30 + padding * 2} 
+          width={30 + padding * 2}
           height={fontSize + padding}
           fill="white"
           strokeWidth={1}
@@ -100,15 +100,15 @@ const DashboardPage = () => {
     <div className="flex flex-col gap-y-4">
       <h1 className="title">Dashboard</h1>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 dark:text-white">
         <div className="card">
           <div className="card-header">
-            <div className="w-fit rounded-lg bg-blue-500/20 p-2 text-blue-500">
+            <div className="w-fit rounded-lg bg-blue-500/20 p-2 text-blue-500 ">
               <Package size={26} />
             </div>
             <p className="card-title">Finished Orders</p>
           </div>
-          <div className="card-body bg-slate-100 dark:bg-slate-950">
+          <div className="card-body bg-slate-100 dark:bg-slate-950 ">
             <p className="text-3xl font-bold">
               {summary?.finishedOrders ?? 0}
             </p>
@@ -123,7 +123,7 @@ const DashboardPage = () => {
             <p className="card-title">Finished Rent Orders</p>
           </div>
           <div className="card-body bg-slate-100 dark:bg-slate-950">
-            <p className="text-3xl font-bold">
+            <p className="text-3xl font-bold dark:text-white">
               {summary?.finishedRentOrders ?? 0}
             </p>
           </div>
@@ -219,7 +219,7 @@ const DashboardPage = () => {
           </div>
           <div className="relative h-[300px] w-full flex-shrink-0 overflow-auto rounded-none [scrollbar-width:_thin]">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-800">
+              <thead className="bg-gray-50 dark:bg-gray-800 dark:text-white">
                 <tr>
                   <th className="px-4 py-2 text-left">Full Name</th>
                   <th className="px-4 py-2 text-left">Email</th>
@@ -227,7 +227,7 @@ const DashboardPage = () => {
                   <th className="px-4 py-2 text-left">Sale Orders</th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="bg-white dark:bg-gray-900 divide-y dark:text-white divide-gray-200 dark:divide-gray-700">
                 {topCustomers?.map((c) => (
                   <tr
                     key={c.email}
@@ -247,13 +247,12 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* ==== TOP RENTED PRODUCTS TABLE ==== */}
       <div className="card">
         <div className="card-header">
           <p className="card-title">Top Rented Products</p>
         </div>
         <div className="card-body p-0">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <table className="min-w-full divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-4 py-2 text-left">Image</th>
@@ -263,7 +262,7 @@ const DashboardPage = () => {
                 <th className="px-4 py-2 text-left">Total Rents</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
               {topRentProducts?.map((p) => (
                 <tr
                   key={p.productCode}

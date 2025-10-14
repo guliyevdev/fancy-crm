@@ -204,9 +204,6 @@ const Products = () => {
     }
   };
 
-
-
-
   const clearFilters = () => {
     setSelectedCategory([]);
     setSelectedPartner(null);
@@ -262,7 +259,6 @@ const Products = () => {
     const { name, value } = e.target;
     setNewProduct(prev => ({ ...prev, [name]: value }));
   };
-
   const handleArrayChange = (field, value) => {
     setNewProduct(prev => ({ ...prev, [field]: [value] }));
   };
@@ -282,9 +278,6 @@ const Products = () => {
       setNewProduct(prev => ({ ...prev, [name]: "" }));
     }
   };
-
-
-
 
   const saveAdd = async (e) => {
     e.preventDefault();
@@ -307,19 +300,11 @@ const Products = () => {
     }
 
   };
-
-
-
-
-
-
-
   const renderError = (fieldName) => {
     return errors[fieldName] ? (
       <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors[fieldName]}</p>
     ) : null;
   };
-
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -345,7 +330,6 @@ const Products = () => {
       </div>
 
       <div className="flex items-center gap-4 mb-4">
-        {/* Search by name */}
         {hasPermission("SEARCH_PRODUCT") && (
           <form onSubmit={(e) => handleSearchSubmit(e, "name")} className="flex gap-2">
             <input
@@ -380,20 +364,14 @@ const Products = () => {
             </button>
           </form>
         )}
-
-
-
       </div>
-
-
-
       {hasPermission("SEARCH_CATEGORY") ||
         hasPermission("SEARCH_COLOR") ||
         hasPermission("SEARCH_MATERIAL") ||
         hasPermission("SEARCH_OCCASION") ||
         hasPermission("SEARCH_PARTNER") ? (
         <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
-          {/* Category */}
+
           {hasPermission("SEARCH_CATEGORY") && (
             <div className="flex flex-col gap-1 w-56 sm:w-full">
               <label className="block text-sm font-medium text-gray-700 dark:text-white">
@@ -448,7 +426,7 @@ const Products = () => {
             </div>
           )}
 
-          {/* Colors */}
+
           {hasPermission("SEARCH_COLOR") && (
             <div className="flex flex-col gap-1 w-full">
               <label className="block text-sm font-medium text-gray-700 dark:text-white">Rənglər</label>
@@ -502,7 +480,6 @@ const Products = () => {
             </div>
           )}
 
-          {/* Clear button */}
           {(hasPermission("SEARCH_CATEGORY") ||
             hasPermission("SEARCH_COLOR") ||
             hasPermission("SEARCH_MATERIAL") ||
