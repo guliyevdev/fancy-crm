@@ -145,27 +145,46 @@ const Products = () => {
   useEffect(() => {
     fetchProducts(pageInfo.page, pageInfo.size, searchName);
   }, [pageInfo.page, selectedCategory, selectedPartner, selectedColors, selectedMaterials, selectedOccasions]);
-
   useEffect(() => {
     const fetchData = async () => {
-      const categoriesRes = await categoryService.getByName();
-      setCategories(categoriesRes.data.data);
+      try {
+        // Categories
+        if (hasPermission("SEARCH_CATEGORY") || hasPermission("ALL_CATEGORY_NAMES")) {
+          const categoriesRes = await categoryService.getByName();
+          setCategories(categoriesRes.data?.data || []);
+        }
 
-      const colorsRes = await colorService.getByName();
-      setColors(colorsRes.data.data);
+        // Colors
+        if (hasPermission("SEARCH_COLOR") || hasPermission("ALL_COLOR_NAMES")) {
+          const colorsRes = await colorService.getByName();
+          setColors(colorsRes.data?.data || []);
+        }
 
-      const MaterialsRes = await getAllMaterials();
-      setMaterials(MaterialsRes.data);
+        // Materials
+        if (hasPermission("SEARCH_MATERIAL") || hasPermission("ALL_MATERIAL_NAMES")) {
+          const MaterialsRes = await getAllMaterials();
+          setMaterials(MaterialsRes.data || []);
+        }
 
-      const occasionsRes = await occasionService.getByName();
-      setOccasions(occasionsRes.data.data);
+        // Occasions
+        if (hasPermission("SEARCH_OCCASION") || hasPermission("ALL_OCCASION_NAMES")) {
+          const occasionsRes = await occasionService.getByName();
+          setOccasions(occasionsRes.data?.data || []);
+        }
 
-      // İlk açılışda boş search ilə partnerləri gətir
-      const PartnerRes = await partnerService.getByName("");
-      setPartners(PartnerRes.data.data);
+        // Partners
+        if (hasPermission("SEARCH_PARTNER") || hasPermission("FIND_PARTNER_BY_ID") || hasPermission("FIND_PARTNER_BY_CODE")) {
+          const PartnerRes = await partnerService.getByName("");
+          setPartners(PartnerRes.data?.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch some data", err);
+      }
     };
+
     fetchData();
   }, []);
+
 
   const handlePartnerSearch = async (val) => {
     try {
@@ -174,15 +193,6 @@ const Products = () => {
     } catch (error) {
     }
   };
-  useEffect(() => {
-    console.log("Selected filters:", {
-      selectedCategory,
-      selectedPartner,
-      selectedColors,
-      selectedMaterials,
-      selectedOccasions
-    });
-  }, [selectedCategory, selectedPartner, selectedColors, selectedMaterials, selectedOccasions]);
 
 
   const handleFilterChange = (setter) => (selectedOptions) => {
@@ -194,22 +204,7 @@ const Products = () => {
     }
   };
 
-  const handleSingleFilterChange = (setter) => (event) => {
-    const value = event.target.value;
 
-    if (value) {
-      // Seçilmiş partnerin tam məlumatlarını tapırıq
-      const selectedPartner = partners.find(partner => partner.id === parseInt(value));
-      if (selectedPartner) {
-        setter({
-          value: selectedPartner.id,
-          label: selectedPartner.customerCode || `${selectedPartner.name || ''} ${selectedPartner.surname || ''}`.trim()
-        });
-      }
-    } else {
-      setter(null);
-    }
-  };
 
 
   const clearFilters = () => {
@@ -392,120 +387,142 @@ const Products = () => {
 
 
 
-      <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
-        <div className="flex flex-col gap-1 w-56 sm:w-full">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            Kateqoriya
-          </label>
-          <CustomSelect
-            value={selectedCategory}
-            options={categories?.map(category => ({
-              value: category.id,
-              label: category.name
-            }))}
-            onChange={handleFilterChange(setSelectedCategory)}
-            placeholder="Kateqoriya seçin"
-            className="bg-white dark:bg-gray-700 border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            isMulti={true}
-          />
-        </div>
-
-
-        <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            Partner
-          </label>
-          <CustomSelect
-            value={selectedPartner ? selectedPartner.value : ""}
-            options={[
-              { value: "", label: "All" },
-              ...partners?.map(partner => ({
-                value: partner.id,
-                label: partner.customerCode || `${partner.name || ''} ${partner.surname || ''}`.trim()
-              }))
-            ]}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value) {
-                const selected = partners.find(partner => partner.id === parseInt(value));
-                setSelectedPartner({
-                  value: selected.id,
-                  label: selected.customerCode || `${selected.name || ''} ${selected.surname || ''}`.trim()
-                });
-              } else {
-                setSelectedPartner(null);
-              }
-            }}
-            placeholder="Partner seçin"
-            className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            isMulti={false}
-            onSearchChange={handlePartnerSearch}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">Rənglər</label>
-          <CustomSelect
-            value={selectedColors}
-            options={colors?.map(color => ({
-              value: color.id,
-              label: color.name
-            }))}
-            onChange={handleFilterChange(setSelectedColors)}
-            placeholder="Rəng seçin"
-            className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            isMulti={true}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">Materiallar</label>
-          <CustomSelect
-            value={selectedMaterials}
-            options={materials?.map(material => ({
-              value: material.id,
-              label: material.name
-            }))}
-            onChange={handleFilterChange(setSelectedMaterials)}
-            placeholder="Material seçin"
-            className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            isMulti={true}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1 w-full">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">Occasions</label>
-          <CustomSelect
-            value={selectedOccasions}
-            options={occasions?.map(occasion => ({
-              value: occasion.id,
-              label: occasion.name
-            }))}
-            onChange={handleFilterChange(setSelectedOccasions)}
-            placeholder="Münasibət seçin"
-            className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            isMulti={true}
-          />
-
-
-        </div>
-        <div className="flex flex-col gap-1 w-56 sm:w-full">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            &nbsp;
-          </label>
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="bg-blue-500 text-white border  border-gray-300 rounded-md ml-1 px-2 py-2.5 mt-0.5 max-w-[100px] text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            Clear Filters
-          </button>
-        </div>
-
-
-
-
+  {hasPermission("SEARCH_CATEGORY") ||
+ hasPermission("SEARCH_COLOR") ||
+ hasPermission("SEARCH_MATERIAL") ||
+ hasPermission("SEARCH_OCCASION") ||
+ hasPermission("SEARCH_PARTNER") ? (
+  <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
+    {/* Category */}
+    {hasPermission("SEARCH_CATEGORY") && (
+      <div className="flex flex-col gap-1 w-56 sm:w-full">
+        <label className="block text-sm font-medium text-gray-700 dark:text-white">
+          Kateqoriya
+        </label>
+        <CustomSelect
+          value={selectedCategory}
+          options={categories?.map(category => ({
+            value: category.id,
+            label: category.name
+          }))}
+          onChange={handleFilterChange(setSelectedCategory)}
+          placeholder="Kateqoriya seçin"
+          className="bg-white dark:bg-gray-700 border border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          isMulti={true}
+        />
       </div>
+    )}
+
+    {/* Partner */}
+    {hasPermission("SEARCH_PARTNER") && (
+      <div className="flex flex-col gap-1 w-full">
+        <label className="block text-sm font-medium text-gray-700 dark:text-white">
+          Partner
+        </label>
+        <CustomSelect
+          value={selectedPartner ? selectedPartner.value : ""}
+          options={[
+            { value: "", label: "All" },
+            ...partners?.map(partner => ({
+              value: partner.id,
+              label: partner.customerCode || `${partner.name || ''} ${partner.surname || ''}`.trim()
+            }))
+          ]}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value) {
+              const selected = partners.find(partner => partner.id === parseInt(value));
+              setSelectedPartner({
+                value: selected.id,
+                label: selected.customerCode || `${selected.name || ''} ${selected.surname || ''}`.trim()
+              });
+            } else {
+              setSelectedPartner(null);
+            }
+          }}
+          placeholder="Partner seçin"
+          className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          isMulti={false}
+          onSearchChange={handlePartnerSearch}
+        />
+      </div>
+    )}
+
+    {/* Colors */}
+    {hasPermission("SEARCH_COLOR") && (
+      <div className="flex flex-col gap-1 w-full">
+        <label className="block text-sm font-medium text-gray-700 dark:text-white">Rənglər</label>
+        <CustomSelect
+          value={selectedColors}
+          options={colors?.map(color => ({
+            value: color.id,
+            label: color.name
+          }))}
+          onChange={handleFilterChange(setSelectedColors)}
+          placeholder="Rəng seçin"
+          className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          isMulti={true}
+        />
+      </div>
+    )}
+
+    {/* Materials */}
+    {hasPermission("SEARCH_MATERIAL") && (
+      <div className="flex flex-col gap-1 w-full">
+        <label className="block text-sm font-medium text-gray-700 dark:text-white">Materiallar</label>
+        <CustomSelect
+          value={selectedMaterials}
+          options={materials?.map(material => ({
+            value: material.id,
+            label: material.name
+          }))}
+          onChange={handleFilterChange(setSelectedMaterials)}
+          placeholder="Material seçin"
+          className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          isMulti={true}
+        />
+      </div>
+    )}
+
+    {/* Occasions */}
+    {hasPermission("SEARCH_OCCASION") && (
+      <div className="flex flex-col gap-1 w-full">
+        <label className="block text-sm font-medium text-gray-700 dark:text-white">Occasions</label>
+        <CustomSelect
+          value={selectedOccasions}
+          options={occasions?.map(occasion => ({
+            value: occasion.id,
+            label: occasion.name
+          }))}
+          onChange={handleFilterChange(setSelectedOccasions)}
+          placeholder="Münasibət seçin"
+          className="bg-white border dark:bg-gray-700 border-gray-300 rounded-md px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          isMulti={true}
+        />
+      </div>
+    )}
+
+    {/* Clear button */}
+    {(hasPermission("SEARCH_CATEGORY") ||
+      hasPermission("SEARCH_COLOR") ||
+      hasPermission("SEARCH_MATERIAL") ||
+      hasPermission("SEARCH_OCCASION") ||
+      hasPermission("SEARCH_PARTNER")) && (
+      <div className="flex flex-col gap-1 w-56 sm:w-full">
+        <label className="block text-sm font-medium text-gray-700 dark:text-white">
+          &nbsp;
+        </label>
+        <button
+          type="button"
+          onClick={clearFilters}
+          className="bg-blue-500 text-white border  border-gray-300 rounded-md ml-1 px-2 py-2.5 mt-0.5 max-w-[100px] text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          Clear Filters
+        </button>
+      </div>
+    )}
+  </div>
+) : null}
 
 
 
@@ -556,61 +573,61 @@ const Products = () => {
                     {product.forList?.join(", ")}
                   </span>
                 </td>
-              <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-  {hasPermission("UPDATE_PRODUCT") ? (
-    <label className="inline-flex items-center cursor-pointer">
-      <input
-        type="checkbox"
-        className="peer hidden"
-        checked={product.popular}
-        onChange={async () => {
-          try {
-            await productService.updateProductPopularity(product.id);
-            // optimistik update: dərhal UI-də dəyişsin
-            product.popular = !product.popular;
-            setProducts([...products]); // əgər products state-də saxlayırsansa
-          } catch (err) {
-            console.error(err);
-          }
-        }}
-      />
-      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-400 rounded-full peer dark:bg-gray-700 
+                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                  {hasPermission("UPDATE_PRODUCT") ? (
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="peer hidden"
+                        checked={product.popular}
+                        onChange={async () => {
+                          try {
+                            await productService.updateProductPopularity(product.id);
+                            // optimistik update: dərhal UI-də dəyişsin
+                            product.popular = !product.popular;
+                            setProducts([...products]); // əgər products state-də saxlayırsansa
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }}
+                      />
+                      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-400 rounded-full peer dark:bg-gray-700 
         peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full 
         peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] 
         after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 
         after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
-      </div>
-    </label>
-  ) : (
-    <span className="text-red-500 text-sm font-semibold">Access Denied</span>
-  )}
-</td>
+                      </div>
+                    </label>
+                  ) : (
+                    <span className="text-red-500 text-sm font-semibold">Access Denied</span>
+                  )}
+                </td>
 
 
 
                 <td className="px-6 py-4 text-right text-sm font-medium gap-4 flex items-center justify-center">
-  {hasPermission("FIND_PRODUCT_BY_ID") ? (
-    <>
-      <button
-        onClick={() => navigate(`/products/${product.id}`)}
-        className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 p-2"
-        title="View Details"
-      >
-        <Eye size={20} />
-      </button>
+                  {hasPermission("FIND_PRODUCT_BY_ID") ? (
+                    <>
+                      <button
+                        onClick={() => navigate(`/products/${product.id}`)}
+                        className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 p-2"
+                        title="View Details"
+                      >
+                        <Eye size={20} />
+                      </button>
 
-      <button
-        onClick={() => navigate(`/upload-product/${product.id}`)}
-        className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 p-2"
-        title="Edit Product"
-      >
-        <Pencil size={20} />
-      </button>
-    </>
-  ) : (
-    <span className="text-red-500 text-sm font-semibold">Access Denied</span>
-  )}
-</td>
+                      <button
+                        onClick={() => navigate(`/upload-product/${product.id}`)}
+                        className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 p-2"
+                        title="Edit Product"
+                      >
+                        <Pencil size={20} />
+                      </button>
+                    </>
+                  ) : (
+                    <span className="text-red-500 text-sm font-semibold">Access Denied</span>
+                  )}
+                </td>
 
               </tr>
             ))}

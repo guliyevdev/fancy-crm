@@ -7,13 +7,11 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Əgər localStorage-da user varsa onu yüklə
     const savedUser = localStorage.getItem("userInfo");
     return savedUser ? JSON.parse(savedUser) : null;
   });
   const [loading, setLoading] = useState(false);
 
-  // Lazy fetch: yalnız lazım olanda çağırılır
   const fetchUserInfo = async () => {
     try {
       setLoading(true);
@@ -21,7 +19,6 @@ export const UserProvider = ({ children }) => {
       setUser(data);
       localStorage.setItem("userInfo", JSON.stringify(data));
     } catch (error) {
-      console.error("Failed to fetch user info:", error);
       setUser(null);
       localStorage.removeItem("userInfo");
     } finally {
@@ -29,7 +26,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // Login zamanı user-u context-ə əlavə etmək
   const setUserAfterLogin = (userInfo, accessToken, refreshToken) => {
     setUser(userInfo);
     Cookies.set("accessToken", accessToken, { expires: 0.3 }); // 0.3 gün
@@ -37,7 +33,6 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem("userInfo", JSON.stringify(userInfo));
   };
 
-  // Logout funksiyası
   const logout = () => {
     setUser(null);
     Cookies.remove("accessToken");
