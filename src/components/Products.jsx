@@ -365,14 +365,14 @@ const Products = () => {
           </form>
         )}
       </div>
-      {hasPermission("SEARCH_CATEGORY") ||
-        hasPermission("SEARCH_COLOR") ||
-        hasPermission("SEARCH_MATERIAL") ||
-        hasPermission("SEARCH_OCCASION") ||
-        hasPermission("SEARCH_PARTNER") ? (
+      {hasPermission("ALL_CATEGORY_NAMES") ||
+        hasPermission("ALL_COLOR_NAMES") ||
+        hasPermission("ALL_MATERIAL_NAMES") ||
+        hasPermission("ALL_OCCASION_NAMES") ||
+        hasPermission("FIND_PARTNER_BY_ID") ? (
         <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
 
-          {hasPermission("SEARCH_CATEGORY") && (
+          {hasPermission("ALL_CATEGORY_NAMES") && (
             <div className="flex flex-col gap-1 w-56 sm:w-full">
               <label className="block text-sm font-medium text-gray-700 dark:text-white">
                 Kateqoriya
@@ -392,7 +392,7 @@ const Products = () => {
           )}
 
           {/* Partner */}
-          {hasPermission("SEARCH_PARTNER") && (
+          {hasPermission("FIND_PARTNER_BY_CODE") && (
             <div className="flex flex-col gap-1 w-full">
               <label className="block text-sm font-medium text-gray-700 dark:text-white">
                 Partner
@@ -427,7 +427,7 @@ const Products = () => {
           )}
 
 
-          {hasPermission("SEARCH_COLOR") && (
+          {hasPermission("ALL_COLOR_NAMES") && (
             <div className="flex flex-col gap-1 w-full">
               <label className="block text-sm font-medium text-gray-700 dark:text-white">Rənglər</label>
               <CustomSelect
@@ -445,7 +445,7 @@ const Products = () => {
           )}
 
           {/* Materials */}
-          {hasPermission("SEARCH_MATERIAL") && (
+          {hasPermission("ALL_MATERIAL_NAMES") && (
             <div className="flex flex-col gap-1 w-full">
               <label className="block text-sm font-medium text-gray-700 dark:text-white">Materiallar</label>
               <CustomSelect
@@ -463,7 +463,7 @@ const Products = () => {
           )}
 
           {/* Occasions */}
-          {hasPermission("SEARCH_OCCASION") && (
+          {hasPermission("ALL_OCCASION_NAMES") && (
             <div className="flex flex-col gap-1 w-full">
               <label className="block text-sm font-medium text-gray-700 dark:text-white">Occasions</label>
               <CustomSelect
@@ -480,11 +480,11 @@ const Products = () => {
             </div>
           )}
 
-          {(hasPermission("SEARCH_CATEGORY") ||
-            hasPermission("SEARCH_COLOR") ||
-            hasPermission("SEARCH_MATERIAL") ||
-            hasPermission("SEARCH_OCCASION") ||
-            hasPermission("SEARCH_PARTNER")) && (
+          {(hasPermission("ALL_CATEGORY_NAMES") ||
+            hasPermission("ALL_COLOR_NAMES") ||
+            hasPermission("ALL_MATERIAL_NAMES") ||
+            hasPermission("ALL_OCCASION_NAMES") ||
+            hasPermission("FIND_PARTNER_BY_ID")) && (
               <div className="flex flex-col gap-1 w-56 sm:w-full">
                 <label className="block text-sm font-medium text-gray-700 dark:text-white">
                   &nbsp;
