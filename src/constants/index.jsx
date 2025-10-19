@@ -144,6 +144,13 @@ export const navbarLinks = [
                 path: "/installment",
                 permission: "INSTALLMENT",
                 
+            },
+            {
+                label: "All Installments",
+                icon: Package,
+                path: "/all-installment",
+                
+                
             }
         ],
     },
