@@ -139,11 +139,18 @@ export const navbarLinks = [
         title: "InstallMent Management",
         links: [
             {
-                label: "Installments",
+                label: "Installments Aplication",
                 icon: Users,
                 path: "/installment",
                 permission: "INSTALLMENT",
-                
+
+            },
+            {
+                label: "Installments",
+                icon: Package,
+                path: "/all-installment",
+
+
             }
         ],
     },
