@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import InstallmentService from '../services/installmentService';
-import { FaArrowLeft, FaEdit, FaCalendarAlt, FaMoneyBillWave, FaClock, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import AuthServices from '../services/authServices';
+import { FaArrowLeft, FaEdit, FaCalendarAlt, FaMoneyBillWave, FaClock, FaCheckCircle, FaTimesCircle, FaPlus, FaTimes } from 'react-icons/fa';
 import { toast } from 'sonner';
 
 const GetAllInstallmentsDetail = () => {
@@ -14,6 +15,11 @@ const GetAllInstallmentsDetail = () => {
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState('');
     const [updatingStatus, setUpdatingStatus] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentAmount, setPaymentAmount] = useState('');
+    const [creatingPayment, setCreatingPayment] = useState(false);
+    const [userInfo, setUserInfo] = useState(null);
+
 
     useEffect(() => {
         const fetchInstallmentDetail = async () => {
@@ -21,6 +27,18 @@ const GetAllInstallmentsDetail = () => {
                 setLoading(true);
                 const response = await InstallmentService.getAllInstallmentsById(id);
                 setInstallment(response.data.data);
+
+                // User bilgilerini çek
+                if (response.data.data?.userPin) {
+                    try {
+                        const userResponse = await AuthServices.getUserOwnInfo();
+                        setUserInfo(userResponse.data.data);
+                        console.log(userResponse.data.data);
+                    } catch (userError) {
+                        console.error('Error fetching user info:', userError);
+                        // User bilgisi çekilemezse sessizce devam et
+                    }
+                }
             } catch (error) {
                 console.error('Error fetching installment detail:', error);
                 setError('Failed to load installment details');
@@ -124,7 +142,7 @@ const GetAllInstallmentsDetail = () => {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'APPROVED':
+            case 'Active':
                 return <FaCheckCircle className="w-4 h-4" />;
             case 'REJECTED':
                 return <FaTimesCircle className="w-4 h-4" />;
@@ -163,10 +181,46 @@ const GetAllInstallmentsDetail = () => {
         );
     }
 
+    const handleCreatePayment = async () => {
+        if (!paymentAmount || isNaN(paymentAmount) || Number(paymentAmount) <= 0) {
+            toast.error('Please enter a valid payment amount.');
+            return;
+        }
+
+        const paymentType =
+            installment.status === 'CREATED'
+                ? 'PRE_PAYMENT'
+                : 'MONTHLY_PAYMENT';
+
+        const payload = {
+            paymentType,
+            amount: Number(paymentAmount),
+        };
+
+        setCreatingPayment(true);
+        try {
+            await InstallmentService.createPayment(id, payload);
+            toast.success('Payment created successfully!');
+
+            // Ödənişdən sonra datanı yenilə
+            const response = await InstallmentService.getAllInstallmentsById(id);
+            setInstallment(response.data.data);
+
+            setShowPaymentModal(false);
+            setPaymentAmount('');
+        } catch (error) {
+            console.error('Error creating payment:', error);
+            toast.error(error.response.data.message);
+        } finally {
+            setCreatingPayment(false);
+        }
+    };
+
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
+
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center space-x-4">
@@ -218,6 +272,14 @@ const GetAllInstallmentsDetail = () => {
                                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">User PIN</label>
                                     <p className="mt-1 text-sm text-gray-900 dark:text-white font-mono">{installment.userPin}</p>
                                 </div>
+                                {userInfo && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">User Name</label>
+                                        <p className="mt-1 text-sm text-gray-900 dark:text-white font-medium">
+                                            {userInfo.name} {userInfo.surname}
+                                        </p>
+                                    </div>
+                                )}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Created At</label>
                                     <p className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -381,8 +443,16 @@ const GetAllInstallmentsDetail = () => {
                                         disabled={uploading}
                                     />
                                 </label>
-
                                 <button
+                                    onClick={() => setShowPaymentModal(true)}
+                                    className="w-full inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                                >
+                                    <FaPlus className="w-4 h-4 mr-2" />
+                                    Payment
+                                </button>
+
+
+                                {/* <button
                                     onClick={() => window.print()}
                                     className="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
                                 >
@@ -390,7 +460,7 @@ const GetAllInstallmentsDetail = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                     </svg>
                                     Print Details
-                                </button>
+                                </button> */}
                             </div>
                         </div>
 
@@ -446,10 +516,19 @@ const GetAllInstallmentsDetail = () => {
                                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                                     >
                                         <option value="">Select Status</option>
-                                        <option value="CREATED">CREATED</option>
-                                        <option value="APPROVED">APPROVED</option>
-                                        <option value="PENDING">PENDING</option>
-                                        <option value="REJECTED">REJECTED</option>
+                                        {installment.status === 'PENDING' ? (
+                                            <>
+                                                <option value="ACTIVE">ACTIVE</option>
+                                                <option value="REJECTED">REJECTED</option>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <option value="CREATED">CREATED</option>
+                                                <option value="ACTIVE">ACTIVE</option>
+                                                <option value="PENDING">PENDING</option>
+                                                <option value="REJECTED">REJECTED</option>
+                                            </>
+                                        )}
                                     </select>
                                 </div>
 
@@ -485,6 +564,69 @@ const GetAllInstallmentsDetail = () => {
                         </div>
                     </div>
                 )}
+
+                {showPaymentModal && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                            <button
+                                onClick={() => setShowPaymentModal(false)}
+                                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            >
+                                <FaTimes size={18} />
+                            </button>
+
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                                Create Payment
+                            </h2>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Payment Type
+                                    </label>
+                                    <p className="mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                                        {installment.status === 'CREATED'
+                                            ? 'PRE_PAYMENT'
+                                            : 'MONTHLY_PAYMENT'}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Amount
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={paymentAmount}
+                                        onChange={(e) => setPaymentAmount(e.target.value)}
+                                        className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                        placeholder="Enter payment amount"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex justify-end space-x-3">
+                                <button
+                                    onClick={() => setShowPaymentModal(false)}
+                                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleCreatePayment}
+                                    disabled={creatingPayment}
+                                    className={`px-4 py-2 text-white rounded-md ${creatingPayment
+                                        ? 'bg-purple-400 cursor-not-allowed'
+                                        : 'bg-purple-600 hover:bg-purple-700'
+                                        }`}
+                                >
+                                    {creatingPayment ? 'Processing...' : 'Create Payment'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );

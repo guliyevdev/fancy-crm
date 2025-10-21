@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FaChevronLeft, FaChevronRight, FaEdit } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaEdit, FaPlus, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import InstallmentService from '../services/installmentService';
 import * as XLSX from 'xlsx';
@@ -18,6 +18,17 @@ const InstallmentSecod = () => {
     const [monthlyLimitUserPin, setMonthlyLimitUserPin] = useState("");
     const [monthlyLimitData, setMonthlyLimitData] = useState(null);
     const [loadingMonthlyLimit, setLoadingMonthlyLimit] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [newInstallment, setNewInstallment] = useState({
+        userPin: "",
+        months: "",
+        productCodes: [""],
+    });
+
+    const [availableMonths, setAvailableMonths] = useState([]);
+    const [loadingMonths, setLoadingMonths] = useState(false);
+    const [monthsError, setMonthsError] = useState("");
+
     const navigate = useNavigate();
 
     const fetchInstallment = async (page = 1, size = 10, userPin = "", code = "", sortDir = "DESC", status = "") => {
@@ -89,6 +100,57 @@ const InstallmentSecod = () => {
         }
     };
 
+
+    useEffect(() => {
+        const fetchAvailableMonths = async () => {
+            const { userPin, productCodes } = newInstallment;
+            if (!userPin || productCodes.length === 0 || productCodes.every(c => !c.trim())) {
+                setAvailableMonths([]);
+                setMonthsError("");
+                return;
+            }
+
+            setLoadingMonths(true);
+            setMonthsError("");
+            try {
+                const response = await InstallmentService.getAvailableMonths(
+                    productCodes.filter(c => c.trim() !== ""),
+                    userPin
+                );
+                setAvailableMonths(response.data.data.months || []);
+                console.log(response.data);
+            } catch (error) {
+                console.error("Error fetching available months:", error);
+                setAvailableMonths([]);
+                setMonthsError(error.response?.data?.message || "Error fetching available months. Please check your inputs.");
+            } finally {
+                setLoadingMonths(false);
+            }
+        };
+
+        fetchAvailableMonths();
+    }, [newInstallment.userPin, newInstallment.productCodes]);
+
+    const handleCreateInstallment = async () => {
+        try {
+            const payload = {
+                userPin: newInstallment.userPin,
+                productCodes: newInstallment.productCodes.filter(c => c.trim() !== ""),
+                months: Number(newInstallment.months),
+            };
+
+            const response = await InstallmentService.createInstallment(payload);
+            toast.success("Installment created successfully!");
+            setShowAddModal(false);
+            fetchInstallment(); // siyahını yenilə
+        } catch (error) {
+            console.error("Error creating installment:", error);
+            toast.error("Failed to create installment.");
+        }
+    };
+
+
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -104,6 +166,19 @@ const InstallmentSecod = () => {
                             </p>
                         </div>
                         <div className="mt-4 sm:mt-0 flex space-x-3">
+                            <button onClick={() => {
+                                setShowAddModal(true);
+                                setNewInstallment({
+                                    userPin: "",
+                                    months: "",
+                                    productCodes: [""],
+                                });
+                                setAvailableMonths([]);
+                                setMonthsError("");
+                            }} className='inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200'>
+                                <FaPlus className="w-4 h-4 mr-2" />
+                                Create Installment
+                            </button>
                             <button
                                 onClick={() => setShowMonthlyLimitModal(true)}
                                 className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200"
@@ -269,13 +344,7 @@ const InstallmentSecod = () => {
                                                         </svg>
                                                         View
                                                     </button>
-                                                    <button
-                                                        onClick={() => navigate(`/installment/${item.id}`)}
-                                                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 cursor-pointer"
-                                                    >
-                                                        <FaEdit className="w-3 h-3 mr-1" />
-                                                        Edit
-                                                    </button>
+
                                                 </div>
                                             </td>
                                         </tr>
@@ -298,7 +367,7 @@ const InstallmentSecod = () => {
                     </div>
                 </div>
 
-                {/* Pagination */}
+
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mt-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
@@ -341,7 +410,7 @@ const InstallmentSecod = () => {
                     </div>
                 </div>
 
-                {/* Monthly Limit Modal */}
+
                 {showMonthlyLimitModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
@@ -406,7 +475,7 @@ const InstallmentSecod = () => {
                                             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Monthly Limit Data:</h4>
                                             <pre className="text-lg text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
                                                 {/* {JSON.stringify(monthlyLimitData, null, 2)} */}
-                                              Your Monthly Limit is <strong className="text-red-600">{monthlyLimitData.data.limit}</strong> AZN
+                                                Your Monthly Limit is <strong className="text-red-600">{monthlyLimitData.data.limit}</strong> AZN
                                             </pre>
                                         </div>
                                     )}
@@ -415,6 +484,134 @@ const InstallmentSecod = () => {
                         </div>
                     </div>
                 )}
+
+                {showAddModal && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                            <button
+                                onClick={() => setShowAddModal(false)}
+                                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            >
+                                <FaTimes size={18} />
+                            </button>
+
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                                Create New Installment
+                            </h2>
+
+                            <div className="space-y-4">
+                                {/* USER PIN */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        User PIN
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newInstallment.userPin}
+                                        onChange={(e) =>
+                                            setNewInstallment({
+                                                ...newInstallment,
+                                                userPin: e.target.value,
+                                            })
+                                        }
+                                        className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                        placeholder="Enter user PIN"
+                                    />
+                                </div>
+
+                                {/* PRODUCT CODES */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Product Codes
+                                    </label>
+                                    {newInstallment.productCodes.map((code, idx) => (
+                                        <input
+                                            key={idx}
+                                            type="text"
+                                            value={code}
+                                            onChange={(e) => {
+                                                const updated = [...newInstallment.productCodes];
+                                                updated[idx] = e.target.value;
+                                                setNewInstallment({
+                                                    ...newInstallment,
+                                                    productCodes: updated,
+                                                });
+                                            }}
+                                            className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 mb-2"
+                                            placeholder={`Product Code ${idx + 1}`}
+                                        />
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setNewInstallment({
+                                                ...newInstallment,
+                                                productCodes: [...newInstallment.productCodes, ""],
+                                            })
+                                        }
+                                        className="text-sm text-blue-600 hover:text-blue-800 mt-1"
+                                    >
+                                        + Add another product
+                                    </button>
+                                </div>
+
+                                {/* AVAILABLE MONTHS (Dropdown) */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Months
+                                    </label>
+
+                                    {loadingMonths ? (
+                                        <p className="text-sm text-gray-500 mt-1">Loading available months...</p>
+                                    ) : monthsError ? (
+                                        <div className="mt-1">
+                                            <p className="text-sm text-red-600 dark:text-red-400">{monthsError}</p>
+                                        </div>
+                                    ) : availableMonths.length > 0 ? (
+                                        <select
+                                            value={newInstallment.months}
+                                            onChange={(e) =>
+                                                setNewInstallment({
+                                                    ...newInstallment,
+                                                    months: e.target.value,
+                                                })
+                                            }
+                                            className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                        >
+                                            <option value="">Select month</option>
+                                            {availableMonths.map((m, idx) => (
+                                                <option key={idx} value={m}>
+                                                    {m} ay
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            Enter User PIN and Product Codes to load months.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex justify-end space-x-3">
+                                <button
+                                    onClick={() => setShowAddModal(false)}
+                                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleCreateInstallment}
+                                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md"
+                                    disabled={!newInstallment.userPin || !newInstallment.months}
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );

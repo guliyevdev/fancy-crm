@@ -23,6 +23,8 @@ const InstallmentService = {
             'Content-Type': 'multipart/form-data',
         },
     }),
+    createPayment: (id, payload) =>
+        axiosInstance.post(`${BASE_URL_ALL}/${id}/payments`, payload),
     downloadFile: (fileId) => axiosInstance.get(`/order/api/v1/installments/files/${fileId}`, {
         responseType: 'blob',
     }),
@@ -34,6 +36,17 @@ const InstallmentService = {
         params: { userPin }
     }),
     updateStatus: (id, status) => axiosInstance.patch(`${BASE_URL_ALL}/${id}`, { status }),
+    createInstallment: (payload) =>
+        axiosInstance.post(BASE_URL_ALL, payload),
+
+    getAvailableMonths: (productCodes, userPin) =>
+        axiosInstance.get(`${BASE_URL_ALL}/products/available-months`, {
+            params: { productCodes, userPin },
+            paramsSerializer: (params) =>
+                new URLSearchParams(
+                    params.productCodes.map((code) => ["productCodes", code])
+                ).toString() + `&userPin=${params.userPin}`,
+        }),
 };
 
 export default InstallmentService;
