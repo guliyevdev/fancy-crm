@@ -1,4 +1,4 @@
-import { House, Calendar, Home, NotepadText, Ticket, Package, PackagePlus, Settings, Gem, PenTool, Palette, BarChart, Layers, PartyPopper, Tag, Users, ShoppingCart, Users2 } from "lucide-react";
+import { House, Calendar, Home, NotepadText, Ticket, Package, PackagePlus, Settings, Gem, PenTool, Palette, BarChart, Layers, PartyPopper, Tag, Users, ShoppingCart, Users2, CreditCard } from "lucide-react";
 
 import ProfileImage from "@/assets/profile.jpg";
 import RoomImage from "@/assets/121.jpg";
@@ -151,6 +151,22 @@ export const navbarLinks = [
                 path: "/all-installment",
 
 
+            }
+        ],
+    },
+    {
+        title: "Payment Management",
+        links: [
+            // {
+            //     label: "Return Payment",
+            //     icon: Users,
+            //     path: "/return-payment",
+            // },
+            {
+                label: "Payment Transactions",
+                icon: CreditCard,
+                path: "/payment-transactions",
+                permission: "REPORTS",
             }
         ],
     },
