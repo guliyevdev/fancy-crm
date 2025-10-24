@@ -36,7 +36,9 @@ export const Header = ({ collapsed, setCollapsed }) => {
                     />
                 </button>
                 <button className="btn-ghost size-10">
-                    <Bell size={20} />
+                    <Link to='/notification'>
+                        <Bell size={20} />
+                    </Link>
                 </button>
                 <Link to='user-account' className="size-10 overflow-hidden rounded-full">
                     <img
