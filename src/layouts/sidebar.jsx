@@ -1,5 +1,5 @@
-import { forwardRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { forwardRef, useState, useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa";
 import { navbarLinks } from "@/constants";
 import { cn } from "@/utils/cn";
@@ -8,6 +8,7 @@ import { useUser } from "../contexts/UserContext";
 
 export const Sidebar = forwardRef(({ collapsed }, ref) => {
     const { user } = useUser(); // ✅ user məlumatlarını alırıq
+    const location = useLocation();
 
     const [openGroups, setOpenGroups] = useState(() =>
         navbarLinks.reduce((acc, link) => {
@@ -16,11 +17,50 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
         }, {})
     );
 
+    // URL path'ine göre hangi grup açık olması gerektiğini belirle
+    useEffect(() => {
+        const currentPath = location.pathname;
+
+        // Önce tüm grupları kapat
+        const closedGroups = navbarLinks.reduce((acc, group) => {
+            acc[group.title] = false;
+            return acc;
+        }, {});
+
+        // Sadece aktif olan grubu aç
+        const activeGroup = navbarLinks.find(group =>
+            group.links.some(link => {
+                // Exact match veya parent path match
+                return currentPath === link.path ||
+                    (link.path !== '/' && currentPath.startsWith(link.path));
+            })
+        );
+
+        if (activeGroup) {
+            closedGroups[activeGroup.title] = true;
+        }
+
+        setOpenGroups(closedGroups);
+    }, [location.pathname]);
+
     const toggleGroup = (title) => {
-        setOpenGroups((prev) => ({
-            ...prev,
-            [title]: !prev[title],
-        }));
+        setOpenGroups((prev) => {
+            // Eğer açılan grup zaten açıksa, sadece onu kapat
+            if (prev[title]) {
+                return {
+                    ...prev,
+                    [title]: false
+                };
+            }
+
+            // Eğer yeni grup açılıyorsa, diğerlerini kapat ve sadece bu grubu aç
+            const newGroups = navbarLinks.reduce((acc, group) => {
+                acc[group.title] = group.title === title;
+                return acc;
+            }, {});
+
+            return newGroups;
+        });
     };
 
     // ✅ Permission-lara görə navbarLinks-i filterləyirik

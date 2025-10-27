@@ -1,4 +1,4 @@
-import { House, Calendar, Home, NotepadText, Ticket, Package, PackagePlus, Settings, Gem, PenTool, Palette, BarChart, Layers, PartyPopper, Tag, Users, ShoppingCart, Users2, CreditCard } from "lucide-react";
+import { House, Calendar, Home, NotepadText, Ticket, Package, PackagePlus, Settings, Gem, PenTool, Palette, BarChart, Layers, PartyPopper, Tag, Users, ShoppingCart, Users2, CreditCard, Bell } from "lucide-react";
 
 import ProfileImage from "@/assets/profile.jpg";
 import RoomImage from "@/assets/121.jpg";
@@ -32,6 +32,11 @@ export const navbarLinks = [
                 icon: NotepadText,
                 path: "/reports",
                 permission: "REPORTS",
+            },
+            {
+                label: "Notifications",
+                icon: Bell,
+                path: "/notification",
             },
         ],
     },

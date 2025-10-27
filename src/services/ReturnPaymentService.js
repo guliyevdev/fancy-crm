@@ -23,15 +23,15 @@ const ReturnPaymentService = {
         return axiosInstance.get(url);
     },
 
-    ReversePayment: (transactionId) => {
+    ReversePayment: (id) => {
         return axiosInstance.post(`${BASE_URL}/returns/reverse`, {
-            transactionId: transactionId
+            id: id
         });
     },
 
-    RefundPayment: (transactionId) => {
+    RefundPayment: (id) => {
         return axiosInstance.post(`${BASE_URL}/returns/refund`, {
-            transactionId: transactionId
+            id: id
         });
     },
 

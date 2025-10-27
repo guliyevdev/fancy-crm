@@ -128,12 +128,12 @@ const PaymentTransactions = () => {
         try {
             if (within24Hours) {
                 // 24 saat içində - Reverse
-                const response = await ReturnPaymentService.ReversePayment(selectedTransaction.transactionId);
+                const response = await ReturnPaymentService.ReversePayment(selectedTransaction.id);
                 const successMessage = response.data?.message || 'Ödəniş uğurla geri qaytarıldı';
                 toast.success(successMessage);
             } else {
                 // 24 saatdan çox - Refund
-                const response = await ReturnPaymentService.RefundPayment(selectedTransaction.transactionId);
+                const response = await ReturnPaymentService.RefundPayment(selectedTransaction.id);
                 const successMessage = response.data?.message || 'Ödəniş uğurla geri ödənildi';
                 toast.success(successMessage);
             }
