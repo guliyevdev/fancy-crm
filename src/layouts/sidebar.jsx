@@ -1,5 +1,5 @@
-import { forwardRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { forwardRef, useState, useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa";
 import { navbarLinks } from "@/constants";
 import { cn } from "@/utils/cn";
@@ -7,7 +7,8 @@ import PropTypes from "prop-types";
 import { useUser } from "../contexts/UserContext";
 
 export const Sidebar = forwardRef(({ collapsed }, ref) => {
-    const { user } = useUser(); // ✅ user məlumatlarını alırıq
+    const { user } = useUser(); 
+    const location = useLocation();
 
     const [openGroups, setOpenGroups] = useState(() =>
         navbarLinks.reduce((acc, link) => {
@@ -16,14 +17,46 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
         }, {})
     );
 
+    useEffect(() => {
+        const currentPath = location.pathname;
+
+        const closedGroups = navbarLinks.reduce((acc, group) => {
+            acc[group.title] = false;
+            return acc;
+        }, {});
+
+        const activeGroup = navbarLinks.find(group =>
+            group.links.some(link => {
+                return currentPath === link.path ||
+                    (link.path !== '/' && currentPath.startsWith(link.path));
+            })
+        );
+
+        if (activeGroup) {
+            closedGroups[activeGroup.title] = true;
+        }
+
+        setOpenGroups(closedGroups);
+    }, [location.pathname]);
+
     const toggleGroup = (title) => {
-        setOpenGroups((prev) => ({
-            ...prev,
-            [title]: !prev[title],
-        }));
+        setOpenGroups((prev) => {
+            if (prev[title]) {
+                return {
+                    ...prev,
+                    [title]: false
+                };
+            }
+
+            const newGroups = navbarLinks.reduce((acc, group) => {
+                acc[group.title] = group.title === title;
+                return acc;
+            }, {});
+
+            return newGroups;
+        });
     };
 
-    // ✅ Permission-lara görə navbarLinks-i filterləyirik
     const filteredNavbarLinks = navbarLinks
         .map((group) => ({
             ...group,

@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
         plugins: [react()],
         server: {
             port: env.VITE_PORT || 5173,
+            force: true, // Cache-i məcburi təmizlə
             proxy: {
                 "/api": {
                     target: env.VITE_API_BASE_URL || "http://localhost:8080", // Use env or fallback
