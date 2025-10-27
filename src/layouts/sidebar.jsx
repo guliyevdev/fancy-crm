@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 import { useUser } from "../contexts/UserContext";
 
 export const Sidebar = forwardRef(({ collapsed }, ref) => {
-    const { user } = useUser(); // ✅ user məlumatlarını alırıq
+    const { user } = useUser(); 
     const location = useLocation();
 
     const [openGroups, setOpenGroups] = useState(() =>
@@ -17,20 +17,16 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
         }, {})
     );
 
-    // URL path'ine göre hangi grup açık olması gerektiğini belirle
     useEffect(() => {
         const currentPath = location.pathname;
 
-        // Önce tüm grupları kapat
         const closedGroups = navbarLinks.reduce((acc, group) => {
             acc[group.title] = false;
             return acc;
         }, {});
 
-        // Sadece aktif olan grubu aç
         const activeGroup = navbarLinks.find(group =>
             group.links.some(link => {
-                // Exact match veya parent path match
                 return currentPath === link.path ||
                     (link.path !== '/' && currentPath.startsWith(link.path));
             })
@@ -45,7 +41,6 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
 
     const toggleGroup = (title) => {
         setOpenGroups((prev) => {
-            // Eğer açılan grup zaten açıksa, sadece onu kapat
             if (prev[title]) {
                 return {
                     ...prev,
@@ -53,7 +48,6 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
                 };
             }
 
-            // Eğer yeni grup açılıyorsa, diğerlerini kapat ve sadece bu grubu aç
             const newGroups = navbarLinks.reduce((acc, group) => {
                 acc[group.title] = group.title === title;
                 return acc;
@@ -63,7 +57,6 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
         });
     };
 
-    // ✅ Permission-lara görə navbarLinks-i filterləyirik
     const filteredNavbarLinks = navbarLinks
         .map((group) => ({
             ...group,
