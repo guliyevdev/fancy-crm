@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
         port: env.VITE_PORT || 5173,
+	allowedHosts: ['core.fancy.az'],
         proxy: {
             "/api": {
                 target: env.VITE_API_BASE_URL || "http://localhost:8080", // Use env or fallback
