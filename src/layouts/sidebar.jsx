@@ -61,16 +61,14 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
         .map((group) => ({
             ...group,
             links: group.links.filter((link) => {
-                // Əgər permission təyin edilməyibsə hamıya açıqdır
                 if (!link.permission) return true;
 
-                // Əgər user yoxdursa və ya icazə yoxdursa — göstərmə
                 if (!user || !user.permissions) return false;
 
                 return user.permissions.includes(link.permission);
             }),
         }))
-        .filter((group) => group.links.length > 0); // boş qrupları çıxart
+        .filter((group) => group.links.length > 0);     
 
     return (
         <aside
