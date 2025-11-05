@@ -58,6 +58,11 @@ import InstallMent from "./components/InstallMent";
 import InstallmentDetail from "./components/InstallmentDetail";
 import Reports from "./components/Reports";
 import SaleOrder from "./components/SaleOrder";
+import InstallmentSecod from "./components/InstallmentSecod";
+import GetAllInstallmentsDetail from "./components/GetAllInstallmentsDetail";
+import ReturnPayment from "./components/ReturnPayment";
+import PaymentTransactions from "./components/PaymentTransactions";
+import Notification from "./components/Notification";
 function App() {
     const router = createBrowserRouter([
         {
@@ -255,6 +260,26 @@ function App() {
                 {
                     path: "/sale-orders",
                     element: <SaleOrder />
+                },
+                {
+                    path: "/all-installment",
+                    element: <InstallmentSecod />
+                },
+                {
+                    path: "/installment-detail/:id",
+                    element: <GetAllInstallmentsDetail />
+                },
+                {
+                    path: "/return-payment",
+                    element: <ReturnPayment />
+                },
+                {
+                    path: "/payment-transactions",
+                    element: <PaymentTransactions />
+                },
+                {
+                    path: "/notification",
+                    element: <Notification />
                 }
             ],
         },

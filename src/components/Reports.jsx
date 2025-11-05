@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Reportservices from "../services/reportServices";
 import { toast } from "sonner";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const Reports = () => {
   const [showModal, setShowModal] = useState(true);
@@ -54,6 +56,38 @@ const Reports = () => {
     }
   };
 
+  const handleExportExcel = () => {
+    if (reportData.length === 0) {
+      toast.error("Export etmək üçün əvvəlcə report gətirin!");
+      return;
+    }
+
+    try {
+      // Excel üçün data hazırla
+      const ws = XLSX.utils.json_to_sheet(reportData);
+      const wb = XLSX.utils.book_new();
+
+      // Sheet adını report tipinə görə təyin et
+      const sheetName = selectedType.replaceAll("_", " ").substring(0, 31); // Excel sheet adı 31 simvoldan çox ola bilməz
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+      // Excel faylını yarad və yüklə
+      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      // Fayl adını tarix və report tipinə görə təyin et
+      const fileName = `${selectedType.replaceAll("_", "_")}_${fromDate}_${toDate}.xlsx`;
+      saveAs(blob, fileName);
+
+      toast.success("Excel faylı uğurla yükləndi!");
+    } catch (error) {
+      console.error("Excel export error:", error);
+      toast.error("Excel faylını export edərkən xəta baş verdi!");
+    }
+  };
+
   return (
     <div className="p-8 min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-white">
       <div className="flex items-center justify-between mb-6">
@@ -66,10 +100,10 @@ const Reports = () => {
             🔍 Filter Reports
           </button>
           <button
-            onClick={() => { }}
+            onClick={handleExportExcel}
             className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm"
           >
-            Export Excel
+            📊 Export Excel
           </button>
         </div>
       </div>
@@ -158,7 +192,7 @@ const Reports = () => {
             <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
               Nəticələr: {selectedType.replaceAll("_", " ")}
             </h3>
-           
+
           </div>
 
           {reportData.length > 0 ? (
