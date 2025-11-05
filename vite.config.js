@@ -27,7 +27,6 @@ export default defineConfig(({ mode }) => {
                             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
                         });
                     },
->>>>>>> f445e0cea3bbffb052394d7526748681f24e65dc
                 },
             },
         },
