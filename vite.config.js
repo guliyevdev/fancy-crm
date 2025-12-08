@@ -9,10 +9,10 @@ export default defineConfig(({ mode }) => {
         plugins: [react()],
         server: {
             port: env.VITE_PORT || 5173,
-            force: true, 
+            force: true,
             proxy: {
                 "/api": {
-                    target: env.VITE_API_BASE_URL || "http://localhost:8080", 
+                    target: env.VITE_API_BASE_URL || "http://localhost:8080",
                     changeOrigin: true,
                     secure: false,
                     rewrite: (path) => path.replace(/^\/api/, ""),
@@ -29,6 +29,7 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             },
+            allowedHosts: ['core.fancy.az']
         },
         resolve: {
             alias: {
