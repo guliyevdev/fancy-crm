@@ -38,6 +38,11 @@ export const navbarLinks = [
                 icon: Bell,
                 path: "/notification",
             },
+            {
+                label: "Subscriptions",
+                icon: Bell,
+                path: "/subscriptions",
+            },
         ],
     },
     {
