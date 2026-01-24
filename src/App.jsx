@@ -63,6 +63,7 @@ import GetAllInstallmentsDetail from "./components/GetAllInstallmentsDetail";
 import ReturnPayment from "./components/ReturnPayment";
 import PaymentTransactions from "./components/PaymentTransactions";
 import Notification from "./components/Notification";
+import Subscriptions from "./components/Subscriptions";
 function App() {
     const router = createBrowserRouter([
         {
@@ -280,6 +281,10 @@ function App() {
                 {
                     path: "/notification",
                     element: <Notification />
+                },
+                {
+                    path: "/subscriptions",
+                    element: <Subscriptions />
                 }
             ],
         },

@@ -21,6 +21,7 @@ const tabDisplayNames = {
     RENT_SALE: "Ferdi Sifarisler",
     HOW_WE_WORK: "How We Work",
     ABOUT_US: "About Us",
+    FOOTER_DECORATION: "Mobile Menu",
     // başqa xüsusi dəyişmək istədiklərini də buraya yaza bilərsən
 };
 
@@ -218,6 +219,7 @@ const SiteContent = () => {
                 </h2>
                 <nav className="flex flex-col p-2 space-y-1 overflow-y-auto max-h-screen">
                     {tabs.map((tab) => (
+
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -420,7 +422,6 @@ const SiteContent = () => {
                                 </tr>
                             ) : nodes.length > 0 ? (
                                 nodes.map((node, index) => {
-                                    console.log(node.id)
                                     const i18n = node.i18nList.find(item => item.lang === selectedLanguage) || node.i18nList[0] || {};
                                     return (
                                         <>
