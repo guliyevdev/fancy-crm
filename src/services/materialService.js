@@ -28,6 +28,11 @@ export const getMaterialById = async (id) => {
   return response.data;
 };
 
+export const getMaterialByIdV2 = async (id) => {
+  const response = await axiosInstance.get(`${BASE_URL}/find-by-id/${id}`);
+  return response.data;
+};
+
 
 
 

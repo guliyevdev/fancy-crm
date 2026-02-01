@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from "react";
 import webContentServices from "../../services/webContentService";
-import { FaEdit, FaEye, FaTrash, FaUpload } from "react-icons/fa";
+import {
+    Edit3,
+    Eye,
+    Trash2,
+    UploadCloud,
+    Search,
+    Plus,
+    Layout,
+    Globe,
+    ArrowUpDown,
+    X,
+    Save,
+    Image as ImageIcon,
+    FileText,
+    ChevronRight,
+    LayoutDashboard
+} from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -12,17 +28,31 @@ const tabs = [
 ];
 
 const languages = [
-    { code: "AZ", name: "Azərbaycanca" },
-    { code: "EN", name: "English" },
-    { code: "RU", name: "Русский" }
+    { code: "AZ", name: "Azərbaycanca", flag: "🇦🇿" },
+    { code: "EN", name: "English", flag: "🇬🇧" },
+    { code: "RU", name: "Русский", flag: "🇷🇺" }
 ];
 
 const tabDisplayNames = {
-    RENT_SALE: "Ferdi Sifarisler",
-    HOW_WE_WORK: "How We Work",
-    ABOUT_US: "About Us",
-    FOOTER_DECORATION: "Mobile Menu",
-    // başqa xüsusi dəyişmək istədiklərini də buraya yaza bilərsən
+    RENT_SALE: "Fərdi Sifarişlər",
+    HOW_WE_WORK: "İş Prosesimiz",
+    ABOUT_US: "Haqqımızda",
+    FOOTER_DECORATION: "Mobil Menyu",
+    HOME: "Ana Səhifə",
+    PRIVACY_POLICY: "Məxfilik Siyasəti",
+    TERM_OF_SERVICE: "İstifadə Şərtləri",
+    CONTACT: "Əlaqə",
+    FAQ: "Tez-tez Verilən Suallar",
+    BECOME_A_PARTNER: "Partnyor Ol",
+    HEADER_MENU: "Header Menyu",
+    HEADER_BUTTON: "Header Düymələr",
+    FOOTER_MENU: "Footer Menyu",
+    FOOTER_BUTTON: "Footer Düymələr",
+    HEADER_DECORATION: "Header Dekorasiya",
+    PRODUCT_DETAIL: "Məhsul Detalı",
+    INPUTS: "İnputlar",
+    BUTTONS: "Düymələr",
+    OTHERS: "Digər"
 };
 
 const SiteContent = () => {
@@ -32,6 +62,7 @@ const SiteContent = () => {
     const [loading, setLoading] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingNode, setEditingNode] = useState(null);
+    const [activeLanguageTab, setActiveLanguageTab] = useState("AZ");
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploadModalNodeId, setUploadModalNodeId] = useState(null);
@@ -43,7 +74,7 @@ const SiteContent = () => {
         RU: { id: "", title: "", subtitle: "", body: "" },
         sortOrder: 0
     });
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const fetchNodes = async (pageKey, language) => {
         try {
@@ -51,7 +82,6 @@ const SiteContent = () => {
             const response = await webContentServices.getByPageKey(pageKey, language);
             const nodeList = response.data?.data[0]?.nodeList || [];
 
-            // Əgər sıralama seçilibsə, nodeları sırala
             let sortedNodes = [...nodeList];
             if (sortOrder === "asc") {
                 sortedNodes.sort((a, b) => a.sortOrder - b.sortOrder);
@@ -59,7 +89,6 @@ const SiteContent = () => {
                 sortedNodes.sort((a, b) => b.sortOrder - a.sortOrder);
             }
 
-            // Əgər axtarış sorğusu varsa, filtrlə
             if (searchQuery) {
                 sortedNodes = sortedNodes.filter(node => {
                     const i18n = node.i18nList.find(item => item.lang === selectedLanguage) || node.i18nList[0] || {};
@@ -84,6 +113,27 @@ const SiteContent = () => {
         fetchNodes(activeTab, selectedLanguage);
     }, [activeTab, selectedLanguage, sortOrder, searchQuery]);
 
+    const resetForm = () => {
+        setFormData({
+            AZ: { id: "", title: "", subtitle: "", body: "" },
+            EN: { id: "", title: "", subtitle: "", body: "" },
+            RU: { id: "", title: "", subtitle: "", body: "" },
+            sortOrder: 0
+        });
+        setEditingNode(null);
+        setActiveLanguageTab("AZ");
+    };
+
+    const handleCloseAddForm = () => {
+        setShowAddForm(false);
+        resetForm();
+    };
+
+    const handleOpenAddForm = () => {
+        resetForm();
+        setShowAddForm(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -102,32 +152,25 @@ const SiteContent = () => {
 
             if (editingNode) {
                 await webContentServices.updateContent(editingNode.id, dataToSend);
+                toast.success("Məzmun uğurla yeniləndi");
             } else {
                 await webContentServices.create(dataToSend);
+                toast.success("Yeni məzmun uğurla yaradıldı");
             }
 
-            // Formu sıfırla və siyahını yenilə
-            setFormData({
-                AZ: { title: "", subtitle: "", body: "" },
-                EN: { title: "", subtitle: "", body: "" },
-                RU: { title: "", subtitle: "", body: "" },
-                sortOrder: 0
-            });
-            setEditingNode(null);
-            setShowAddForm(false);
+            handleCloseAddForm();
             fetchNodes(activeTab, selectedLanguage);
         } catch (error) {
             console.error("Error saving content:", error);
+            toast.error("Xəta baş verdi");
         }
     };
 
     const handleEdit = async (node) => {
         try {
-            // Əvvəlcə node-un tam məlumatlarını findById ilə yüklə
             const response = await webContentServices.findById(node.id);
-            const fullNode = response.data.data; // response.data.data istifadə et
+            const fullNode = response.data.data;
 
-            // Redaktə üçün məlumatları form-a doldur
             const newFormData = {
                 AZ: { id: "", title: "", subtitle: "", body: "" },
                 EN: { id: "", title: "", subtitle: "", body: "" },
@@ -135,7 +178,6 @@ const SiteContent = () => {
                 sortOrder: fullNode.sortOrder || 0
             };
 
-            // Hər bir dil üçün məlumatları təmin et
             if (fullNode.i18nList && fullNode.i18nList.length > 0) {
                 fullNode.i18nList.forEach(i18n => {
                     if (newFormData[i18n.lang]) {
@@ -154,24 +196,21 @@ const SiteContent = () => {
             setShowAddForm(true);
         } catch (error) {
             console.error("Error fetching node details:", error);
+            toast.error("Məlumatları gətirərkən xəta baş verdi");
         }
     };
 
     const handleDeleteNode = async (id) => {
+        if (!window.confirm("Bu məzmunu silmək istədiyinizə əminsiniz?")) return;
         try {
-            const response = await webContentServices.deleteContent(id);
-
-            // Table-dan silinmiş node-u state-dən çıxarmaq
+            await webContentServices.deleteContent(id);
             setNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
-
-            toast.success(response?.data?.message);
+            toast.success("Məzmun uğurla silindi");
         } catch (error) {
-            const message = error?.response?.data?.message || "Error deleting";
-            toast.error(message);
+            toast.error("Silinmə zamanı xəta baş verdi");
             console.error("Delete error:", error);
         }
     };
-
 
     const handleInputChange = (lang, field, value) => {
         setFormData(prev => ({
@@ -188,12 +227,12 @@ const SiteContent = () => {
         setIsUploadModalOpen(true);
     };
 
-    // Upload modalını bağlamaq
     const closeUploadModal = () => {
         setIsUploadModalOpen(false);
         setUploadModalNodeId(null);
         setSelectedFiles([]);
     };
+
     const handleUpload = async () => {
         if (!uploadModalNodeId) return;
 
@@ -201,355 +240,409 @@ const SiteContent = () => {
             await webContentServices.uploadMedia(uploadModalNodeId, selectedFiles);
             toast.success("Fayllar uğurla yükləndi!");
             closeUploadModal();
-            fetchNodes(activeTab, selectedLanguage); // məlumatları yenilə
+            fetchNodes(activeTab, selectedLanguage);
         } catch (error) {
             toast.error(error?.response?.data?.message || "Yükləmə uğursuz oldu");
         }
     };
 
-
-
-
     return (
-        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
             {/* Sidebar */}
-            <aside className="w-64 bg-white dark:bg-gray-800 shadow-lg">
-                <h2 className="text-xl font-bold p-4 border-b dark:text-white border-gray-200 dark:border-gray-700">
-                    Content Tabs
-                </h2>
-                <nav className="flex flex-col p-2 space-y-1 overflow-y-auto max-h-screen">
+            <aside className="w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col z-10 shadow-lg">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
+                    <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
+                        <LayoutDashboard className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                        Səhifə Məzmunu
+                    </h2>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
                     {tabs.map((tab) => (
-
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`text-left px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${activeTab === tab
-                                ? "bg-blue-600 text-white shadow-lg"
-                                : "text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-700 hover:text-blue-700 dark:hover:text-white"
+                            className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-between group ${activeTab === tab
+                                ? "bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 shadow-sm border border-teal-100 dark:border-teal-800"
+                                : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white"
                                 }`}
                         >
-                            {tabDisplayNames[tab] || tab.replaceAll("_", " ")}
+                            <span className="truncate">{tabDisplayNames[tab] || tab.replaceAll("_", " ")}</span>
+                            {activeTab === tab && <ChevronRight className="w-4 h-4" />}
                         </button>
                     ))}
-
-                </nav>
+                </div>
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl dark:text-white font-bold">{activeTab.replaceAll("_", " ")}</h1>
+            <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
+                {/* Top Header */}
+                <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 flex justify-between items-center shadow-sm z-10">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Layout className="w-6 h-6 text-teal-500" />
+                            {tabDisplayNames[activeTab] || activeTab.replaceAll("_", " ")}
+                        </h1>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Bu bölmədəki məzmunları idarə edin
+                        </p>
+                    </div>
 
-                    <div className="flex items-center space-x-4">
-                        <div className="relative">
-                            <select
-                                value={selectedLanguage}
-                                onChange={(e) => setSelectedLanguage(e.target.value)}
-                                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                {languages.map((lang) => (
-                                    <option key={lang.code} value={lang.code}>
-                                        {lang.name}
-                                    </option>
-                                ))}
-                            </select>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1 border border-gray-200 dark:border-gray-600">
+                            {languages.map((lang) => (
+                                <button
+                                    key={lang.code}
+                                    onClick={() => setSelectedLanguage(lang.code)}
+                                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${selectedLanguage === lang.code
+                                        ? "bg-white dark:bg-gray-600 text-teal-600 dark:text-teal-300 shadow-sm"
+                                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                                        }`}
+                                >
+                                    <span className="mr-1">{lang.flag}</span>
+                                    {lang.code}
+                                </button>
+                            ))}
                         </div>
 
                         <button
-                            onClick={() => setShowAddForm(!showAddForm)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
+                            onClick={handleOpenAddForm}
+                            className="flex items-center px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium shadow-lg shadow-teal-200 dark:shadow-teal-900/30 transition-all hover:scale-[1.02]"
                         >
-                            {showAddForm ? "Formu Bağla" : "Əlavə Et"}
+                            <Plus className="w-5 h-5 mr-2" />
+                            Yeni Məzmun
                         </button>
                     </div>
-                </div>
+                </header>
 
-                {/* Axtarış və Sıralama */}
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
-                    <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
-                        <div className="flex-1">
+                {/* Filters & Content Area */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {/* Search & Sort Bar */}
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row gap-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Axtarış..."
+                                placeholder="Başlıq, alt başlıq və ya məzmun üzrə axtar..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-gray-900 dark:text-white placeholder-gray-400"
                             />
                         </div>
-
-                        <div className="flex items-center space-x-2">
-                            <span className="text-gray-700 dark:text-gray-300">Sırala:</span>
+                        <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-900 px-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <ArrowUpDown className="w-4 h-4 text-gray-500" />
                             <select
                                 value={sortOrder}
                                 onChange={(e) => setSortOrder(e.target.value)}
-                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="bg-transparent border-none py-2.5 text-gray-700 dark:text-gray-300 focus:ring-0 cursor-pointer text-sm font-medium"
                             >
-                                <option value="">Standart</option>
-                                <option value="asc">Artan Sıra</option>
-                                <option value="desc">Azalan Sıra</option>
+                                <option value="">Sıralama: Standart</option>
+                                <option value="asc">Sıra nömrəsi (Artan)</option>
+                                <option value="desc">Sıra nömrəsi (Azalan)</option>
                             </select>
+                        </div>
+                    </div>
+
+                    {/* Content Table */}
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
+                                    <tr>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Başlıq</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Alt Başlıq</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Məzmun</th>
+                                        {/* <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sıra</th> */}
+                                        <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Əməliyyatlar</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                                Yüklənir...
+                                            </td>
+                                        </tr>
+                                    ) : nodes.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={6} className="px-6 py-12 text-center">
+                                                <div className="flex flex-col items-center justify-center text-gray-400">
+                                                    <Layout className="w-12 h-12 mb-3 opacity-20" />
+                                                    <p>Məzmun tapılmadı</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        nodes.map((node, index) => {
+                                            const i18n = node.i18nList.find(item => item.lang === selectedLanguage) || node.i18nList[0] || {};
+                                            return (
+                                                <tr
+                                                    key={node.id}
+                                                    className="group hover:bg-teal-50/30 dark:hover:bg-teal-900/10 transition-colors duration-200"
+                                                >
+                                                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{index + 1}</td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="font-medium text-gray-900 dark:text-white max-w-[200px] truncate" title={i18n.title}>
+                                                            {i18n.title || "-"}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-[200px] truncate" title={i18n.subtitle}>
+                                                        {i18n.subtitle || "-"}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate" title={i18n.body}>
+                                                        {i18n.body || "-"}
+                                                    </td>
+                                                    {/* <td className="px-6 py-4 text-center">
+                                                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            {node.sortOrder || 0}
+                                                        </span>
+                                                    </td> */}
+                                                    <td className="px-6 py-4 text-right">
+                                                        <div className="flex items-center justify-end gap-2 opacity-100">
+                                                            <button
+                                                                onClick={() => openUploadModal(node.id)}
+                                                                className="p-2 text-green-600 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-lg transition-colors"
+                                                                title="Media Yüklə"
+                                                            >
+                                                                <UploadCloud className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleEdit(node)}
+                                                                className="p-2 text-blue-600 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors"
+                                                                title="Redaktə et"
+                                                            >
+                                                                <Edit3 className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => navigate(`/site-content/${node.id}`)}
+                                                                className="p-2 text-teal-600 bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 rounded-lg transition-colors"
+                                                                title="Bax"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteNode(node.id)}
+                                                                className="p-2 text-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
+                                                                title="Sil"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                {/* Əlavə/Redaktə Formu */}
+                {/* Add/Edit Modal (Centered) */}
                 {showAddForm && (
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
-                        <h2 className="text-xl font-bold mb-4">
-                            {editingNode ? "Məzmunu Redaktə Et" : "Yeni Məzmun Əlavə Et"}
-                        </h2>
+                    <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                        <div className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-gray-900 z-10 rounded-t-2xl">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        {editingNode ? <Edit3 className="w-5 h-5 text-teal-600" /> : <Plus className="w-5 h-5 text-teal-600" />}
+                                        {editingNode ? "Məzmunu Redaktə Et" : "Yeni Məzmun Əlavə Et"}
+                                    </h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        Məlumatları daxil edin və ya düzəliş edin
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={handleCloseAddForm}
+                                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                                >
+                                    <X className="w-6 h-6 text-gray-500" />
+                                </button>
+                            </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid grid-cols-1 gap-6">
-                                {languages.map(lang => (
-                                    <div key={lang.code} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                                        <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">{lang.name}</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex-1 overflow-y-auto p-6">
+                                <form id="contentForm" onSubmit={handleSubmit} className="space-y-6">
+
+                                    {/* Language Tabs */}
+                                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-fit">
+                                        {languages.map((lang) => (
+                                            <button
+                                                key={lang.code}
+                                                type="button"
+                                                onClick={() => setActiveLanguageTab(lang.code)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${activeLanguageTab === lang.code
+                                                    ? "bg-white dark:bg-gray-700 text-teal-600 dark:text-teal-300 shadow-sm"
+                                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                                                    }`}
+                                            >
+                                                <span>{lang.flag}</span>
+                                                {lang.name}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Form Fields for Active Language */}
+                                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 animate-in fade-in duration-300">
+                                        <div className="space-y-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    Başlıq
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                                    Başlıq ({languages.find(l => l.code === activeLanguageTab)?.name})
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    value={formData[lang.code].title}
-                                                    onChange={(e) => handleInputChange(lang.code, 'title', e.target.value)}
-                                                    className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    value={formData[activeLanguageTab].title}
+                                                    onChange={(e) => handleInputChange(activeLanguageTab, 'title', e.target.value)}
+                                                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                                                    placeholder={`${activeLanguageTab} Başlıq daxil edin...`}
                                                 />
                                             </div>
 
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    Alt Başlıq
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                                    Alt Başlıq ({languages.find(l => l.code === activeLanguageTab)?.name})
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    value={formData[lang.code].subtitle}
-                                                    onChange={(e) => handleInputChange(lang.code, 'subtitle', e.target.value)}
-                                                    className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    value={formData[activeLanguageTab].subtitle}
+                                                    onChange={(e) => handleInputChange(activeLanguageTab, 'subtitle', e.target.value)}
+                                                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                                                    placeholder={`${activeLanguageTab} Alt başlıq daxil edin...`}
                                                 />
                                             </div>
-                                        </div>
 
-                                        <div className="mt-4">
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                Məzmun
-                                            </label>
-                                            <textarea
-                                                value={formData[lang.code].body}
-                                                onChange={(e) => handleInputChange(lang.code, 'body', e.target.value)}
-                                                rows={3}
-                                                className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            ></textarea>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                                    Məzmun ({languages.find(l => l.code === activeLanguageTab)?.name})
+                                                </label>
+                                                <textarea
+                                                    value={formData[activeLanguageTab].body}
+                                                    onChange={(e) => handleInputChange(activeLanguageTab, 'body', e.target.value)}
+                                                    rows={6}
+                                                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all resize-y"
+                                                    placeholder={`${activeLanguageTab} Ətraflı məzmun...`}
+                                                ></textarea>
+                                            </div>
                                         </div>
                                     </div>
-                                ))}
+
+                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                            Sıra Nömrəsi
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={formData.sortOrder}
+                                            onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
+                                            className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Məzmunun görünmə ardıcıllığını təyin edir (kiçikdən böyüyə)
+                                        </p>
+                                    </div>
+                                </form>
                             </div>
 
-                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Sıra Nömrəsi
-                                </label>
-                                <input
-                                    type="number"
-                                    value={formData.sortOrder}
-                                    onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
-                                    className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            <div className="flex justify-end space-x-3 pt-4">
+                            <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex justify-end gap-3 rounded-b-2xl">
                                 <button
-                                    type="button"
-                                    onClick={() => {
-                                        setShowAddForm(false);
-                                        setEditingNode(null);
-                                        setFormData({
-                                            AZ: { title: "", subtitle: "", body: "" },
-                                            EN: { title: "", subtitle: "", body: "" },
-                                            RU: { title: "", subtitle: "", body: "" },
-                                            sortOrder: 0
-                                        });
-                                    }}
-                                    className="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-md transition-colors duration-200"
+                                    onClick={handleCloseAddForm}
+                                    className="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                                 >
                                     Ləğv Et
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
+                                    form="contentForm"
+                                    className="px-6 py-2.5 rounded-xl bg-teal-600 text-white font-medium hover:bg-teal-700 shadow-lg shadow-teal-200 dark:shadow-teal-900/30 transition-all hover:scale-[1.02] flex items-center gap-2"
                                 >
+                                    <Save className="w-5 h-5" />
                                     {editingNode ? "Yadda Saxla" : "Əlavə Et"}
                                 </button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 )}
 
-                {/* Məzmun Cədvəli */}
-                <div className="overflow-x-auto rounded-lg shadow-md">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead className="bg-gray-100 dark:bg-gray-800">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    #
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Başlıq
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Alt Başlıq
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Məzmun
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Sıra
-                                </th>
-                                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Status
-                                </th> */}
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Əməliyyatlar
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                                        Yüklənir...
-                                    </td>
-                                </tr>
-                            ) : nodes.length > 0 ? (
-                                nodes.map((node, index) => {
-                                    const i18n = node.i18nList.find(item => item.lang === selectedLanguage) || node.i18nList[0] || {};
-                                    return (
-                                        <>
+                {/* Upload Modal */}
+                {isUploadModalOpen && (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <ImageIcon className="w-5 h-5 text-teal-600" />
+                                    Media Yüklə
+                                </h2>
+                                <button
+                                    onClick={closeUploadModal}
+                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
 
-                                            <tr key={node.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
-                                                <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{i18n.title}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{i18n.subtitle || "-"}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate">
-                                                    {i18n.body || "-"}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm flex items-center  ml-2 text-gray-900 dark:text-gray-100">{node.sortOrder || 0}</td>
+                            <div className="space-y-4">
+                                <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors relative">
+                                    <input
+                                        type="file"
+                                        multiple
+                                        onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    <div className="flex flex-col items-center">
+                                        <UploadCloud className="w-10 h-10 text-teal-500 mb-3" />
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                            Faylları seçmək üçün toxunun
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            və ya sürükləyib buraxın
+                                        </p>
+                                    </div>
+                                </div>
 
-
-                                                {/* <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                                <button
-                                                    onClick={() => handleDeleteNode(node.id)}
-                                                    className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-red-100 dark:hover:bg-red-700 transition"
-                                                >
-                                                    <FaTrash className="text-red-600" size={20} />
-                                                </button>
-                                            </td> */}
-                                                <td className="px-6 py-4 text-sm font-medium">
-                                                    <div className="flex space-x-3">
-                                                        <button
-                                                            onClick={() => openUploadModal(node.id)} // Düzəldildi
-                                                            className="text-green-600 hover:text-green-900 dark:hover:text-green-400 transition-colors duration-200 p-3"
-                                                        >
-                                                            <FaUpload size={20} />
-                                                        </button>
-
-                                                        <button
-                                                            onClick={() => handleEdit(node)}
-                                                            className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 transition-colors duration-200"
-                                                        >
-                                                            <FaEdit size={20} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteNode(node.id)}
-                                                            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-red-100 dark:hover:bg-red-700 transition"
-                                                        >
-                                                            <FaTrash className="text-red-600" size={20} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => navigate(`/site-content/${node.id}`)}
-                                                            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-700 transition"
-                                                        >
-                                                            <FaEye className="text-blue-600" size={20} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            {isUploadModalOpen && (
-                                                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                                                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-[400px] shadow-lg">
-                                                        <h2 className="text-lg font-semibold mb-4">Media Yüklə</h2>
-
-                                                        {/* Fayl seçimi */}
-                                                        <input
-                                                            type="file"
-                                                            multiple
-                                                            onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
-                                                            className="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                                        />
-
-                                                        {/* Fayl ön baxışı */}
-                                                        {selectedFiles.length > 0 && (
-                                                            <div className="mb-4 grid grid-cols-2 gap-3">
-                                                                {selectedFiles.map((file, idx) => (
-                                                                    <div
-                                                                        key={idx}
-                                                                        className="relative border rounded-lg overflow-hidden shadow-sm"
-                                                                    >
-                                                                        <img
-                                                                            src={URL.createObjectURL(file)}
-                                                                            alt={file.name}
-                                                                            className="w-full h-32 object-cover"
-                                                                        />
-                                                                        <p className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs truncate px-2 py-1">
-                                                                            {file.name}
-                                                                        </p>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-
-                                                        {/* Əməliyyatlar */}
-                                                        <div className="flex justify-end gap-3">
-                                                            <button
-                                                                onClick={closeUploadModal}
-                                                                className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
-                                                            >
-                                                                Ləğv et
-                                                            </button>
-                                                            <button
-                                                                onClick={handleUpload}
-                                                                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                                                            >
-                                                                Yüklə
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                {selectedFiles.length > 0 && (
+                                    <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto custom-scrollbar">
+                                        {selectedFiles.map((file, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 aspect-video"
+                                            >
+                                                <img
+                                                    src={URL.createObjectURL(file)}
+                                                    alt={file.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <span className="text-xs text-white font-medium px-2 text-center truncate w-full">
+                                                        {file.name}
+                                                    </span>
                                                 </div>
-                                            )}
-                                        </>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                                        Məzmun tapılmadı.
-                                    </td>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
 
-
-                                </tr>
-
-
-
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                <div className="flex justify-end gap-3 pt-4">
+                                    <button
+                                        onClick={closeUploadModal}
+                                        className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                                    >
+                                        Ləğv et
+                                    </button>
+                                    <button
+                                        onClick={handleUpload}
+                                        disabled={selectedFiles.length === 0}
+                                        className="px-4 py-2 rounded-xl bg-teal-600 text-white font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-teal-200 dark:shadow-teal-900/30 transition-all"
+                                    >
+                                        Yüklə
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
-
-
-
-
-
         </div>
     );
 };
