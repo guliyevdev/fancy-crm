@@ -5,7 +5,12 @@ const BASE_URL = "/product/api/v1/occasion";
 const occasionService = {
   create: (data) => axiosInstance.post(`${BASE_URL}/add`, data),
 
-  getById: (id) => axiosInstance.get(`${BASE_URL}/${id}`),
+  getById: (id) => axiosInstance.get(`${BASE_URL}/find-by-id`, {
+    headers: {
+      id: id
+    }
+  }),
+  getByIdV2: (id) => axiosInstance.get(`${BASE_URL}/find-by-id/${id}`),
 
   getAll: () => axiosInstance.get(`${BASE_URL}/occasion-names`),
 

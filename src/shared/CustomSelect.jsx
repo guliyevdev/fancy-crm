@@ -92,7 +92,7 @@ const CustomSelect = ({
         >
 
             <div
-                className={`flex items-center justify-between p-2 dark:bg-gray-700 dark:text-white rounded cursor-pointer ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                className={`flex items-center justify-between p-2.5 bg-white dark:bg-gray-700 dark:text-white rounded-xl border border-gray-200 dark:border-gray-600 cursor-pointer shadow-sm hover:border-blue-400 dark:hover:border-blue-500 transition-all ${disabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : ''}`}
                 onClick={() => !disabled && setIsOpen(!isOpen)}
             >
                 <div className="flex flex-wrap gap-1 overflow-hidden">
@@ -103,13 +103,13 @@ const CustomSelect = ({
                                 return (
                                     <span
                                         key={val}
-                                        className="flex items-center gap-1 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                        className="flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800 text-xs px-2 py-0.5 rounded-lg"
                                     >
                                         {option?.label}
                                         <button
                                             type="button"
                                             onClick={(e) => removeItem(val, e)}
-                                            className="text-blue-500 hover:text-blue-700"
+                                            className="text-blue-400 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-100 ml-1"
                                         >
                                             ×
                                         </button>
@@ -117,16 +117,16 @@ const CustomSelect = ({
                                 );
                             })
                         ) : (
-                            <span className="text-gray-400">{placeholder}</span>
+                            <span className="text-gray-400 dark:text-gray-400 text-sm">{placeholder}</span>
                         )
                     ) : (
-                        <span className={selectedOptions.length === 0 ? 'text-gray-400' : ''}>
+                        <span className={`text-sm ${selectedOptions.length === 0 ? 'text-gray-400 dark:text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
                             {selectedOptions.length > 0 ? selectedOptions[0].label : placeholder}
                         </span>
                     )}
                 </div>
                 <svg
-                    className={`w-5 h-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
+                    className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'transform rotate-180' : ''}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -137,13 +137,13 @@ const CustomSelect = ({
 
 
             {isOpen && (
-                <div className=" w-[95%] absolute z-50 right-1 mt-1 bg-white border dark:bg-gray-700 rounded-md shadow-lg">
+                <div className="w-full absolute z-50 left-0 mt-2 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                     {isSearchable && (
-                        <div className="p-2 border-b">
+                        <div className="p-2 border-b border-gray-100 dark:border-gray-600">
                             <input
                                 type="text"
                                 placeholder="Axtar..."
-                                className="w-full p-1 text-sm  rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full p-2 text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                                 value={searchTerm}
                                 onChange={handleSearchChange}
                                 autoFocus
@@ -151,15 +151,17 @@ const CustomSelect = ({
                         </div>
                     )}
 
-                    <div className="max-h-60 overflow-y-auto">
+                    <div className="max-h-60 overflow-y-auto custom-scrollbar">
                         {filteredOptions.length > 0 ? (
                             filteredOptions.map((option) => (
                                 <div
                                     key={option.value}
-                                    className={`p-2 cursor-pointer hover:bg-blue-50 hover:text-black ${optionClassName} ${(isMulti
-                                        ? normalizedValue.includes(option.value)
-                                        : option.value === normalizedValue)
-                                        ? 'bg-blue-100 font-medium' : ''
+                                    className={`px-3 py-2.5 text-sm cursor-pointer transition-colors ${optionClassName} 
+                                        ${(isMulti
+                                            ? normalizedValue.includes(option.value)
+                                            : option.value === normalizedValue)
+                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 font-medium'
+                                            : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                                         }`}
                                     onClick={() => handleSelect(option.value)}
                                 >
@@ -169,7 +171,7 @@ const CustomSelect = ({
                                                 type="checkbox"
                                                 checked={normalizedValue.includes(option.value)}
                                                 readOnly
-                                                className="mr-2"
+                                                className="mr-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                             />
                                         )}
                                         {option.label}
@@ -177,7 +179,7 @@ const CustomSelect = ({
                                 </div>
                             ))
                         ) : (
-                            <div className="p-2 text-sm text-gray-500">Heç bir nəticə tapılmadı</div>
+                            <div className="p-4 text-sm text-center text-gray-500 dark:text-gray-400">Heç bir nəticə tapılmadı</div>
                         )}
                     </div>
                 </div>
