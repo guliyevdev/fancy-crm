@@ -70,14 +70,17 @@ const Colors = () => {
       nameEn: "",
       nameRu: "",
       hexCode: "",
-      status: "ACTIVE"
+      active: true
     });
     setAddOpen(true);
   };
 
   const handleAddChange = (e) => {
     const { name, value } = e.target;
-    setSelectedColor((prev) => ({ ...prev, [name]: value }));
+    setSelectedColor((prev) => ({
+      ...prev,
+      [name]: name === "active" ? value === "true" : value,
+    }));
   };
 
   const saveAdd = async (e) => {
@@ -108,7 +111,10 @@ const Colors = () => {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    setSelectedColor((prev) => ({ ...prev, [name]: value }));
+    setSelectedColor((prev) => ({
+      ...prev,
+      [name]: name === "active" ? value === "true" : value,
+    }));
   };
 
   const openDeleteModal = (color) => {
@@ -221,12 +227,12 @@ const Colors = () => {
                   </td>
                   <td className="px-6 py-4 text-sm whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color.status === "ACTIVE"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color.active
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                         }`}
                     >
-                      {color.status === "ACTIVE" ? "Active" : "Inactive"}
+                      {color.active ? "Active" : "Inactive"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-medium">
@@ -267,8 +273,8 @@ const Colors = () => {
               onClick={() => fetchColors(pageInfo.page - 1, pageInfo.size, searchName)}
               disabled={pageInfo.page === 0}
               className={`p-2 rounded-lg border ${pageInfo.page === 0
-                  ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
+                : "border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                 } transition-colors duration-200`}
             >
               <FaChevronLeft size={16} />
@@ -277,8 +283,8 @@ const Colors = () => {
               onClick={() => fetchColors(pageInfo.page + 1, pageInfo.size, searchName)}
               disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
               className={`p-2 rounded-lg border ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
-                  ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
+                : "border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                 } transition-colors duration-200`}
             >
               <FaChevronRight size={16} />
@@ -344,18 +350,18 @@ const Colors = () => {
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              <label htmlFor="active" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Status
               </label>
               <select
-                id="status"
-                name="status"
-                value={selectedColor.status}
+                id="active"
+                name="active"
+                value={selectedColor.active?.toString()}
                 onChange={handleAddChange}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition-all"
               >
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
               </select>
             </div>
 
@@ -432,18 +438,18 @@ const Colors = () => {
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              <label htmlFor="active" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                 Status
               </label>
               <select
-                id="status"
-                name="status"
-                value={selectedColor.status}
+                id="active"
+                name="active"
+                value={selectedColor.active?.toString()}
                 onChange={handleEditChange}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition-all"
               >
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
               </select>
             </div>
             <div className="flex justify-end gap-3 mt-6">

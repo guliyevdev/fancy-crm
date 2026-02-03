@@ -65,10 +65,10 @@ const Occasions = () => {
   }, []);
 
   const exportToExcel = () => {
-    const data = occasions.map(({ id, name, status }) => ({
+    const data = occasions.map(({ id, name, active }) => ({
       ID: id,
       Name: name,
-      Status: status,
+      Status: active ? "Active" : "Inactive",
     }));
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
@@ -78,7 +78,7 @@ const Occasions = () => {
   };
 
   const openAddModal = () => {
-    setSelectedOccasion({ nameAz: "", nameEn: "", nameRu: "", status: "ACTIVE" });
+    setSelectedOccasion({ nameAz: "", nameEn: "", nameRu: "", active: true });
     setAddOpen(true);
   };
 
@@ -102,7 +102,10 @@ const Occasions = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setSelectedOccasion((prev) => ({ ...prev, [name]: value }));
+    setSelectedOccasion((prev) => ({
+      ...prev,
+      [name]: name === "active" ? value === "true" : value,
+    }));
   };
 
   const saveAdd = async (e) => {
@@ -208,14 +211,14 @@ const Occasions = () => {
                   </td>
                   <td className="px-6 py-4 text-sm whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${occasion.status === "ACTIVE"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${occasion.active
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                         }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${occasion.status === "ACTIVE" ? "bg-green-600" : "bg-yellow-600"
+                      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${occasion.active ? "bg-green-600" : "bg-yellow-600"
                         }`}></span>
-                      {occasion.status === "ACTIVE" ? "Active" : "Inactive"}
+                      {occasion.active ? "Active" : "Inactive"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-medium">
@@ -269,8 +272,8 @@ const Occasions = () => {
               onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
               disabled={pageInfo.page === 0}
               className={`p-2 rounded-lg border ${pageInfo.page === 0
-                  ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
+                : "border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
             >
               <FaChevronLeft size={16} />
@@ -282,8 +285,8 @@ const Occasions = () => {
               onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
               disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
               className={`p-2 rounded-lg border ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
-                  ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
+                : "border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
             >
               <FaChevronRight size={16} />
@@ -357,13 +360,13 @@ const Occasions = () => {
               Status
             </label>
             <select
-              name="status"
-              value={selectedOccasion?.status || "ACTIVE"}
+              name="active"
+              value={selectedOccasion?.active?.toString()}
               onChange={handleChange}
               className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             >
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
             </select>
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">

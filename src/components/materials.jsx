@@ -67,7 +67,7 @@ const Materials = () => {
   };
 
   const openAddModal = () => {
-    setSelectedMaterial({ nameAz: "", nameEn: "", nameRu: "", status: "ACTIVE", id: null });
+    setSelectedMaterial({ nameAz: "", nameEn: "", nameRu: "", active: true, id: null });
     setAddOpen(true);
   };
 
@@ -104,7 +104,10 @@ const Materials = () => {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    setSelectedMaterial((prev) => ({ ...prev, [name]: value }));
+    setSelectedMaterial((prev) => ({
+      ...prev,
+      [name]: name === "active" ? value === "true" : value,
+    }));
   };
 
   const saveEdit = async (e) => {
@@ -219,12 +222,12 @@ const Materials = () => {
                   </td>
                   <td className="px-6 py-4 text-sm whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${material.status === "ACTIVE"
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${material.active
                         ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                         }`}
                     >
-                      {material.status === "ACTIVE" ? "Active" : "Inactive"}
+                      {material.active ? "Active" : "Inactive"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-medium">
@@ -412,18 +415,18 @@ const Materials = () => {
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-sm font-medium mb-1">
+              <label htmlFor="active" className="block text-sm font-medium mb-1">
                 Status
               </label>
               <select
-                id="status"
-                name="status"
-                value={selectedMaterial.status}
+                id="active"
+                name="active"
+                value={selectedMaterial.active?.toString()}
                 onChange={handleEditChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
               >
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
               </select>
             </div>
 

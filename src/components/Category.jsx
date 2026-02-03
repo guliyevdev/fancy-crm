@@ -56,7 +56,7 @@ const Category = () => {
       nameAz: "",
       nameEn: "",
       nameRu: "",
-      status: "ACTIVE"
+      active: true
     });
     setUploadedImages([]);
     setMainImageIndex(0);
@@ -83,7 +83,10 @@ const Category = () => {
 
   const handleAddChange = (e) => {
     const { name, value } = e.target;
-    setSelectedCategory((prev) => ({ ...prev, [name]: value }));
+    setSelectedCategory((prev) => ({
+      ...prev,
+      [name]: name === "active" ? value === "true" : value,
+    }));
   };
 
   const handleImageUpload = (e) => {
@@ -117,7 +120,7 @@ const Category = () => {
         nameAz: selectedCategory.nameAz,
         nameEn: selectedCategory.nameEn,
         nameRu: selectedCategory.nameRu,
-        status: selectedCategory.status,
+        active: selectedCategory.active,
       };
 
       console.log("Kateqoriya yaradılır...", payload);
@@ -165,7 +168,10 @@ const Category = () => {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    setSelectedCategory((prev) => ({ ...prev, [name]: value }));
+    setSelectedCategory((prev) => ({
+      ...prev,
+      [name]: name === "active" ? value === "true" : value,
+    }));
   };
 
   const saveEdit = async (e) => {
@@ -178,7 +184,7 @@ const Category = () => {
         nameAz: selectedCategory.nameAz,
         nameEn: selectedCategory.nameEn,
         nameRu: selectedCategory.nameRu,
-        status: selectedCategory.status
+        active: selectedCategory.active
       };
 
       console.log("Kateqoriya yenilənir...", payload);
@@ -320,14 +326,14 @@ const Category = () => {
                   </td>
                   <td className="px-6 py-4 text-sm whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.status === "ACTIVE"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.active
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                         }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${category.status === "ACTIVE" ? "bg-green-600" : "bg-yellow-600"
+                      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${category.active ? "bg-green-600" : "bg-yellow-600"
                         }`}></span>
-                      {category.status === "ACTIVE" ? "Active" : "Inactive"}
+                      {category.active ? "Active" : "Inactive"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-medium">
@@ -381,8 +387,8 @@ const Category = () => {
               onClick={() => fetchCategories(pageInfo.page - 1, pageInfo.size, searchName)}
               disabled={pageInfo.page === 0}
               className={`p-2 rounded-lg border ${pageInfo.page === 0
-                  ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
+                : "border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
             >
               <FaChevronLeft size={16} />
@@ -394,8 +400,8 @@ const Category = () => {
               onClick={() => fetchCategories(pageInfo.page + 1, pageInfo.size, searchName)}
               disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
               className={`p-2 rounded-lg border ${(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
-                  ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                ? "border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed"
+                : "border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
             >
               <FaChevronRight size={16} />
@@ -470,18 +476,18 @@ const Category = () => {
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">
+              <label htmlFor="active" className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">
                 Status
               </label>
               <select
-                id="status"
-                name="status"
-                value={selectedCategory.status}
+                id="active"
+                name="active"
+                value={selectedCategory.active?.toString()}
                 onChange={handleAddChange}
                 className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               >
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
               </select>
             </div>
 
@@ -520,8 +526,8 @@ const Category = () => {
                         src={URL.createObjectURL(image)}
                         alt={`Preview ${index + 1}`}
                         className={`w-full h-full object-cover rounded-lg cursor-pointer border-2 transition-all ${mainImageIndex === index
-                            ? 'border-blue-500 ring-2 ring-blue-500/20'
-                            : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                          ? 'border-blue-500 ring-2 ring-blue-500/20'
+                          : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
                           }`}
                         onClick={() => setMainImageIndex(index)}
                       />
@@ -636,18 +642,18 @@ const Category = () => {
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">
+              <label htmlFor="active" className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">
                 Status
               </label>
               <select
-                id="status"
-                name="status"
-                value={selectedCategory.status}
+                id="active"
+                name="active"
+                value={selectedCategory.active?.toString()}
                 onChange={handleEditChange}
                 className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               >
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
               </select>
             </div>
 
@@ -686,8 +692,8 @@ const Category = () => {
                         src={URL.createObjectURL(image)}
                         alt={`Preview ${index + 1}`}
                         className={`w-full h-full object-cover rounded-lg cursor-pointer border-2 transition-all ${mainImageIndex === index
-                            ? 'border-blue-500 ring-2 ring-blue-500/20'
-                            : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                          ? 'border-blue-500 ring-2 ring-blue-500/20'
+                          : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
                           }`}
                         onClick={() => setMainImageIndex(index)}
                       />
