@@ -125,6 +125,31 @@ const Orders = () => {
     return statusMap[status] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
   };
 
+  const getOrderTypeLabel = (type) => {
+    const map = {
+      'RENT': 'İcarə',
+      'SALE': 'Satış'
+    };
+    return map[type] || type;
+  };
+
+  const getDeliveryTypeLabel = (type) => {
+    const map = {
+      'SELF_PICKUP': 'Ofisdən götürmə',
+      'DELIVERY': 'Çatdırılma'
+    };
+    return map[type] || type;
+  };
+
+  const getPaymentTypeLabel = (type) => {
+    const map = {
+      'CASH': 'Nəğd',
+      'ONLINE': 'Onlayn',
+      'CARD': 'Kartla'
+    };
+    return map[type] || type;
+  };
+
   if (selectedOrder) {
     return <OrderDetails order={selectedOrder} onClose={closeDetails} />;
   }
@@ -203,6 +228,9 @@ const Orders = () => {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Müştəri</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kodlar</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Növ</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Çatdırılma</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ödəniş</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ünvan</th>
                     <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Məbləğ</th>
                     <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ödənilən</th>
@@ -238,7 +266,16 @@ const Orders = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                          {order.orderType}
+                          {getOrderTypeLabel(order.orderType)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                          {getDeliveryTypeLabel(order.deliveryType)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                          {getPaymentTypeLabel(order.paymentType)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 max-w-[200px] truncate" title={order.deliveryAddress}>
+                          {order.deliveryAddress || '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
@@ -269,7 +306,7 @@ const Orders = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                      <td colSpan="11" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                         <div className="flex flex-col items-center justify-center gap-3">
                           <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-full">
                             <ShoppingBag className="w-8 h-8 text-gray-300" />
@@ -315,8 +352,8 @@ const Orders = () => {
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
                         className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${pagination.currentPage === pageNum
-                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30'
-                            : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
                           }`}
                       >
                         {pageNum + 1}
