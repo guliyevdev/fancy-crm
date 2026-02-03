@@ -32,6 +32,31 @@ const OrderDetails = () => {
   const formatDate = (dateString) =>
     dateString ? new Date(dateString).toLocaleString() : "N/A";
 
+  const getDeliveryTypeLabel = (type) => {
+    const map = {
+      'SELF_PICKUP': 'Ofisdən götürmə',
+      'DELIVERY': 'Çatdırılma'
+    };
+    return map[type] || type;
+  };
+
+  const getPaymentTypeLabel = (type) => {
+    const map = {
+      'CASH': 'Nəğd',
+      'ONLINE': 'Onlayn',
+      'CARD': 'Kartla'
+    };
+    return map[type] || type;
+  };
+
+  const getOrderTypeLabel = (type) => {
+    const map = {
+      'RENT': 'İcarə',
+      'SALE': 'Satış'
+    };
+    return map[type] || type;
+  };
+
   const fetchOrder = async () => {
     setLoading(true);
     try {
@@ -112,7 +137,7 @@ const OrderDetails = () => {
   };
 
   const handleFinishOrder = async (orderId, orderCode) => {
-    setFinishingOrderId(orderId); 
+    setFinishingOrderId(orderId);
 
     try {
       const requestData = {
@@ -242,7 +267,7 @@ const OrderDetails = () => {
             </div>
             <div>
               <span className="font-medium">Order Type:</span>
-              <p className="font-mono text-gray-600 dark:text-gray-300">{order.orderType}</p>
+              <p className="font-mono text-gray-600 dark:text-gray-300">{getOrderTypeLabel(order.orderType)}</p>
             </div>
             <div>
               <span className="font-medium">Status:</span>
@@ -308,6 +333,33 @@ const OrderDetails = () => {
               <span className="font-medium">Security Deposite:</span>
               <p className="font-mono text-gray-600 dark:text-gray-300">{formatCurrency(order.securityDeposit)}</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Delivery and Payment Information - Separate Card */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border mt-6">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b pb-2">
+          Delivery & Payment Information
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+          <div>
+            <span className="font-medium block mb-1 text-gray-500 dark:text-gray-400">Delivery Type</span>
+            <p className="font-medium text-lg text-gray-900 dark:text-white flex items-center gap-2">
+              {getDeliveryTypeLabel(order.deliveryType)}
+            </p>
+          </div>
+          <div>
+            <span className="font-medium block mb-1 text-gray-500 dark:text-gray-400">Payment Type</span>
+            <p className="font-medium text-lg text-gray-900 dark:text-white flex items-center gap-2">
+              {getPaymentTypeLabel(order.paymentType)}
+            </p>
+          </div>
+          <div className="md:col-span-1">
+            <span className="font-medium block mb-1 text-gray-500 dark:text-gray-400">Delivery Address</span>
+            <p className="font-medium text-lg text-gray-900 dark:text-white">
+              {order.deliveryAddress || '-'}
+            </p>
           </div>
         </div>
       </div>
