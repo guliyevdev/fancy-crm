@@ -14,6 +14,7 @@ const ProductAdd = () => {
     const [previews, setPreviews] = useState([]);
     const [files, setFiles] = useState([]);
     const [mainMediaIndex, setMainMediaIndex] = useState(0);
+    const [hoverMediaIndex, setHoverMediaIndex] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [createdProductId, setCreatedProductId] = useState(null);
 
@@ -55,7 +56,7 @@ const ProductAdd = () => {
         validFrom: "",
         validTo: "",
         message: "",
-        liquidPrice: 0
+        liquidPrice: 0,
     });
 
     useEffect(() => {
@@ -78,7 +79,7 @@ const ProductAdd = () => {
             lossCompanyCompensation: isRent ? 0 : isSale ? null : prev.rentCompanyPercent,
             partnerTakeBackFeePercent: 0,
             customerLatePenaltyPercent: 0,
-            liquidPrice: 0
+            liquidPrice: 0,
         }));
     }, [newProduct.productFor]);
 
@@ -113,21 +114,21 @@ const ProductAdd = () => {
 
     const handleAddChange = (e) => {
         const { name, value } = e.target;
-        setNewProduct(prev => ({ ...prev, [name]: value }));
+        setNewProduct((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleDateChange = (name, value) => {
         if (!value) {
-            setNewProduct(prev => ({ ...prev, [name]: "" }));
+            setNewProduct((prev) => ({ ...prev, [name]: "" }));
             return;
         }
 
         const date = new Date(value);
         if (!isNaN(date.getTime())) {
-            setNewProduct(prev => ({ ...prev, [name]: date.toISOString() }));
+            setNewProduct((prev) => ({ ...prev, [name]: date.toISOString() }));
         } else {
             console.error("Invalid date value:", value);
-            setNewProduct(prev => ({ ...prev, [name]: "" }));
+            setNewProduct((prev) => ({ ...prev, [name]: "" }));
         }
     };
 
@@ -140,38 +141,34 @@ const ProductAdd = () => {
 
             if (response.status === 200) {
                 const productId = response.data.data.productId;
-                console.log(response)
+                console.log(response);
                 setCreatedProductId(productId);
-                toast.success('Məhsul uğurla əlavə edildi!');
+                toast.success("Məhsul uğurla əlavə edildi!");
 
                 if (files.length > 0) {
                     try {
                         const mainMediaName = files[mainMediaIndex]?.name || "main-product-image";
-                        const uploadResponse = await productService.createImg(
-                            productId,
-                            files,
-                            mainMediaName,
-                            "az"
-                        );
+                        const hoverMediaName = files[hoverMediaIndex]?.name || "hover-product-image";
+                        const uploadResponse = await productService.createImg(productId, files, mainMediaName, hoverMediaName, "az");
 
                         if (uploadResponse.status === 200) {
                         }
                     } catch (uploadError) {
-                        console.error('Upload error:', uploadError);
-                        toast.error('Şəkillər yüklənmədi: ' + (uploadError.response?.data?.message || uploadError.message));
+                        console.error("Upload error:", uploadError);
+                        toast.error("Şəkillər yüklənmədi: " + (uploadError.response?.data?.message || uploadError.message));
                     }
                 }
 
                 // 3. Səhifəyə yönləndir
                 setTimeout(() => {
-                    navigate('/products');
+                    navigate("/products");
                 }, 2000);
             }
         } catch (error) {
             console.log("error", error.response?.data);
             if (error.response && Array.isArray(error.response.data.data)) {
                 const validationErrors = {};
-                error.response.data.data.forEach(err => {
+                error.response.data.data.forEach((err) => {
                     validationErrors[err.field] = err.message;
                 });
                 setErrors(validationErrors);
@@ -195,33 +192,30 @@ const ProductAdd = () => {
     };
 
     const handleArrayChange = (field, value) => {
-        setNewProduct(prev => ({
+        setNewProduct((prev) => ({
             ...prev,
-            [field]: Array.isArray(value) ? value : [value]
+            [field]: Array.isArray(value) ? value : [value],
         }));
-        setErrors(prev => ({ ...prev, [field]: '' }));
+        setErrors((prev) => ({ ...prev, [field]: "" }));
     };
 
     const handleFiles = (newFiles) => {
-        const validFiles = newFiles.filter(file =>
-            ['image/jpeg', 'image/png'].includes(file.type) &&
-            file.size <= 5 * 1024 * 1024
-        );
+        const validFiles = newFiles.filter((file) => ["image/jpeg", "image/png"].includes(file.type) && file.size <= 5 * 1024 * 1024);
 
         if (validFiles.length !== newFiles.length) {
-            toast.error('Yalnız JPEG/PNG və 5MB-dan kiçik fayllar qəbul olunur');
+            toast.error("Yalnız JPEG/PNG və 5MB-dan kiçik fayllar qəbul olunur");
         }
 
         if (validFiles.length > 0) {
-            setFiles(prev => [...prev, ...validFiles]);
+            setFiles((prev) => [...prev, ...validFiles]);
 
             const newPreviews = [];
-            validFiles.forEach(file => {
+            validFiles.forEach((file) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     newPreviews.push(e.target.result);
                     if (newPreviews.length === validFiles.length) {
-                        setPreviews(prev => [...prev, ...newPreviews]);
+                        setPreviews((prev) => [...prev, ...newPreviews]);
                     }
                 };
                 reader.readAsDataURL(file);
@@ -235,24 +229,30 @@ const ProductAdd = () => {
     };
 
     const renderError = (fieldName) => {
-        return errors[fieldName] ? (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors[fieldName]}</p>
-        ) : null;
+        return errors[fieldName] ? <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors[fieldName]}</p> : null;
     };
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 ">
-            <Link className="flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 border-2 rounded border-blue-500 px-5 py-2 mb-4 w-[10%] " to="/products"><ArrowLeft size={16} className="mr-2" /> Back </Link>
+        <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
+            <Link
+                className="mb-4 flex w-[10%] items-center rounded border-2 border-blue-500 px-5 py-2 text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                to="/products"
+            >
+                <ArrowLeft
+                    size={16}
+                    className="mr-2"
+                />{" "}
+                Back{" "}
+            </Link>
 
-
-
-            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-1 gap-6">
-
-
-                <form action="" onSubmit={handleSaveAndUpload} className="lg:col-span-2 space-y-6 mt-5">
-
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-white rounded-2xl dark:bg-gray-700 dark:text-white p-6 shadow-sm space-y-4 w-full">
-                            <h3 className="font-semibold text-lg mb-2">Məhsul növü</h3>
+            <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-1">
+                <form
+                    action=""
+                    onSubmit={handleSaveAndUpload}
+                    className="mt-5 space-y-6 lg:col-span-2"
+                >
+                    <div className="space-y-6 lg:col-span-2">
+                        <div className="w-full space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="mb-2 text-lg font-semibold">Məhsul növü</h3>
 
                             <div className="flex gap-4">
                                 {["FOR_SALE", "FOR_RENT"].map((type) => {
@@ -265,26 +265,34 @@ const ProductAdd = () => {
                                             type="button"
                                             onClick={() => {
                                                 if (isSelected) {
-                                                    handleArrayChange("productFor", newProduct.productFor.filter((t) => t !== type));
+                                                    handleArrayChange(
+                                                        "productFor",
+                                                        newProduct.productFor.filter((t) => t !== type),
+                                                    );
                                                 } else {
                                                     handleArrayChange("productFor", [...newProduct.productFor, type]);
                                                 }
                                             }}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-colors duration-200 font-medium
-            ${isSelected
-                                                    ? "bg-blue-600 text-white border-blue-600"
-                                                    : "bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500"
-                                                }`}
+                                            className={`flex items-center gap-2 rounded-full border px-4 py-2 font-medium transition-colors duration-200 ${
+                                                isSelected
+                                                    ? "border-blue-600 bg-blue-600 text-white"
+                                                    : "border-gray-300 bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                                            }`}
                                         >
                                             {isSelected && (
                                                 <svg
-                                                    className="w-6 h-6 text-green-500" // ✅ check işarəsi yaşıldır
+                                                    className="h-6 w-6 text-green-500" // ✅ check işarəsi yaşıldır
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"
                                                     xmlns="http://www.w3.org/2000/svg"
                                                 >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={3}
+                                                        d="M5 13l4 4L19 7"
+                                                    />
                                                 </svg>
                                             )}
                                             <span>{label}</span>
@@ -295,62 +303,58 @@ const ProductAdd = () => {
 
                             {renderError("productFor")}
                         </div>
-                        <div className="bg-white rounded-2xl dark:bg-gray-700 dark:text-white p-6 shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg">Ümumi məlumatlar</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold">Ümumi məlumatlar</h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="flex flex-col gap-1">
-                                    <label className="block text-sm font-medium">Məhsul adı (Azərbaycanca) <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-medium">
+                                        Məhsul adı (Azərbaycanca) <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         value={newProduct.nameAz}
-                                        onChange={(e) => handleAddChange({ target: { name: 'nameAz', value: e.target.value } })}
+                                        onChange={(e) => handleAddChange({ target: { name: "nameAz", value: e.target.value } })}
                                         placeholder="Məhsulun adı az"
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md ${errors.nameAz ? 'border-red-500' : ''}`}
-
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${errors.nameAz ? "border-red-500" : ""}`}
                                     />
-                                    {renderError('nameAz')}
+                                    {renderError("nameAz")}
                                 </div>
-
-
-
-
 
                                 <div className="flex flex-col gap-1">
-                                    <label className="block text-sm font-medium">Məhsul adı (İngiliscə) <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-medium">
+                                        Məhsul adı (İngiliscə) <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         value={newProduct.nameEn}
-                                        onChange={(e) => handleAddChange({ target: { name: 'nameEn', value: e.target.value } })}
+                                        onChange={(e) => handleAddChange({ target: { name: "nameEn", value: e.target.value } })}
                                         placeholder="Məhsulun adı en"
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md ${errors.nameEn ? 'border-red-500' : ''}`} // Error olduqda border rəngini dəyişir
-                                    // required
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${errors.nameEn ? "border-red-500" : ""}`} // Error olduqda border rəngini dəyişir
+                                        // required
                                     />
-                                    {renderError('nameEn')}
+                                    {renderError("nameEn")}
                                 </div>
-
-
-
 
                                 {/* Russian */}
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Məhsul adı (Rusca)</label>
                                     <input
                                         value={newProduct.nameRu}
-                                        onChange={(e) => handleAddChange({ target: { name: 'nameRu', value: e.target.value } })}
+                                        onChange={(e) => handleAddChange({ target: { name: "nameRu", value: e.target.value } })}
                                         placeholder="Məhsulun adı ru"
-                                        className="w-full border px-4 py-3 dark:bg-gray-700 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700"
                                     />
-                                    {renderError('nameRu')}
+                                    {renderError("nameRu")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Təsvir (Azərbaycanca)</label>
                                     <input
                                         value={newProduct.descAz}
-                                        onChange={(e) => handleAddChange({ target: { name: 'descAz', value: e.target.value } })}
+                                        onChange={(e) => handleAddChange({ target: { name: "descAz", value: e.target.value } })}
                                         placeholder="Təsviri burada yazın..."
-                                        className="w-full border px-4 py-3 dark:bg-gray-700 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700"
                                     />
-                                    {renderError('descAz')}
+                                    {renderError("descAz")}
                                 </div>
 
                                 {/* English Description */}
@@ -358,11 +362,11 @@ const ProductAdd = () => {
                                     <label className="block text-sm font-medium">Təsvir (İngiliscə)</label>
                                     <input
                                         value={newProduct.descEn}
-                                        onChange={(e) => handleAddChange({ target: { name: 'descEn', value: e.target.value } })}
+                                        onChange={(e) => handleAddChange({ target: { name: "descEn", value: e.target.value } })}
                                         placeholder="Type your text here..."
-                                        className="w-full border px-4 py-3 dark:bg-gray-700 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700"
                                     />
-                                    {renderError('descEn')}
+                                    {renderError("descEn")}
                                 </div>
 
                                 {/* Russian Description */}
@@ -370,129 +374,133 @@ const ProductAdd = () => {
                                     <label className="block text-sm font-medium">Təsvir (Rusca)</label>
                                     <input
                                         value={newProduct.descRu}
-                                        onChange={(e) => handleAddChange({ target: { name: 'descRu', value: e.target.value } })}
+                                        onChange={(e) => handleAddChange({ target: { name: "descRu", value: e.target.value } })}
                                         placeholder="Введите текст здесь..."
-                                        className="w-full border px-4 py-3 dark:bg-gray-700 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700"
                                     />
-                                    {renderError('descRu')}
+                                    {renderError("descRu")}
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-gray-700 dark:text-white rounded-2xl p-6 shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg">Kateqoriya və Partner</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold">Kateqoriya və Partner</h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="flex flex-col gap-1">
-                                    <label className="block text-sm font-medium">Kateqoriya <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-medium">
+                                        Kateqoriya <span className="text-red-500">*</span>
+                                    </label>
                                     <CustomSelect
                                         name="categoryId"
-                                        options={categories.map(category => ({
+                                        options={categories.map((category) => ({
                                             value: category.id,
                                             label: category.name,
-                                            name: 'categoryId'
+                                            name: "categoryId",
                                         }))}
                                         value={newProduct.categoryId}
                                         onChange={handleAddChange}
                                         placeholder="Kateqoriya seçin"
-                                        className="w-full border px-4 py-3 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3"
                                         isMulti={false}
                                     />
-                                    {renderError('categoryId')}
+                                    {renderError("categoryId")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
-                                    <label className="block text-sm font-medium">Partner <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-medium">
+                                        Partner <span className="text-red-500">*</span>
+                                    </label>
                                     <CustomSelect
                                         name="partnerId"
-                                        options={partners.map(partner => ({
+                                        options={partners.map((partner) => ({
                                             value: partner.id,
                                             label: partner.customerCode,
-                                            name: 'partnerId'
+                                            name: "partnerId",
                                         }))}
                                         value={newProduct.partnerId}
                                         onChange={handleAddChange}
                                         placeholder="Partner seçin"
-                                        className="w-full border px-4 py-3 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3"
                                         isMulti={false}
                                         onSearchChange={(val) => setPartnerSearch(val)}
                                     />
-                                    {renderError('partnerId')}
+                                    {renderError("partnerId")}
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-gray-700 dark:text-white rounded-2xl p-6 shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg">Xüsusiyyətlər</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold">Xüsusiyyətlər</h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Rənglər</label>
                                     <CustomSelect
                                         name="colorIds"
-                                        options={colors.map(color => ({
+                                        options={colors.map((color) => ({
                                             value: color.id,
                                             label: color.name,
-                                            name: 'colorIds'
+                                            name: "colorIds",
                                         }))}
                                         value={newProduct.colorIds || []}
                                         onChange={handleAddChange}
                                         placeholder="Rəng seçin"
-                                        className="w-full border px-4 py-3 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3"
                                         isMulti={true}
                                     />
-                                    {renderError('colorIds')}
+                                    {renderError("colorIds")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Materiallar</label>
                                     <CustomSelect
                                         name="materialIds"
-                                        options={materials.map(material => ({
+                                        options={materials.map((material) => ({
                                             value: material.id,
                                             label: material.name,
-                                            name: 'materialIds'
+                                            name: "materialIds",
                                         }))}
                                         value={newProduct.materialIds || []}
                                         onChange={handleAddChange}
                                         placeholder="Material seçin"
-                                        className="w-full border px-4 py-3 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3"
                                         isMulti={true}
                                     />
-                                    {renderError('materialIds')}
+                                    {renderError("materialIds")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Occasions</label>
                                     <CustomSelect
                                         name="occasionIds"
-                                        options={occasions.map(occasion => ({
+                                        options={occasions.map((occasion) => ({
                                             value: occasion.id,
                                             label: occasion.name,
-                                            name: 'occasionIds'
+                                            name: "occasionIds",
                                         }))}
                                         value={newProduct.occasionIds || []}
                                         onChange={handleAddChange}
                                         placeholder="Münasibət seçin"
-                                        className="w-full border px-4 py-3 rounded-md"
+                                        className="w-full rounded-md border px-4 py-3"
                                         isMulti={true}
                                     />
-                                    {renderError('occasionIds')}
+                                    {renderError("occasionIds")}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-gray-700 dark:text-white rounded-2xl p-6 shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg">Məhsul detalları</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold">Məhsul detalları</h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Karat</label>
                                     <input
                                         type="number"
                                         value={newProduct.carat}
-                                        onChange={(e) => handleAddChange({ target: { name: 'carat', value: e.target.value } })}
-                                        className="w-full border px-4 py-3 dark:bg-gray-700 dark:text-white rounded-md"
+                                        onChange={(e) => handleAddChange({ target: { name: "carat", value: e.target.value } })}
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
                                     />
-                                    {renderError('carat')}
+                                    {renderError("carat")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -500,10 +508,10 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.quantity}
-                                        onChange={(e) => handleAddChange({ target: { name: 'quantity', value: e.target.value } })}
-                                        className="w-full border dark:bg-gray-700 dark:text-white px-4 py-3 rounded-md"
+                                        onChange={(e) => handleAddChange({ target: { name: "quantity", value: e.target.value } })}
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
                                     />
-                                    {renderError('quantity')}
+                                    {renderError("quantity")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -511,10 +519,10 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.weight}
-                                        onChange={(e) => handleAddChange({ target: { name: 'weight', value: e.target.value } })}
-                                        className="w-full border dark:bg-gray-700 dark:text-white px-4 py-3 rounded-md"
+                                        onChange={(e) => handleAddChange({ target: { name: "weight", value: e.target.value } })}
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
                                     />
-                                    {renderError('weight')}
+                                    {renderError("weight")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -522,36 +530,29 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.size}
-                                        onChange={(e) => handleAddChange({ target: { name: 'size', value: e.target.value } })}
-                                        className="w-full border dark:bg-gray-700 dark:text-white px-4 py-3 rounded-md"
+                                        onChange={(e) => handleAddChange({ target: { name: "size", value: e.target.value } })}
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
                                     />
-                                    {renderError('size')}
+                                    {renderError("size")}
                                 </div>
                             </div>
                         </div>
 
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold">Qiymətlər</h3>
 
-
-
-                        <div className="bg-white rounded-2xl dark:bg-gray-700 dark:text-white p-6 shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg">Qiymətlər</h3>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Satış qiyməti</label>
                                     <input
                                         type="number"
                                         value={newProduct.salePrice}
-                                        onChange={(e) => handleAddChange({ target: { name: 'salePrice', value: e.target.value } })}
-                                        className="w-full border dark:bg-gray-700 dark:text-white px-4 py-3 rounded-md"
+                                        onChange={(e) => handleAddChange({ target: { name: "salePrice", value: e.target.value } })}
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
 
-                                    // disabled={newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE")}
-
-
-
-
+                                        // disabled={newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE")}
                                     />
-                                    {renderError('salePrice')}
+                                    {renderError("salePrice")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -559,60 +560,44 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.rentPricePerDay}
-                                        onChange={(e) => handleAddChange({ target: { name: 'rentPricePerDay', value: e.target.value } })}
+                                        onChange={(e) => handleAddChange({ target: { name: "rentPricePerDay", value: e.target.value } })}
                                         // className="w-full border px-4 py-3 dark:bg-gray-700 dark:text-white rounded-md"
 
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? "cursor-not-allowed bg-gray-300 dark:bg-gray-600" : ""} `}
                                         disabled={newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT")}
-
                                     />
-                                    {renderError('rentPricePerDay')}
+                                    {renderError("rentPricePerDay")}
                                 </div>
-
-
-
-
 
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Liquit qiyməti</label>
                                     <input
                                         type="number"
                                         value={newProduct.liquidPrice}
-                                        onChange={(e) => handleAddChange({ target: { name: 'liquidPrice', value: e.target.value } })}
+                                        onChange={(e) => handleAddChange({ target: { name: "liquidPrice", value: e.target.value } })}
                                         // className="w-full border px-4 py-3 dark:bg-gray-700 dark:text-white rounded-md"
 
-                                        className="w-full border dark:bg-gray-700 dark:text-white px-4 py-3 rounded-md"
-
-
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
                                     />
-                                    {renderError('liquidPrice')}
+                                    {renderError("liquidPrice")}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6 shadow-sm dark:bg-gray-700 dark:text-white space-y-4">
-                            <h3 className="font-semibold text-lg">Faizlər</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold">Faizlər</h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Şirkət satış faizi (%)</label>
                                     <input
                                         type="number"
                                         value={newProduct.saleCompanyPercent}
-                                        onChange={(e) => handleAddChange({ target: { name: 'saleCompanyPercent', value: e.target.value } })}
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
+                                        onChange={(e) => handleAddChange({ target: { name: "saleCompanyPercent", value: e.target.value } })}
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE") ? "cursor-not-allowed bg-gray-300 dark:bg-gray-600" : ""} `}
                                         disabled={newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE")}
-
-
-
                                     />
-                                    {renderError('saleCompanyPercent')}
+                                    {renderError("saleCompanyPercent")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -620,17 +605,11 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.salePartnerPercent}
-                                        onChange={(e) => handleAddChange({ target: { name: 'salePartnerPercent', value: e.target.value } })}
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
+                                        onChange={(e) => handleAddChange({ target: { name: "salePartnerPercent", value: e.target.value } })}
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE") ? "cursor-not-allowed bg-gray-300 dark:bg-gray-600" : ""} `}
                                         disabled={newProduct.productFor.includes("FOR_RENT") && !newProduct.productFor.includes("FOR_SALE")}
-
-
-
                                     />
-                                    {renderError('salePartnerPercent')}
+                                    {renderError("salePartnerPercent")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -638,15 +617,11 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.rentCompanyPercent}
-                                        onChange={(e) => handleAddChange({ target: { name: 'rentCompanyPercent', value: e.target.value } })}
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
+                                        onChange={(e) => handleAddChange({ target: { name: "rentCompanyPercent", value: e.target.value } })}
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? "cursor-not-allowed bg-gray-300 dark:bg-gray-600" : ""} `}
                                         disabled={newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT")}
-
                                     />
-                                    {renderError('rentCompanyPercent')}
+                                    {renderError("rentCompanyPercent")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -654,15 +629,11 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.rentPartnerPercent}
-                                        onChange={(e) => handleAddChange({ target: { name: 'rentPartnerPercent', value: e.target.value } })}
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
+                                        onChange={(e) => handleAddChange({ target: { name: "rentPartnerPercent", value: e.target.value } })}
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? "cursor-not-allowed bg-gray-300 dark:bg-gray-600" : ""} `}
                                         disabled={newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT")}
-
                                     />
-                                    {renderError('rentPartnerPercent')}
+                                    {renderError("rentPartnerPercent")}
                                 </div>
 
                                 {/* <div className="flex flex-col gap-1">
@@ -686,37 +657,29 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.customerLatePenaltyPercent}
-                                        onChange={(e) => handleAddChange({ target: { name: 'customerLatePenaltyPercent', value: e.target.value } })}
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
+                                        onChange={(e) => handleAddChange({ target: { name: "customerLatePenaltyPercent", value: e.target.value } })}
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? "cursor-not-allowed bg-gray-300 dark:bg-gray-600" : ""} `}
                                         disabled={newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT")}
-
                                     />
-                                    {renderError('customerLatePenaltyPercent')}
+                                    {renderError("customerLatePenaltyPercent")}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6 dark:bg-gray-700 dark:text-white shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg">Kompesasiyalar</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold">Kompesasiyalar</h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Zərər kompesasiyası</label>
                                     <input
                                         type="number"
                                         value={newProduct.damageCompanyCompensation}
-                                        onChange={(e) => handleAddChange({ target: { name: 'damageCompanyCompensation', value: e.target.value } })}
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
+                                        onChange={(e) => handleAddChange({ target: { name: "damageCompanyCompensation", value: e.target.value } })}
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? "cursor-not-allowed bg-gray-300 dark:bg-gray-600" : ""} `}
                                         disabled={newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT")}
-
                                     />
-                                    {renderError('damageCompanyCompensation')}
+                                    {renderError("damageCompanyCompensation")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -724,15 +687,11 @@ const ProductAdd = () => {
                                     <input
                                         type="number"
                                         value={newProduct.lossCompanyCompensation}
-                                        onChange={(e) => handleAddChange({ target: { name: 'lossCompanyCompensation', value: e.target.value } })}
-                                        className={`w-full border px-4 py-3 dark:bg-gray-700 rounded-md 
-        
-        ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? 'cursor-not-allowed bg-gray-300 dark:bg-gray-600' : ''}
-    `}
+                                        onChange={(e) => handleAddChange({ target: { name: "lossCompanyCompensation", value: e.target.value } })}
+                                        className={`w-full rounded-md border px-4 py-3 dark:bg-gray-700 ${newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT") ? "cursor-not-allowed bg-gray-300 dark:bg-gray-600" : ""} `}
                                         disabled={newProduct.productFor.includes("FOR_SALE") && !newProduct.productFor.includes("FOR_RENT")}
-
                                     />
-                                    {renderError('lossCompanyCompensation')}
+                                    {renderError("lossCompanyCompensation")}
                                 </div>
 
                                 {/* <div className="flex flex-col gap-1">
@@ -748,18 +707,18 @@ const ProductAdd = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6 shadow-sm dark:bg-gray-700 dark:text-white space-y-4">
-                            <h3 className="font-semibold text-lg dark:bg-gray-700 dark:text-white">Tarixlər</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold dark:bg-gray-700 dark:text-white">Tarixlər</h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="flex flex-col gap-1">
                                     <label className="block text-sm font-medium">Etibarlıdır (başlanğıc)</label>
                                     <input
                                         type="datetime-local"
                                         onChange={(e) => handleDateChange("validFrom", e.target.value)}
-                                        className="w-full border px-4 py-3 dark:bg-gray-700 dark:text-white rounded-md"
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
                                     />
-                                    {renderError('validFrom')}
+                                    {renderError("validFrom")}
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -767,73 +726,98 @@ const ProductAdd = () => {
                                     <input
                                         type="datetime-local"
                                         onChange={(e) => handleDateChange("validTo", e.target.value)}
-                                        className="w-full border px-4 py-3 dark:bg-gray-700 dark:text-white rounded-md"
+                                        className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
                                     />
-                                    {renderError('validTo')}
+                                    {renderError("validTo")}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl dark:bg-gray-700 dark:text-white p-6 shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg">Mesaj</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
+                            <h3 className="text-lg font-semibold">Mesaj</h3>
 
                             <div className="flex flex-col gap-1">
                                 <label className="block text-sm font-medium">Xüsusi mesaj</label>
                                 <input
                                     value={newProduct.message}
-                                    onChange={(e) => handleAddChange({ target: { name: 'message', value: e.target.value } })}
-                                    className="w-full border px-4 py-3 dark:bg-gray-700 dark:text-white rounded-md"
+                                    onChange={(e) => handleAddChange({ target: { name: "message", value: e.target.value } })}
+                                    className="w-full rounded-md border px-4 py-3 dark:bg-gray-700 dark:text-white"
                                 />
                             </div>
-                            {renderError('message')}
+                            {renderError("message")}
                         </div>
-                        <div className="bg-white rounded-2xl dark:bg-gray-700 dark:text-white p-6 shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg">Mesaj</h3>
+                        <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
 
-                            <div className="bg-white rounded-2xl dark:bg-gray-700 dark:text-white p-6 shadow-sm space-y-4">
-                                <h3 className="font-semibold text-lg">Şəkillər</h3>
+                            <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
 
-                                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
-                                    <h3 className="font-semibold text-lg mb-4">Şəkillər</h3>
+                                <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-800">
+                                    <h3 className="mb-4 text-lg font-semibold">Şəkillər</h3>
 
                                     <div
                                         onDrop={handleDrop}
                                         onDragOver={handleDragOver}
-                                        className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 flex items-center justify-center h-44 bg-gray-50 mb-4 dark:bg-gray-800 dark:text-white cursor-pointer"
+                                        className="relative mb-4 flex h-44 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 dark:bg-gray-800 dark:text-white"
                                         onClick={() => fileInputRef.current?.click()}
                                     >
                                         <div className="text-center text-gray-400 dark:bg-gray-800 dark:text-white">
-                                            <svg className="mx-auto mb-2 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M7 7V4a2 2 0 012-2h6a2 2 0 012 2v3" />
+                                            <svg
+                                                className="mx-auto mb-2 h-12 w-12"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="1.5"
+                                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M7 7V4a2 2 0 012-2h6a2 2 0 012 2v3"
+                                                />
                                             </svg>
                                             <p className="text-sm">Şəkilləri bura sürükləyin və ya klikləyin</p>
-                                            <p className="text-xs mt-1 text-gray-300">Yalnız *.png, *.jpg və *.jpeg qəbul olunur (max 5MB)</p>
+                                            <p className="mt-1 text-xs text-gray-300">Yalnız *.png, *.jpg və *.jpeg qəbul olunur (max 5MB)</p>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                    <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
                                         {previews.map((preview, index) => (
-                                            <div key={index} className="relative group">
+                                            <div
+                                                key={index}
+                                                className="group relative"
+                                            >
                                                 <img
                                                     src={preview}
                                                     alt={`Preview ${index}`}
-                                                    className={`w-full h-32 object-cover rounded-md border-2 ${mainMediaIndex === index ? 'border-blue-500' : 'border-transparent'
-                                                        }`}
+                                                    className={`h-32 w-full rounded-md border-2 object-cover ${
+                                                        mainMediaIndex === index ? "border-blue-500" : hoverMediaIndex === index ? "border-green-500" : "border-transparent"
+                                                    }`}
                                                 />
-                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setMainMediaIndex(index);
-                                                        }}
-                                                        className={`px-2 py-1 text-xs rounded ${mainMediaIndex === index
-                                                            ? 'bg-blue-500 text-white'
-                                                            : 'bg-white text-gray-800'
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <div className="mb-2 flex gap-1">
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setMainMediaIndex(index);
+                                                            }}
+                                                            className={`rounded px-2 py-1 text-[10px] ${
+                                                                mainMediaIndex === index ? "bg-blue-500 text-white" : "bg-white text-gray-800"
                                                             }`}
-                                                    >
-                                                        {mainMediaIndex === index ? 'Əsas şəkil' : 'Əsas et'}
-                                                    </button>
+                                                        >
+                                                            {mainMediaIndex === index ? "Əsas şəkil" : "Əsas et"}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setHoverMediaIndex(index);
+                                                            }}
+                                                            className={`rounded px-2 py-1 text-[10px] ${
+                                                                hoverMediaIndex === index ? "bg-green-500 text-white" : "bg-white text-gray-800"
+                                                            }`}
+                                                        >
+                                                            {hoverMediaIndex === index ? "Hover şəkil" : "Hover et"}
+                                                        </button>
+                                                    </div>
                                                     <button
                                                         type="button"
                                                         onClick={(e) => {
@@ -844,13 +828,22 @@ const ProductAdd = () => {
                                                             newPreviews.splice(index, 1);
                                                             setFiles(newFiles);
                                                             setPreviews(newPreviews);
+
+                                                            // Handle mainMediaIndex
                                                             if (mainMediaIndex === index) {
                                                                 setMainMediaIndex(0);
                                                             } else if (mainMediaIndex > index) {
                                                                 setMainMediaIndex(mainMediaIndex - 1);
                                                             }
+
+                                                            // Handle hoverMediaIndex
+                                                            if (hoverMediaIndex === index) {
+                                                                setHoverMediaIndex(0);
+                                                            } else if (hoverMediaIndex > index) {
+                                                                setHoverMediaIndex(hoverMediaIndex - 1);
+                                                            }
                                                         }}
-                                                        className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded"
+                                                        className="rounded bg-red-500 px-2 py-1 text-[10px] text-white"
                                                     >
                                                         Sil
                                                     </button>
@@ -872,7 +865,7 @@ const ProductAdd = () => {
                                         <button
                                             type="button"
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="px-3 py-2 bg-white border rounded-md text-sm shadow-sm"
+                                            className="rounded-md border bg-white px-3 py-2 text-sm shadow-sm"
                                         >
                                             Fayl seç ({files.length})
                                         </button>
@@ -882,8 +875,9 @@ const ProductAdd = () => {
                                                 setFiles([]);
                                                 setPreviews([]);
                                                 setMainMediaIndex(0);
+                                                setHoverMediaIndex(0);
                                             }}
-                                            className="px-3 py-2 bg-red-50 text-red-600 border rounded-md text-sm"
+                                            className="rounded-md border bg-red-50 px-3 py-2 text-sm text-red-600"
                                             disabled={files.length === 0}
                                         >
                                             Hamısını sil
@@ -892,10 +886,10 @@ const ProductAdd = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-2xl dark:bg-gray-700 dark:text-white p-6 shadow-sm flex justify-end">
+                        <div className="flex justify-end rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-700 dark:text-white">
                             <button
                                 type="submit"
-                                className="px-6 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700"
+                                className="rounded-md bg-indigo-600 px-6 py-2 text-white shadow hover:bg-indigo-700"
                             >
                                 Məhsulu Yadda Saxla
                             </button>
@@ -908,4 +902,3 @@ const ProductAdd = () => {
 };
 
 export default ProductAdd;
-

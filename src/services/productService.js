@@ -27,7 +27,7 @@ const productService = {
     axiosInstance.post(`${BASE_URL}/upd-product`, productUpdateRequestDTO),
   delete: (id) => axiosInstance.delete(`${BASE_URL}/${id}`),
 
-  createImg: (productId, images, mainMediaName = "main-image", acceptLanguage = "az") => {
+  createImg: (productId, images, mainMediaName = "main-image", hoverMediaName = "hover-image", acceptLanguage = "az") => {
     const formData = new FormData();
 
 
@@ -40,6 +40,7 @@ const productService = {
         "Content-Type": "multipart/form-data",
         "productId": productId,
         "mainMedia": mainMediaName,
+        "hoverMedia": hoverMediaName,
         "Accept-Language": acceptLanguage,
       },
     });
